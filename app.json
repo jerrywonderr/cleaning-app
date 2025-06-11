@@ -1,16 +1,16 @@
 {
   "expo": {
-    "name": "cleaning-app",
-    "slug": "cleaning-app",
+    "name": "Rehoboth",
+    "slug": "rehoboth",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "cleaningapp",
+    "scheme": "rehoboth",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.jerrywonder.cleaning-app"
+      "bundleIdentifier": "com.rehoboth.app"
     },
     "android": {
       "adaptiveIcon": {
@@ -32,7 +32,7 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#000000"
         }
       ]
     ],
