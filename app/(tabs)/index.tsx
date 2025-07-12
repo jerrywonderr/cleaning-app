@@ -1,11 +1,11 @@
+import { Box } from "@/lib/components/ui/box";
+import { Button, ButtonText } from "@/lib/components/ui/button";
+import { Text } from "@/lib/components/ui/text/index";
 import { Image } from "expo-image";
-import { Platform, StyleSheet, TouchableOpacity } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 
 import { HelloWave } from "@/lib/components/HelloWave";
 import ParallaxScrollView from "@/lib/components/ParallaxScrollView";
-import { ThemedText } from "@/lib/components/ThemedText";
-import { ThemedView } from "@/lib/components/ThemedView";
-import { Text } from "@/lib/components/ui/text";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 
 export default function HomeScreen() {
@@ -21,51 +21,56 @@ export default function HomeScreen() {
         />
       }
     >
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
+      <Box style={styles.titleContainer}>
+        <Text size="3xl" bold className="text-typography900">
+          Welcome!
+        </Text>
         <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit{" "}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText>{" "}
-          to see changes. Press{" "}
-          <ThemedText type="defaultSemiBold">
+      </Box>
+      <Box style={styles.stepContainer}>
+        <Text size="xl" bold className="text-typography800">
+          Step 1: Try it
+        </Text>
+        <Text className="text-typography700">
+          Edit <Text bold>app/(tabs)/index.tsx</Text> to see changes. Press{" "}
+          <Text bold>
             {Platform.select({
               ios: "cmd + d",
               android: "cmd + m",
               web: "F12",
             })}
-          </ThemedText>{" "}
+          </Text>{" "}
           to open developer tools.
-        </ThemedText>
-        <TouchableOpacity
-          className="bg-red-500 p-2 rounded-md"
+        </Text>
+        <Button
+          size="sm"
+          variant="solid"
+          action="negative"
           onPress={logout}
+          className="mt-2"
         >
-          <Text className="text-white">Logout</Text>
-        </TouchableOpacity>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
+          <ButtonText>Logout</ButtonText>
+        </Button>
+      </Box>
+      <Box style={styles.stepContainer}>
+        <Text size="xl" bold className="text-typography800">
+          Step 2: Explore
+        </Text>
+        <Text className="text-typography700">
           {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
+        </Text>
+      </Box>
+      <Box style={styles.stepContainer}>
+        <Text size="xl" bold className="text-typography800">
+          Step 3: Get a fresh start
+        </Text>
+        <Text className="text-typography700">
           {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">
-            npm run reset-project
-          </ThemedText>{" "}
-          to get a fresh <ThemedText type="defaultSemiBold">app</ThemedText>{" "}
-          directory. This will move the current{" "}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{" "}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
+          <Text bold>npm run reset-project</Text> to get a fresh{" "}
+          <Text bold>app</Text> directory. This will move the current{" "}
+          <Text bold>app</Text> to <Text bold>app-example</Text>.
+        </Text>
+      </Box>
     </ParallaxScrollView>
   );
 }

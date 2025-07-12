@@ -1,3 +1,5 @@
+import "@/global.css";
+import { GluestackUIProvider } from "@/lib/components/ui/gluestack-ui-provider";
 import {
   DarkTheme,
   DefaultTheme,
@@ -11,8 +13,6 @@ import { AuthGuard } from "../lib/components/AuthGuard";
 
 import { useColorScheme } from "@/lib/hooks/useColorScheme";
 
-import "../global.css";
-
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
@@ -25,15 +25,19 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthGuard>
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-        <StatusBar style="auto" />
-      </ThemeProvider>
-    </AuthGuard>
+    <GluestackUIProvider mode={colorScheme === "dark" ? "dark" : "light"}>
+      <AuthGuard>
+        <ThemeProvider
+          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+        >
+          <Stack>
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+          <StatusBar style="auto" />
+        </ThemeProvider>
+      </AuthGuard>
+    </GluestackUIProvider>
   );
 }

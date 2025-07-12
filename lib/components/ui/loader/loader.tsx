@@ -1,4 +1,4 @@
-import { Text } from "@/components/ui/Text";
+import { Text } from "@/lib/components/ui/text/index";
 import { BlurView } from "expo-blur";
 import { useEffect, useRef } from "react";
 import { Animated, Platform, View } from "react-native";
