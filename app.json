@@ -15,9 +15,10 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#000000"
+        "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.rehoboth.app"
     },
     "web": {
       "bundler": "metro",
@@ -34,8 +35,7 @@
           "resizeMode": "contain",
           "backgroundColor": "#000000"
         }
-      ],
-      "expo-web-browser"
+      ]
     ],
     "experiments": {
       "typedRoutes": true
