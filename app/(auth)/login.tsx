@@ -1,45 +1,88 @@
-import { router } from "expo-router";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useAuthStore } from "../../lib/store/useAuthStore";
+import { PrimaryButton } from "@/lib/components/custom-buttons";
+import { PasswordField } from "@/lib/components/form/PasswordField";
+import { TextField } from "@/lib/components/form/TextField";
+import Link from "@/lib/components/Link";
+import FixedScreen from "@/lib/components/screens/FixedScreen";
+import { Box } from "@/lib/components/ui/box";
+import { Text } from "@/lib/components/ui/text";
+import { VStack } from "@/lib/components/ui/vstack";
+import { useAuthStore } from "@/lib/store/useAuthStore";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useRouter } from "expo-router";
+import { FormProvider, useForm } from "react-hook-form";
+import * as yup from "yup";
 
-export default function LoginScreen() {
-  const { login } = useAuthStore();
-  // const { signup } = useAuthStore();
+const schema = yup.object().shape({
+  email: yup
+    .string()
+    .email("Enter a valid email address")
+    .required("Email is required"),
+  password: yup.string().required("Password is required"),
+});
+
+const Login = () => {
+  const { login, logout } = useAuthStore();
+  const router = useRouter();
+
+  const methods = useForm({
+    mode: "all",
+    resolver: yupResolver(schema),
+  });
+
+  const handleLogin = async () => {
+    try {
+      console.log("Login");
+      const response = await login();
+      console.log("Login response:", response);
+      router.push("/(tabs)"); // Redirect after login
+    } catch (err) {
+      console.log("Login error:", err);
+      methods.resetField("password");
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+    router.replace("/login"); // Or any other home route
+  };
 
   return (
-    <View className="flex gap-3" style={styles.container}>
-      <Text style={styles.title}>Welcome</Text>
-      <TouchableOpacity style={styles.button} onPress={login}>
-        <Text style={styles.buttonText}>Login</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={() => router.push("/(auth)/signup")}>
-        <Text style={styles.buttonText}>Sign Up</Text>
-      </TouchableOpacity>
-    </View>
-  );
-}
+    <FixedScreen addTopInset={false}>
+      <Text className="text-2xl font-bold mt-8 mb-6 text-left">Log in</Text>
+      <FormProvider {...methods}>
+        <VStack className="flex-1 gap-4">
+          <TextField name="email" label="Email" placeholder="your@email.com" />
+          <Box>
+            <PasswordField
+              name="password"
+              label="Password"
+              placeholder="Enter your password"
+            />
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-  },
-  button: {
-    backgroundColor: "#007AFF",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  buttonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-});
+            <Link className="ml-auto mt-1" href="/forgot-password">
+              Forgot password?
+            </Link>
+          </Box>
+
+          <VStack className="gap-4 mt-4">
+            <PrimaryButton
+              onPress={methods.handleSubmit(handleLogin)}
+              isLoading={methods.formState.isSubmitting}
+              disabled={!methods.formState.isValid}
+            >
+              Confirm
+            </PrimaryButton>
+
+            <Text className="text-center font-medium">
+              Already have an account? <Link href="/signup">Sign up</Link>
+            </Text>
+
+            {/* <SecondaryButton onPress={handleLogout}>Back Home</SecondaryButton> */}
+          </VStack>
+        </VStack>
+      </FormProvider>
+    </FixedScreen>
+  );
+};
+
+export default Login;

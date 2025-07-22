@@ -1,12 +1,14 @@
+import { PrimaryButton } from "@/lib/components/custom-buttons";
 import { PasswordField } from "@/lib/components/form/PasswordField";
 import { TextField } from "@/lib/components/form/TextField";
-import { Box } from "@/lib/components/ui/box";
-import { Button, ButtonText } from "@/lib/components/ui/button";
+import Link from "@/lib/components/Link";
+import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
 import { Text } from "@/lib/components/ui/text";
+import { VStack } from "@/lib/components/ui/vstack";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useRouter } from "expo-router";
 import { FormProvider, useForm } from "react-hook-form";
-import { KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
 import * as yup from "yup";
 
 const schema = yup.object().shape({
@@ -35,6 +37,7 @@ const schema = yup.object().shape({
 
 const Signup = () => {
   const { signup } = useAuthStore();
+  const router = useRouter();
   const methods = useForm({ mode: "all", resolver: yupResolver(schema) });
 
   const handleSignUp = async () => {
@@ -51,74 +54,52 @@ const Signup = () => {
   };
 
   return (
-    <FormProvider {...methods}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        style={{ flex: 1 }}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
-      >
-        <View style={{ flex: 1, padding: 24 }}>
-          <ScrollView
-            contentContainerStyle={{ flexGrow: 1 }}
-            keyboardShouldPersistTaps="handled"
-          >
-            <Box className="w-full max-w-lg mx-auto py-8">
-              <Text className="text-2xl font-bold mb-8 text-left">
-                Create account
-              </Text>
-              <View className="flex gap-4">
-                <TextField
-                  name="firstName"
-                  label="First name"
-                  placeholder="Kay"
-                />
-                <TextField
-                  name="lastName"
-                  label="Last name"
-                  placeholder="Adegboyega"
-                />
-                <TextField
-                  name="phone"
-                  label="Phone"
-                  placeholder="+444874875048"
-                />
-                <TextField
-                  name="dob"
-                  label="DOB"
-                  placeholder="08/08/72"
-                />
-                <TextField
-                  name="email"
-                  label="Email"
-                  placeholder="Sirphil987@gmail.com"
-                />
-                <PasswordField
-                  name="password"
-                  label="Password"
-                  placeholder="Enter your password"
-                />
-                <PasswordField
-                  name="cPassword"
-                  label="Confirm Password"
-                  placeholder="Confirm your password"
-                />
-              </View>
-            </Box>
-          </ScrollView>
+    <ScrollableScreen addTopInset={false}>
+      <Text className="text-2xl font-bold mt-8 mb-6 text-left">
+        Create account
+      </Text>
+      <FormProvider {...methods}>
+        <VStack className="flex-1 gap-4">
+          <TextField name="firstName" label="First name" placeholder="Kay" />
+          <TextField
+            name="lastName"
+            label="Last name"
+            placeholder="Adegboyega"
+          />
+          <TextField name="phone" label="Phone" placeholder="+444874875048" />
+          <TextField name="dob" label="DOB" placeholder="08/08/72" />
+          <TextField
+            name="email"
+            label="Email"
+            placeholder="Sirphil987@gmail.com"
+          />
+          <PasswordField
+            name="password"
+            label="Password"
+            placeholder="Enter your password"
+          />
+          <PasswordField
+            name="cPassword"
+            label="Confirm Password"
+            placeholder="Confirm your password"
+          />
 
-          <View className="w-full max-w-lg mx-auto pb-6">
-            <Button
-              action="primary"
-              size="lg"
-              className="w-full p-4 rounded-3xl justify-center items-center"
+          <VStack className="gap-4 mt-4">
+            <PrimaryButton
               onPress={methods.handleSubmit(handleSignUp)}
+              isLoading={methods.formState.isSubmitting}
+              disabled={!methods.formState.isValid}
             >
-              <ButtonText>Confirm</ButtonText>
-            </Button>
-          </View>
-        </View>
-      </KeyboardAvoidingView>
-    </FormProvider>
+              Confirm
+            </PrimaryButton>
+
+            <Text className="text-center font-medium">
+              Already have an account? <Link href="/login">Log in</Link>
+            </Text>
+          </VStack>
+        </VStack>
+      </FormProvider>
+    </ScrollableScreen>
   );
 };
 
