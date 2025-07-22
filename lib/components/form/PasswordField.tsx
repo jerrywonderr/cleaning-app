@@ -1,4 +1,4 @@
-import { Eye, EyeOff } from "lucide-react-native";
+import { AlertCircleIcon, Eye, EyeOff } from "lucide-react-native";
 import { useState } from "react";
 import { useController, useFormContext } from "react-hook-form";
 import {
@@ -42,10 +42,10 @@ export function PasswordField({
   } = useController({ name, control });
 
   return (
-    <FormControl>
+    <FormControl isInvalid={!!error}>
       {label && (
         <FormControlLabel>
-          <FormControlLabelText className="text-lg font-semibold">
+          <FormControlLabelText className="text-lg font-medium">
             {label}
           </FormControlLabelText>
         </FormControlLabel>
@@ -74,7 +74,7 @@ export function PasswordField({
         </FormControlHelper>
       )}
       <FormControlError>
-        <FormControlErrorIcon />
+        <FormControlErrorIcon as={AlertCircleIcon} />
         <FormControlErrorText>{error?.message}</FormControlErrorText>
       </FormControlError>
     </FormControl>

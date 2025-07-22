@@ -10,6 +10,7 @@ import {
   FormControlLabel,
   FormControlLabelText,
 } from "../ui/form-control";
+import { AlertCircleIcon } from "../ui/icon";
 import { Input, InputField } from "../ui/input";
 
 interface TextFieldProps
@@ -38,10 +39,10 @@ export function TextField({
   } = useController({ name, control });
 
   return (
-    <FormControl>
+    <FormControl isInvalid={!!error}>
       {label && (
         <FormControlLabel>
-          <FormControlLabelText className="text-lg font-semibold">
+          <FormControlLabelText className="text-lg font-medium">
             {label}
           </FormControlLabelText>
         </FormControlLabel>
@@ -61,7 +62,7 @@ export function TextField({
         </FormControlHelper>
       )}
       <FormControlError>
-        <FormControlErrorIcon />
+        <FormControlErrorIcon as={AlertCircleIcon} />
         <FormControlErrorText>{error?.message}</FormControlErrorText>
       </FormControlError>
     </FormControl>
