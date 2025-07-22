@@ -35,52 +35,48 @@ export function TextField({
   } = useController({ name, control });
 
   return (
-    <View className="flex flex-col gap-1.5 w-full" style={containerStyle}>
+    <View className="w-full" style={containerStyle}>
       {label && (
-        <Text className="text-sm text-neutral-900 dark:text-neutral-100 text-right">
+        <Text className="mb-1 text-sm text-neutral-900 dark:text-neutral-100 text-right">
           {label}
         </Text>
       )}
-      <View className="w-full">
-        <View
+
+      <View
+        className={cn(
+          "bg-white dark:bg-neutral-900 border rounded-xl px-3",
+          error ? "border-red-500" : "border-black",
+          className
+        )}
+      >
+        <TextInput
           className={cn(
-            "bg-white dark:bg-neutral-900 rounded-lg border border-black",
-            error ? "border-red-500" : "border-black",
-            className
+            "h-12 px-4 text-neutral-900 dark:text-neutral-100 text-right font-inter-black text-[13px]",
+            textClassName
           )}
-        >
-          <TextInput
-            className={cn(
-              "h-12 px-4 text-neutral-900 dark:text-neutral-100 text-right font-inter-black text-[13px]",
-              textClassName
-            )}
-            style={{
-              ...Platform.select({
-                ios: {
-                  lineHeight: 20,
-                },
-                android: {
-                  lineHeight: 16,
-                  includeFontPadding: false,
-                },
-              }),
-            }}
-            placeholderTextColor="#676767"
-            value={field.value}
-            onChangeText={field.onChange}
-            onBlur={field.onBlur}
-            {...props}
-          />
-        </View>
+          style={{
+            ...Platform.select({
+              ios: { lineHeight: 20 },
+              android: { lineHeight: 16, includeFontPadding: false },
+            }),
+          }}
+          placeholderTextColor="#676767"
+          value={field.value}
+          onChangeText={field.onChange}
+          onBlur={field.onBlur}
+          {...props}
+        />
       </View>
-      {error && (
-        <Text className="text-xs text-red-500 text-right">{error.message}</Text>
-      )}
-      {helperText && (
-        <Text className="text-xs text-neutral-500 dark:text-neutral-400 text-right">
+
+      {error ? (
+        <Text className="mt-0.5 px-1 text-xs text-red-500 text-right">
+          {error.message}
+        </Text>
+      ) : helperText ? (
+        <Text className="mt-0.5 px-1 text-xs text-neutral-500 dark:text-neutral-400 text-right">
           {helperText}
         </Text>
-      )}
+      ) : null}
     </View>
   );
 }
