@@ -1,95 +1,107 @@
+import { PasswordField } from "@/lib/components/form/PasswordField";
+import { TextField } from "@/lib/components/form/TextField";
 import { Box } from "@/lib/components/ui/box";
 import { Button, ButtonText } from "@/lib/components/ui/button";
-import { Text } from "@/lib/components/ui/text/index";
-import { Image } from "expo-image";
-import { Platform, StyleSheet } from "react-native";
-
-import { HelloWave } from "@/lib/components/HelloWave";
-import ParallaxScrollView from "@/lib/components/ParallaxScrollView";
+import { Text } from "@/lib/components/ui/text";
 import { useAuthStore } from "@/lib/store/useAuthStore";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useRouter } from "expo-router";
+import { FormProvider, useForm } from "react-hook-form";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  View,
+} from "react-native";
+import * as yup from "yup";
 
-export default function HomeScreen() {
-  const { logout } = useAuthStore();
+const schema = yup.object().shape({
+  email: yup
+    .string()
+    .email("Enter a valid email address")
+    .required("Email is required"),
+  password: yup.string().required("Password is required"),
+});
+
+const Login = () => {
+  const { login, logout } = useAuthStore();
+  const router = useRouter();
+
+  const methods = useForm({
+    mode: "all",
+    resolver: yupResolver(schema),
+  });
+
+  const handleLogin = async () => {
+    try {
+      const response = await login();
+      console.log("Login response:", response);
+      // router.push("/(tabs)"); // Redirect after login
+    } catch (err) {
+      console.log("Login error:", err);
+      methods.resetField("password");
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+    router.replace("/login"); // Or any other home route
+  };
 
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
-      headerImage={
-        <Image
-          source={require("@/assets/images/partial-react-logo.png")}
-          style={styles.reactLogo}
-        />
-      }
-    >
-      <Box style={styles.titleContainer}>
-        <Text size="3xl" bold className="text-typography900">
-          Welcome!
-        </Text>
-        <HelloWave />
-      </Box>
-      <Box style={styles.stepContainer}>
-        <Text size="xl" bold className="text-typography800">
-          Step 1: Try it
-        </Text>
-        <Text className="text-typography700">
-          Edit <Text bold>app/(tabs)/index.tsx</Text> to see changes. Press{" "}
-          <Text bold>
-            {Platform.select({
-              ios: "cmd + d",
-              android: "cmd + m",
-              web: "F12",
-            })}
-          </Text>{" "}
-          to open developer tools.
-        </Text>
-        <Button
-          size="sm"
-          variant="solid"
-          action="negative"
-          onPress={logout}
-          className="mt-2"
-        >
-          <ButtonText>Logout</ButtonText>
-        </Button>
-      </Box>
-      <Box style={styles.stepContainer}>
-        <Text size="xl" bold className="text-typography800">
-          Step 2: Explore
-        </Text>
-        <Text className="text-typography700">
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </Text>
-      </Box>
-      <Box style={styles.stepContainer}>
-        <Text size="xl" bold className="text-typography800">
-          Step 3: Get a fresh start
-        </Text>
-        <Text className="text-typography700">
-          {`When you're ready, run `}
-          <Text bold>npm run reset-project</Text> to get a fresh{" "}
-          <Text bold>app</Text> directory. This will move the current{" "}
-          <Text bold>app</Text> to <Text bold>app-example</Text>.
-        </Text>
-      </Box>
-    </ParallaxScrollView>
-  );
-}
+    <FormProvider {...methods}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
+      >
+        <View style={{ flex: 1, padding: 24 }}>
+          <ScrollView
+            contentContainerStyle={{ flexGrow: 1 }}
+            keyboardShouldPersistTaps="handled"
+          >
+            <Box className="w-full max-w-lg mx-auto py-8">
+              <Text className="text-2xl font-bold mb-8 text-left">Log in</Text>
+              <View className="flex gap-4">
+                <TextField
+                  name="email"
+                  label="Email"
+                  placeholder="your@email.com"
+                />
+                <PasswordField
+                  name="password"
+                  label="Password"
+                  placeholder="Enter your password"
+                />
+              </View>
+            </Box>
+          </ScrollView>
 
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: "absolute",
-  },
-});
+          <View className="w-full max-w-lg mx-auto pb-4">
+            <Button
+              action="primary"
+              size="lg"
+              className="w-full p-4 rounded-3xl justify-center items-center"
+              onPress={methods.handleSubmit(handleLogin)}
+            >
+              <ButtonText>Confirm</ButtonText>
+            </Button>
+          </View>
+
+          <View className="w-full max-w-lg mx-auto pb-6">
+            <Button
+              action="secondary"
+              size="sm"
+              className="w-full p-3 rounded-3xl justify-center items-center"
+              onPress={handleLogout}
+            >
+              <ButtonText>Back Home</ButtonText>
+            </Button>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+    </FormProvider>
+  );
+};
+
+export default Login;
