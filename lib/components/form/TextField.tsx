@@ -1,13 +1,16 @@
-import { Text } from "@/lib/components/ui/text";
-import { cn } from "@/lib/utils/style";
 import { useController, useFormContext } from "react-hook-form";
+import { TextInputProps, ViewStyle } from "react-native";
 import {
-  Platform,
-  TextInput,
-  TextInputProps,
-  View,
-  ViewStyle,
-} from "react-native";
+  FormControl,
+  FormControlError,
+  FormControlErrorIcon,
+  FormControlErrorText,
+  FormControlHelper,
+  FormControlHelperText,
+  FormControlLabel,
+  FormControlLabelText,
+} from "../ui/form-control";
+import { Input, InputField } from "../ui/input";
 
 interface TextFieldProps
   extends Omit<TextInputProps, "value" | "onChangeText"> {
@@ -35,48 +38,32 @@ export function TextField({
   } = useController({ name, control });
 
   return (
-    <View className="w-full" style={containerStyle}>
+    <FormControl>
       {label && (
-        <Text className="mb-1 text-sm text-neutral-900 dark:text-neutral-100 text-right">
-          {label}
-        </Text>
+        <FormControlLabel>
+          <FormControlLabelText className="text-lg font-semibold">
+            {label}
+          </FormControlLabelText>
+        </FormControlLabel>
       )}
-
-      <View
-        className={cn(
-          "bg-white dark:bg-neutral-900 border rounded-xl px-3",
-          error ? "border-red-500" : "border-black",
-          className
-        )}
-      >
-        <TextInput
-          className={cn(
-            "h-12 px-4 text-neutral-900 dark:text-neutral-100 text-right font-inter-black text-[13px]",
-            textClassName
-          )}
-          style={{
-            ...Platform.select({
-              ios: { lineHeight: 20 },
-              android: { lineHeight: 16, includeFontPadding: false },
-            }),
-          }}
-          placeholderTextColor="#676767"
+      <Input className="h-14 border border-black/60 rounded-lg">
+        <InputField
           value={field.value}
           onChangeText={field.onChange}
           onBlur={field.onBlur}
+          className="text-lg font-medium"
           {...props}
         />
-      </View>
-
-      {error ? (
-        <Text className="mt-0.5 px-1 text-xs text-red-500 text-right">
-          {error.message}
-        </Text>
-      ) : helperText ? (
-        <Text className="mt-0.5 px-1 text-xs text-neutral-500 dark:text-neutral-400 text-right">
-          {helperText}
-        </Text>
-      ) : null}
-    </View>
+      </Input>
+      {helperText && (
+        <FormControlHelper>
+          <FormControlHelperText>{helperText}</FormControlHelperText>
+        </FormControlHelper>
+      )}
+      <FormControlError>
+        <FormControlErrorIcon />
+        <FormControlErrorText>{error?.message}</FormControlErrorText>
+      </FormControlError>
+    </FormControl>
   );
 }

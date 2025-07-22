@@ -1,17 +1,24 @@
-import { cn } from "@/lib/utils/style";
+import { Eye, EyeOff } from "lucide-react-native";
 import { useState } from "react";
 import { useController, useFormContext } from "react-hook-form";
 import {
-  Platform,
-  TextInput,
-  TextInputProps,
-  View
-} from "react-native";
-
-import { Text } from "../ui/text";
+  FormControl,
+  FormControlError,
+  FormControlErrorIcon,
+  FormControlErrorText,
+  FormControlHelper,
+  FormControlHelperText,
+  FormControlLabel,
+  FormControlLabelText,
+} from "../ui/form-control";
+import { Input, InputField } from "../ui/input";
+import { Pressable } from "../ui/pressable";
 
 interface PasswordFieldProps
-  extends Omit<TextInputProps, "value" | "onChangeText"> {
+  extends Omit<
+    React.ComponentProps<typeof InputField>,
+    "value" | "onChangeText"
+  > {
   name: string;
   label?: string;
   helperText?: string;
@@ -35,54 +42,41 @@ export function PasswordField({
   } = useController({ name, control });
 
   return (
-    <View className="flex flex-col w-full">
+    <FormControl>
       {label && (
-        <Text className="text-sm text-neutral-900 dark:text-neutral-100 text-left">
-          {label}
-        </Text>
+        <FormControlLabel>
+          <FormControlLabelText className="text-lg font-semibold">
+            {label}
+          </FormControlLabelText>
+        </FormControlLabel>
       )}
-      <View className="w-full">
-        <View
-          className={cn(
-            "bg-white dark:bg-neutral-900 rounded-xl border",
-            error ? "border-red-500" : "border-black",
-            className
+      <Input className="h-14 border border-black/60 rounded-lg flex-row items-center">
+        <InputField
+          value={field.value}
+          onChangeText={field.onChange}
+          onBlur={field.onBlur}
+          className="text-lg font-medium flex-1"
+          placeholderTextColor="#676767"
+          secureTextEntry={!showPassword}
+          {...props}
+        />
+        <Pressable onPress={() => setShowPassword((v) => !v)} className="px-2">
+          {showPassword ? (
+            <EyeOff size={24} color="#676767" />
+          ) : (
+            <Eye size={24} color="#676767" />
           )}
-        >
-          <View className="flex-row items-center px-2">
-            <TextInput
-              className={cn(
-                "flex-1 h-12 px-4 text-neutral-900 dark:text-neutral-100 font-inter-black text-[13px]",
-                textClassName
-              )}
-              style={{
-                ...Platform.select({
-                  ios: { lineHeight: 20 },
-                  android: { lineHeight: 16, includeFontPadding: false },
-                }),
-              }}
-              placeholderTextColor="#676767"
-              value={field.value}
-              onChangeText={field.onChange}
-              onBlur={field.onBlur}
-              secureTextEntry={!showPassword}
-              {...props}
-            />
-
-            
-          </View>
-        </View>
-      </View>
-      {error && (
-        <Text className="text-xs text-red-500 text-left mt-0.5">
-          {error.message}
-        </Text>
-      )}
+        </Pressable>
+      </Input>
       {helperText && (
-        <Text className="text-xs text-neutral-500 dark:text-neutral-400 text-left mt-">
-          {helperText}
-        </Text>
+        <FormControlHelper>
+          <FormControlHelperText>{helperText}</FormControlHelperText>
+        </FormControlHelper>
       )}
-    </View>
+      <FormControlError>
+        <FormControlErrorIcon />
+        <FormControlErrorText>{error?.message}</FormControlErrorText>
+      </FormControlError>
+    </FormControl>
   );
 }
