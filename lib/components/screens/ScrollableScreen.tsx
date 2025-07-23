@@ -16,7 +16,7 @@ export default function ScrollableScreen({
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ flex: 1 }}
+      style={{ flex: 1, backgroundColor: "white" }}
       // keyboardVerticalOffset={keyboardVerticalOffset}
     >
       <Box
