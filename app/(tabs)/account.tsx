@@ -50,7 +50,7 @@ export default function AccountScreen() {
         <VStack className="items-center mb-6 gap-3">
           <Avatar
             size="xl"
-            className="rounded-full active:opacity-60"
+            className="rounded-full active:opacity-60 overflow-hidden"
           >
             <AvatarImage
               source={{
