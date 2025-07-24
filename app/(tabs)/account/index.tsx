@@ -6,6 +6,7 @@ import { Icon } from '@/lib/components/ui/icon';
 import { Pressable } from '@/lib/components/ui/pressable';
 import { Text } from '@/lib/components/ui/text';
 import { VStack } from '@/lib/components/ui/vstack';
+import { router } from 'expo-router';
 import {
   Calendar,
   ChevronRight,
@@ -16,30 +17,44 @@ import {
   User,
 } from 'lucide-react-native';
 
-const menuItems = [
+type RoutePath =
+  | '/account/profile'
+  | '/account/services'
+  | '/account/support'
+  | '/account/appointments'
+  | '/account/payment'
+  | '/account/settings';
+
+const menuItems: { icon: any; label: string; route: RoutePath }[] = [
   {
     icon: User,
     label: 'Profile',
+    route: '/account/profile',
   },
   {
     icon: LayoutDashboard,
     label: 'Services',
+    route: '/account/services',
   },
   {
     icon: MessageSquare,
     label: 'Customer Support',
+    route: '/account/support',
   },
   {
     icon: Calendar,
     label: 'My Appointments',
+    route: '/account/appointments',
   },
   {
     icon: CreditCard,
     label: 'Payment method',
+    route: '/account/payment',
   },
   {
     icon: Settings,
     label: 'Settings',
+    route: '/account/settings',
   },
 ];
 
@@ -67,7 +82,7 @@ export default function AccountScreen() {
 
         <VStack className="gap-4">
           {menuItems.map((item, index) => (
-            <Pressable key={item.label} onPress={() => console.log(`${item.label} pressed`)}>
+            <Pressable key={item.label} onPress={() => router.push(item.route)}>
               <HStack
                 className={`justify-between items-center py-3 px-2 ${
                   index !== menuItems.length - 1 ? 'border-b border-gray-200' : ''

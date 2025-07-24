@@ -3,7 +3,7 @@ import { Box } from "./ui/box";
 import { ChevronLeftIcon, Icon } from "./ui/icon";
 import { Pressable } from "./ui/pressable";
 
-export default function ScreenHeader({ navigation }: { navigation: any }) {
+export default function ScreenHeader({ navigation, }: { navigation: any }) {
   const { top } = useSafeAreaInsets();
 
   return (

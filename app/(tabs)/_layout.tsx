@@ -70,8 +70,10 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <Icon as={UserRound} size="xl" color={color} />
           ),
+          headerShown: false,
         }}
       />
+      
     </Tabs>
   );
 }
