@@ -20,7 +20,7 @@ export default function FixedScreen({
       keyboardVerticalOffset={keyboardVerticalOffset}
     >
       <Box
-        className="px-4"
+        className="px-4 bg-white"
         style={{
           flex: 1,
           paddingTop: addTopInset ? top : 0,
