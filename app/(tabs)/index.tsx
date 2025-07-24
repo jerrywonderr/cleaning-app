@@ -14,13 +14,12 @@ import {
   Send,
   WashingMachine,
 } from "lucide-react-native";
+import React from "react";
 import { Dimensions, Image as RNImage } from "react-native";
 import Carousel from "react-native-reanimated-carousel";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 
 export default function HomeScreen() {
-  const insets = useSafeAreaInsets();
   const { logout } = useAuthStore();
   const router = useRouter();
 
