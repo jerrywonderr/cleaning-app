@@ -5,23 +5,23 @@ import { Icon } from "@/lib/components/ui/icon";
 import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
-import { useAuthStore } from "@/lib/store/useAuthStore";
-import { useRouter } from "expo-router";
 import { Bell, Info, Send, WashingMachine } from "lucide-react-native";
 import React from "react";
 import { Dimensions, Image as RNImage } from "react-native";
 import Carousel from "react-native-reanimated-carousel";
 
 export default function HomeScreen() {
-  const { logout } = useAuthStore();
-  const router = useRouter();
+  // const { logout } = useAuthStore();
+  // const router = useRouter();
 
-  const handleLogout = () => {
-    logout();
-    router.replace("/login");
-  };
+  // const handleLogout = () => {
+  //   logout();
+  //   router.replace("/login");
+  // };
 
   const hasNotification = true;
+
+  const [currentIndex, setCurrentIndex] = React.useState(0);
 
   return (
     <ScrollableScreen addTopInset={true}>
@@ -76,21 +76,44 @@ export default function HomeScreen() {
           <Carousel
             loop
             autoPlay
+            autoPlayInterval={3500}
             width={Dimensions.get("window").width - 32}
             height={180}
             data={[
-              { uri: "https://source.unsplash.com/800x400/?cleaning" },
-              { uri: "https://source.unsplash.com/800x400/?laundry" },
-              { uri: "https://source.unsplash.com/800x400/?housekeeping" },
+              {
+                uri: "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=800&h=400&q=80",
+              },
+              {
+                uri: "https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?auto=format&fit=crop&w=800&h=400&q=80",
+              },
+              {
+                uri: "https://images.unsplash.com/photo-1600891964599-f61ba0e24092?auto=format&fit=crop&w=800&h=400&q=80",
+              },
             ]}
             scrollAnimationDuration={1000}
+            onSnapToItem={(index) => setCurrentIndex(index)}
             renderItem={({ item }) => (
-              <Box className="rounded-xl overflow-hidden">
+              <Box className="rounded-xl overflow-hidden relative">
                 <RNImage
                   source={{ uri: item.uri }}
                   style={{ width: "100%", height: 180 }}
                   resizeMode="cover"
                 />
+                <Box className="absolute bottom-3 left-0 right-0 flex-row justify-center">
+                  {[0, 1, 2].map((_, index) => (
+                    <Box
+                      key={index}
+                      className={`mx-1 rounded-full ${
+                        index === currentIndex ? "bg-blue-800" : "bg-white/50"
+                      }`}
+                      style={{
+                        width: 6,
+                        height: 6,
+                        opacity: index === currentIndex ? 1 : 0.7,
+                      }}
+                    />
+                  ))}
+                </Box>
               </Box>
             )}
           />

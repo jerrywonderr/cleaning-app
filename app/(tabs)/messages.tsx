@@ -2,7 +2,6 @@ import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
 import { Icon } from "@/lib/components/ui/icon";
 import { Pressable } from "@/lib/components/ui/pressable";
-import { Text } from "@/lib/components/ui/text";
 
 import { Phone } from "lucide-react-native";
 import { Linking } from "react-native";
@@ -17,14 +16,10 @@ export default function MessagesScreen() {
   return (
     <ScrollableScreen addTopInset>
       <Box className="flex-1 justify-center items-center">
-        <Pressable onPress={openDialer} className="items-center">
-          <Box className="bg-blue-200 p-8 rounded-full mb-4">
-            <Icon as={Phone} size="xl" className="text-blue-800 text-4xl" />
+        <Pressable onPress={openDialer}>
+          <Box className="bg-blue-100 p-10 rounded-full shadow-md shadow-blue-300">
+            <Icon as={Phone} size={48} className="text-blue-800" />
           </Box>
-          <Text className="text-2xl font-semibold text-blue-800">
-            Call Support
-          </Text>
-          <Text className="text-lg text-gray-500">{phoneNumber}</Text>
         </Pressable>
       </Box>
     </ScrollableScreen>
