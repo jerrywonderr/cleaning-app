@@ -1,60 +1,53 @@
-import FixedScreen from '@/lib/components/screens/FixedScreen';
-import { Avatar, AvatarImage } from '@/lib/components/ui/avatar';
-import { Box } from '@/lib/components/ui/box';
-import { HStack } from '@/lib/components/ui/hstack';
-import { Icon } from '@/lib/components/ui/icon';
-import { Pressable } from '@/lib/components/ui/pressable';
-import { Text } from '@/lib/components/ui/text';
-import { VStack } from '@/lib/components/ui/vstack';
-import { router } from 'expo-router';
+import FixedScreen from "@/lib/components/screens/FixedScreen";
+import { Avatar, AvatarImage } from "@/lib/components/ui/avatar";
+import { Box } from "@/lib/components/ui/box";
+import { HStack } from "@/lib/components/ui/hstack";
+import { Icon } from "@/lib/components/ui/icon";
+import { Pressable } from "@/lib/components/ui/pressable";
+import { Text } from "@/lib/components/ui/text";
+import { VStack } from "@/lib/components/ui/vstack";
+import { router } from "expo-router";
 import {
   Calendar,
   ChevronRight,
   CreditCard,
   LayoutDashboard,
   MessageSquare,
-  Settings,
   User,
-} from 'lucide-react-native';
+} from "lucide-react-native";
 
 type RoutePath =
-  | '/account/profile'
-  | '/account/services'
-  | '/account/support'
-  | '/account/appointments'
-  | '/account/payment'
-  | '/account/settings';
+  | "/account/profile"
+  | "/account/services"
+  | "/account/support"
+  | "/account/appointments"
+  | "/account/payment";
 
 const menuItems: { icon: any; label: string; route: RoutePath }[] = [
   {
     icon: User,
-    label: 'Profile',
-    route: '/account/profile',
+    label: "Profile",
+    route: "/account/profile",
   },
   {
     icon: LayoutDashboard,
-    label: 'Services',
-    route: '/account/services',
+    label: "Services",
+    route: "/account/services",
   },
   {
     icon: MessageSquare,
-    label: 'Customer Support',
-    route: '/account/support',
+    label: "Customer Support",
+    route: "/account/support",
   },
   {
     icon: Calendar,
-    label: 'My Appointments',
-    route: '/account/appointments',
+    label: "My Appointments",
+    route: "/account/appointments",
   },
   {
     icon: CreditCard,
-    label: 'Payment method',
-    route: '/account/payment',
-  },
-  {
-    icon: Settings,
-    label: 'Settings',
-    route: '/account/settings',
+    label: "Payment method",
+    route: "/account/payment",
   },
 ];
 
@@ -69,15 +62,13 @@ export default function AccountScreen() {
           >
             <AvatarImage
               source={{
-                uri: 'https://images.unsplash.com/photo-1548142813-c348350df52b?&w=150&h=150&dpr=2&q=80',
+                uri: "https://images.unsplash.com/photo-1548142813-c348350df52b?&w=150&h=150&dpr=2&q=80",
               }}
               alt="Profile Image"
             />
             {/* <AvatarFallbackText>Profile Image</AvatarFallbackText> */}
           </Avatar>
-          <Text className="text-xl font-bold text-blue-800">
-            Mr/Mrs Kay
-          </Text>
+          <Text className="text-xl font-bold text-blue-800">Mr/Mrs Kay</Text>
         </VStack>
 
         <VStack className="gap-4">
@@ -85,7 +76,9 @@ export default function AccountScreen() {
             <Pressable key={item.label} onPress={() => router.push(item.route)}>
               <HStack
                 className={`justify-between items-center py-3 px-2 ${
-                  index !== menuItems.length - 1 ? 'border-b border-gray-200' : ''
+                  index !== menuItems.length - 1
+                    ? "border-b border-gray-200"
+                    : ""
                 }`}
               >
                 <HStack className="gap-4 items-center">
@@ -99,6 +92,5 @@ export default function AccountScreen() {
         </VStack>
       </Box>
     </FixedScreen>
-    
   );
 }
