@@ -15,6 +15,7 @@ import {
   MessageSquare,
   User,
 } from "lucide-react-native";
+import { Alert } from "react-native";
 
 type RoutePath =
   | "/account/profile"
@@ -52,13 +53,31 @@ const menuItems: { icon: any; label: string; route: RoutePath }[] = [
 ];
 
 export default function AccountScreen() {
+  const confirmDeleteAccount = () => {
+    Alert.alert(
+      "Delete Account",
+      "Are you sure you want to delete your account? This action cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => {
+            // TODO: Trigger delete logic
+            console.log("Account deleted");
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <FixedScreen addTopInset={true}>
       <Box className="flex-1">
         <VStack className="items-center mb-6 gap-3">
           <Avatar
             size="xl"
-            className="rounded-full active:opacity-60 overflow-hidden"
+            className="border-4 border-blue-700 rounded-full shadow-sm active:opacity-60 overflow-hidden"
           >
             <AvatarImage
               source={{
@@ -66,9 +85,8 @@ export default function AccountScreen() {
               }}
               alt="Profile Image"
             />
-            {/* <AvatarFallbackText>Profile Image</AvatarFallbackText> */}
           </Avatar>
-          <Text className="text-xl font-bold text-blue-800">Mr/Mrs Kay</Text>
+          <Text className="text-xl font-bold text-black">Mr/Mrs Kay</Text>
         </VStack>
 
         <VStack className="gap-4">
@@ -82,13 +100,24 @@ export default function AccountScreen() {
                 }`}
               >
                 <HStack className="gap-4 items-center">
-                  <Icon as={item.icon} className="text-blue-800" size="xl" />
-                  <Text className="text-base text-blue-800">{item.label}</Text>
+                  <Icon as={item.icon} className="text-black" size="xl" />
+                  <Text className="text-lg text-black">{item.label}</Text>
                 </HStack>
                 <Icon as={ChevronRight} className="text-gray-400" size="xl" />
               </HStack>
             </Pressable>
           ))}
+
+          <Pressable
+            onPress={confirmDeleteAccount}
+            className="active:opacity-70"
+          >
+            <Box className="mt-6 items-center border border-red-300 rounded-lg px-4 py-2">
+              <Text className="text-red-600 font-semibold text-base">
+                Delete Account
+              </Text>
+            </Box>
+          </Pressable>
         </VStack>
       </Box>
     </FixedScreen>
