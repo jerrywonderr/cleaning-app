@@ -7,17 +7,10 @@ import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useRouter } from "expo-router";
-import {
-  Bell,
-  Info,
-  LogOut,
-  Send,
-  WashingMachine,
-} from "lucide-react-native";
+import { Bell, Info, Send, WashingMachine } from "lucide-react-native";
 import React from "react";
 import { Dimensions, Image as RNImage } from "react-native";
 import Carousel from "react-native-reanimated-carousel";
-
 
 export default function HomeScreen() {
   const { logout } = useAuthStore();
@@ -32,9 +25,7 @@ export default function HomeScreen() {
 
   return (
     <ScrollableScreen addTopInset={true}>
-      <Box
-        className=" pb-10"
-      >
+      <Box className=" pb-10">
         {/* Header */}
         <HStack className="flex-row justify-between items-center">
           <VStack>
@@ -78,7 +69,9 @@ export default function HomeScreen() {
         </Box>
 
         {/* Offers */}
-        <Text className="font-medium text-lg mb-2 text-gray-800">Latest Offers</Text>
+        <Text className="font-medium text-lg mb-2 text-gray-800">
+          Latest Offers
+        </Text>
         <Box className="mb-6">
           <Carousel
             loop
@@ -103,7 +96,6 @@ export default function HomeScreen() {
           />
         </Box>
 
-
         {/* Tasks */}
         <Text className="font-medium text-lg mb-2 text-gray-800">
           What do you want to get done today?
@@ -118,25 +110,34 @@ export default function HomeScreen() {
               </Text>
             </Box>
           </Pressable>
-          
 
           <Pressable className="flex-1">
             <Box className="p-4 bg-gray-100 rounded-lg gap-2 shadow shadow-black/5 items-start">
               <WashingMachine size={28} color="#4F46E5" />
               <Text className="font-medium mt-2 text-gray-800">Clean</Text>
               <Text className="text-start text-sm text-gray-500">
-              Experience quick deep classic cleaning.
+                Experience quick deep classic cleaning.
               </Text>
             </Box>
           </Pressable>
         </HStack>
 
         {/* Ongoing Orders */}
-        <Text className="font-medium text-lg mb-2 text-gray-800">Ongoing Orders</Text>
+        <Text className="font-medium text-lg mb-2 text-gray-800">
+          Ongoing Orders
+        </Text>
         <VStack className="gap-3 mb-10">
           {[
             { label: "Washing machine 4", time: "3 mins left" },
-            { label: "Washing machine 11", time: "38 mins left" },
+            { label: "Washing machine 12", time: "7 mins left" },
+            { label: "Washing machine 2", time: "14 mins left" },
+            { label: "Washing machine 8", time: "18 mins left" },
+            { label: "Washing machine 3", time: "24 mins left" },
+            { label: "Washing machine 15", time: "38 mins left" },
+            { label: "Washing machine 1", time: "47 mins left" },
+            { label: "Washing machine 10", time: "52 mins left" },
+            { label: "Washing machine 9", time: "73 mins left" },
+            { label: "Washing machine 11", time: "90 mins left" },
           ].map((order, index) => (
             <HStack
               key={index}
@@ -151,14 +152,14 @@ export default function HomeScreen() {
           ))}
         </VStack>
 
-        {/* Logout Button */}
+        {/* Logout Button
         <Pressable
           onPress={handleLogout}
           className="flex-row items-center justify-center bg-red-100 py-3 rounded-lg"
         >
           <LogOut size={18} color="#DC2626" />
           <Text className="ml-2 font-semibold text-red-600">Logout</Text>
-        </Pressable>
+        </Pressable> */}
       </Box>
     </ScrollableScreen>
   );
