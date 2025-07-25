@@ -8,11 +8,10 @@ import {
   Home,
   MessageSquareText,
   UserRound,
-  Wrench
+  Wrench,
 } from "lucide-react-native";
 import React from "react";
 import { Platform } from "react-native";
-
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -29,7 +28,7 @@ export default function TabLayout() {
         tabBarStyle: Platform.select({
           ios: {
             // Use a transparent background on iOS to show the blur effect
-            position: "absolute",            
+            position: "absolute",
           },
           default: {},
         }),
@@ -39,16 +38,14 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "Home",
-          tabBarIcon: ({ color }) => (
-            <Icon as={Home} size="xl" color={color} />
-          ),
+          tabBarIcon: ({ color }) => <Icon as={Home} size="xl" color={color} />,
           headerShown: false,
         }}
       />
       <Tabs.Screen
-        name="services"
+        name="offers"
         options={{
-          title: "Services",
+          title: "Offers",
           tabBarIcon: ({ color }) => (
             <Icon as={Wrench} size="xl" color={color} />
           ),
@@ -73,7 +70,6 @@ export default function TabLayout() {
           headerShown: false,
         }}
       />
-      
     </Tabs>
   );
 }
