@@ -34,7 +34,7 @@ export default function ScreenHeader({
             >
               <Icon
                 as={ChevronLeftIcon}
-                className="text-typography-900 w-8 h-8"
+                className="font-inter-bold w-8 h-8"
                 fill="none"
               />
             </Pressable>
@@ -44,7 +44,7 @@ export default function ScreenHeader({
         {/* Center - Title */}
         <Box className="flex-1 justify-center items-center">
           {title && (
-            <Heading className="text-typography-900 text-2xl text-center">
+            <Heading className="font-inter-bold text-xl text-center">
               {title}
             </Heading>
           )}

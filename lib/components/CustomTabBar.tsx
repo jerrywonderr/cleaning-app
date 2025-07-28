@@ -17,12 +17,12 @@ const tabIcons = {
   account: UserRound,
 };
 
-const tabLabels = {
-  index: "Home",
-  offers: "Offers",
-  messages: "Messages",
-  account: "Account",
-};
+// const tabLabels = {
+//   index: "Home",
+//   offers: "Offers",
+//   messages: "Messages",
+//   account: "Account",
+// };
 
 export function CustomTabBar({
   state,
@@ -49,9 +49,9 @@ export function CustomTabBar({
       }}
     >
       {state.routes.map((route, index) => {
-        const { options } = descriptors[route.key];
-        const label =
-          tabLabels[route.name as keyof typeof tabLabels] || route.name;
+        // const { options } = descriptors[route.key];
+        // const label =
+        //   tabLabels[route.name as keyof typeof tabLabels] || route.name;
         const IconComponent = tabIcons[route.name as keyof typeof tabIcons];
 
         const isFocused = state.index === index;

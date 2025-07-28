@@ -1,6 +1,17 @@
 import "@/global.css";
 import { GluestackUIProvider } from "@/lib/components/ui/gluestack-ui-provider";
 import {
+  Inter_100Thin,
+  Inter_200ExtraLight,
+  Inter_300Light,
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+  Inter_800ExtraBold,
+  Inter_900Black,
+} from "@expo-google-fonts/inter";
+import {
   DarkTheme,
   DefaultTheme,
   ThemeProvider,
@@ -16,7 +27,15 @@ import { useColorScheme } from "@/lib/hooks/useColorScheme";
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
-    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
+    "Inter-Thin": Inter_100Thin,
+    "Inter-ExtraLight": Inter_200ExtraLight,
+    "Inter-Light": Inter_300Light,
+    "Inter-Regular": Inter_400Regular,
+    "Inter-Medium": Inter_500Medium,
+    "Inter-SemiBold": Inter_600SemiBold,
+    "Inter-Bold": Inter_700Bold,
+    "Inter-ExtraBold": Inter_800ExtraBold,
+    "Inter-Black": Inter_900Black,
   });
 
   if (!loaded) {
