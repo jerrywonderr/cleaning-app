@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Rehoboth",
-    "slug": "rehoboth",
+    "slug": "rehoboth-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -39,6 +39,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "5f07ef35-5d3d-416e-a835-27eb262f4395"
+      }
+    },
+    "owner": "rehoboth-app"
   }
 }
