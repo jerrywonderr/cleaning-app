@@ -29,7 +29,7 @@ export default function HomeScreen() {
         {/* Header */}
         <HStack className="flex-row justify-between items-center">
           <VStack>
-            <Text className="text-2xl font-bold mt-8 mb-6 text-left">
+            <Text className="text-2xl font-inter-bold mt-8 mb-6 text-left">
               Hello, Kay!
             </Text>
           </VStack>
@@ -60,7 +60,7 @@ export default function HomeScreen() {
               <Icon className="" as={Send} />
             </Box>
             <VStack>
-              <Text className="text-white font-bold">Home</Text>
+              <Text className="text-white font-inter-bold">Home</Text>
               <Text className="text-white text-xs">
                 123, Victoria Road Brighton East United Kingdom
               </Text>
@@ -69,7 +69,7 @@ export default function HomeScreen() {
         </Box>
 
         {/* Offers */}
-        <Text className="font-medium text-lg mb-2 text-gray-800">
+        <Text className="font-inter-medium text-lg mb-2 text-gray-800">
           Latest Offers
         </Text>
         <Box className="mb-6">
@@ -120,14 +120,16 @@ export default function HomeScreen() {
         </Box>
 
         {/* Tasks */}
-        <Text className="font-medium text-lg mb-2 text-gray-800">
+        <Text className="font-inter-medium text-lg mb-2 text-gray-800">
           What do you want to get done today?
         </Text>
         <HStack className="flex-row gap-3 mb-6">
           <Pressable className="flex-1">
             <Box className="p-4 bg-gray-100 rounded-lg gap-2 shadow shadow-black/5 items-start">
               <WashingMachine size={28} color="#4F46E5" />
-              <Text className="font-medium mt-2 text-gray-800">Clean</Text>
+              <Text className="font-inter-medium mt-2 text-gray-800">
+                Clean
+              </Text>
               <Text className="text-start text-sm text-gray-500">
                 Schedule your end of tenancy cleaning.
               </Text>
@@ -137,7 +139,9 @@ export default function HomeScreen() {
           <Pressable className="flex-1">
             <Box className="p-4 bg-gray-100 rounded-lg gap-2 shadow shadow-black/5 items-start">
               <WashingMachine size={28} color="#4F46E5" />
-              <Text className="font-medium mt-2 text-gray-800">Clean</Text>
+              <Text className="font-inter-medium mt-2 text-gray-800">
+                Clean
+              </Text>
               <Text className="text-start text-sm text-gray-500">
                 Experience quick deep classic cleaning.
               </Text>
@@ -146,7 +150,7 @@ export default function HomeScreen() {
         </HStack>
 
         {/* Ongoing Orders */}
-        <Text className="font-medium text-lg mb-2 text-gray-800">
+        <Text className="font-inter-medium text-lg mb-2 text-gray-800">
           Ongoing Orders
         </Text>
         <VStack className="gap-3">
