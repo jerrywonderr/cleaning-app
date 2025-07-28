@@ -33,10 +33,10 @@ const offers = [
 
 export default function OffersScreen() {
   return (
-    <ScrollableScreen addTopInset>
-      <VStack className="gap-6 pb-10">
+    <ScrollableScreen addTopInset={false}>
+      <VStack className="gap-6 mt-4 py-4">
         {offers.map((service, idx) => (
-          <Pressable key={idx} className="rounded-2xl bg-white shadow p-4">
+          <Pressable key={idx} className="rounded-2xl bg-white shadow p-4 mx-4">
             <HStack className="items-center justify-between">
               <HStack className="gap-5">
                 <Image
