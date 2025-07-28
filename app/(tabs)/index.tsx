@@ -24,8 +24,8 @@ export default function HomeScreen() {
   const [currentIndex, setCurrentIndex] = React.useState(0);
 
   return (
-    <ScrollableScreen addTopInset={true}>
-      <Box className=" pb-10">
+    <ScrollableScreen addTopInset={true} addBottomInset={false}>
+      <Box className="mb-4">
         {/* Header */}
         <HStack className="flex-row justify-between items-center">
           <VStack>
@@ -149,7 +149,7 @@ export default function HomeScreen() {
         <Text className="font-medium text-lg mb-2 text-gray-800">
           Ongoing Orders
         </Text>
-        <VStack className="gap-3 mb-10">
+        <VStack className="gap-3">
           {[
             { label: "Washing machine 4", time: "3 mins left" },
             { label: "Washing machine 12", time: "7 mins left" },
