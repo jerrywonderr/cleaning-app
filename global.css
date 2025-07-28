@@ -6,4 +6,8 @@
   * {
     font-family: "Inter-Regular", sans-serif;
   }
+
+  :root {
+    --color-primary-500: 69 78 176;
+  }
 }
