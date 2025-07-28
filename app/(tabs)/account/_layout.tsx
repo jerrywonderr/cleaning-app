@@ -18,6 +18,12 @@ export default function AccountLayout() {
           title: "Account",
         }}
       />
+      <Stack.Screen
+        name="support"
+        options={{
+          title: "Support",
+        }}
+      />
     </Stack>
   );
 }
