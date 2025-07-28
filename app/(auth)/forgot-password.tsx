@@ -7,6 +7,7 @@ import { VStack } from "@/lib/components/ui/vstack";
 import { yupResolver } from "@hookform/resolvers/yup";
 // import { useRouter } from "expo-router";
 import { FormProvider, useForm } from "react-hook-form";
+import { ScrollView } from "react-native";
 import * as yup from "yup";
 
 const schema = yup.object().shape({
@@ -35,25 +36,33 @@ const ForgotPassword = () => {
   };
 
   return (
-    <FixedScreen addTopInset={false}>
-      <Text className="text-2xl font-bold mb-8 text-left">Forgot Password</Text>
-      <FormProvider {...methods}>
-        <VStack className="flex-1 gap-4">
-          <TextField name="email" label="Email" placeholder="your@email.com" />
-          <VStack className="gap-4">
-            <PrimaryButton
-              onPress={methods.handleSubmit(handleForgotPassword)}
-              isLoading={methods.formState.isSubmitting}
-              disabled={!methods.formState.isValid}
-            >
-              Send Reset Link
-            </PrimaryButton>
-            <Text className="text-center font-inter-medium">
-              Remembered your password? <Link href="/login">Back to login</Link>
-            </Text>
+    <FixedScreen>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Text className="text-2xl font-inter-bold mt-8 mb-8 text-left">
+          Forgot Password
+        </Text>
+        <FormProvider {...methods}>
+          <VStack className="flex-1 gap-4">
+            <TextField
+              name="email"
+              label="Email"
+              placeholder="your@email.com"
+            />
           </VStack>
-        </VStack>
-      </FormProvider>
+        </FormProvider>
+      </ScrollView>
+      <VStack className="gap-4">
+        <PrimaryButton
+          onPress={methods.handleSubmit(handleForgotPassword)}
+          isLoading={methods.formState.isSubmitting}
+          disabled={!methods.formState.isValid}
+        >
+          Send Reset Link
+        </PrimaryButton>
+        <Text className="text-center font-inter-medium">
+          Remembered your password? <Link href="/login">Back to login</Link>
+        </Text>
+      </VStack>
     </FixedScreen>
   );
 };

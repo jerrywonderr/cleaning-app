@@ -53,7 +53,7 @@ const Signup = () => {
   };
 
   return (
-    <FixedScreen addTopInset={false}>
+    <FixedScreen>
       <ScrollView showsVerticalScrollIndicator={false}>
         <Text className="text-2xl font-inter-bold mt-8 mb-6 text-left">
           Create account

@@ -42,7 +42,7 @@ const Login = () => {
   };
 
   return (
-    <FixedScreen addTopInset={false}>
+    <FixedScreen>
       <Text className="text-2xl font-inter-bold mt-8 mb-6 text-left">
         Log in
       </Text>
