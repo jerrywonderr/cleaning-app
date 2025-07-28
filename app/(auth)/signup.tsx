@@ -3,6 +3,7 @@ import { PasswordField } from "@/lib/components/form/PasswordField";
 import { TextField } from "@/lib/components/form/TextField";
 import Link from "@/lib/components/Link";
 import FixedScreen from "@/lib/components/screens/FixedScreen";
+import { HStack } from "@/lib/components/ui/hstack";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import { useAuthStore } from "@/lib/store/useAuthStore";
@@ -95,9 +96,10 @@ const Signup = () => {
           Confirm
         </PrimaryButton>
 
-        <Text className="text-center font-inter-medium">
-          Already have an account? <Link href="/login">Log in</Link>
-        </Text>
+        <HStack className="justify-center items-center">
+          <Text className="font-inter-medium">Already have an account? </Text>
+          <Link href="/login">Log in</Link>
+        </HStack>
       </VStack>
     </FixedScreen>
   );

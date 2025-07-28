@@ -4,6 +4,7 @@ import { TextField } from "@/lib/components/form/TextField";
 import Link from "@/lib/components/Link";
 import FixedScreen from "@/lib/components/screens/FixedScreen";
 import { Box } from "@/lib/components/ui/box";
+import { HStack } from "@/lib/components/ui/hstack";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import { useAuthStore } from "@/lib/store/useAuthStore";
@@ -70,9 +71,12 @@ const Login = () => {
               Confirm
             </PrimaryButton>
 
-            <Text className="text-center font-inter-medium">
-              Don&apos;t have an account? <Link href="/signup">Sign up</Link>
-            </Text>
+            <HStack className="justify-center items-center">
+              <Text className="font-inter-medium">
+                Don&apos;t have an account?{" "}
+              </Text>
+              <Link href="/signup">Sign up</Link>
+            </HStack>
 
             {/* <SecondaryButton onPress={handleLogout}>Back Home</SecondaryButton> */}
           </VStack>

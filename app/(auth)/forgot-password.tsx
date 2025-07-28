@@ -2,6 +2,7 @@ import { PrimaryButton } from "@/lib/components/custom-buttons";
 import { TextField } from "@/lib/components/form/TextField";
 import Link from "@/lib/components/Link";
 import FixedScreen from "@/lib/components/screens/FixedScreen";
+import { HStack } from "@/lib/components/ui/hstack";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -59,9 +60,10 @@ const ForgotPassword = () => {
         >
           Send Reset Link
         </PrimaryButton>
-        <Text className="text-center font-inter-medium">
-          Remembered your password? <Link href="/login">Back to login</Link>
-        </Text>
+        <HStack className="justify-center items-center">
+          <Text className="font-inter-medium">Remembered your password? </Text>
+          <Link href="/login">Back to login</Link>
+        </HStack>
       </VStack>
     </FixedScreen>
   );
