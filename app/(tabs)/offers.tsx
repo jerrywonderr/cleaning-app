@@ -56,10 +56,10 @@ export default function OffersScreen() {
                   }}
                 />
                 <VStack className="justify-center">
-                  <Text className="text-lg font-bold text-gray-900">
+                  <Text className="text-lg font-inter-bold text-gray-900">
                     {service.title}
                   </Text>
-                  <Text className="text-base text-gray-800 font-medium">
+                  <Text className="text-base text-gray-800 font-inter-medium">
                     {service.price} • {service.provider}
                   </Text>
                   <Text className="text-sm text-gray-500">
