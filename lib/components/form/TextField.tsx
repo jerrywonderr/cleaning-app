@@ -42,17 +42,17 @@ export function TextField({
     <FormControl isInvalid={!!error}>
       {label && (
         <FormControlLabel>
-          <FormControlLabelText className="text-lg font-medium">
+          <FormControlLabelText className="text-sm font-inter-medium">
             {label}
           </FormControlLabelText>
         </FormControlLabel>
       )}
-      <Input className="h-14 border border-black/60 rounded-lg">
+      <Input className="h-12 border border-black/60 rounded-lg">
         <InputField
           value={field.value}
           onChangeText={field.onChange}
           onBlur={field.onBlur}
-          className="text-lg font-medium"
+          className="text-base font-inter-medium"
           {...props}
         />
       </Input>

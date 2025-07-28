@@ -45,17 +45,17 @@ export function PasswordField({
     <FormControl isInvalid={!!error}>
       {label && (
         <FormControlLabel>
-          <FormControlLabelText className="text-lg font-medium">
+          <FormControlLabelText className="text-sm font-inter-medium">
             {label}
           </FormControlLabelText>
         </FormControlLabel>
       )}
-      <Input className="h-14 border border-black/60 rounded-lg flex-row items-center">
+      <Input className="h-12 border border-black/60 rounded-lg flex-row items-center">
         <InputField
           value={field.value}
           onChangeText={field.onChange}
           onBlur={field.onBlur}
-          className="text-lg font-medium flex-1"
+          className="text-base font-inter-medium flex-1"
           placeholderTextColor="#676767"
           secureTextEntry={!showPassword}
           {...props}
