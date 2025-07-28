@@ -5,10 +5,12 @@ import { Box } from "../ui/box";
 export default function FixedScreen({
   children,
   addTopInset = true,
+  addBottomInset = true,
   keyboardVerticalOffset = Platform.OS === "ios" ? 64 : 0,
 }: {
   children: React.ReactNode;
   addTopInset?: boolean;
+  addBottomInset?: boolean;
   keyboardVerticalOffset?: number;
 }) {
   const { top, bottom } = useSafeAreaInsets();
@@ -24,7 +26,7 @@ export default function FixedScreen({
         style={{
           flex: 1,
           paddingTop: addTopInset ? top : 0,
-          paddingBottom: bottom,
+          paddingBottom: addBottomInset ? bottom : 0,
         }}
       >
         {children}
