@@ -14,11 +14,11 @@ export default function MessagesScreen() {
   };
 
   return (
-    <ScrollableScreen addTopInset>
+    <ScrollableScreen addTopInset addBottomInset={false}>
       <Box className="flex-1 justify-center items-center">
         <Pressable onPress={openDialer}>
           <Box className="bg-blue-100 p-10 rounded-full shadow-md shadow-blue-300">
-            <Icon as={Phone} size={48} className="text-blue-800" />
+            <Icon as={Phone} size={48 as any} className="text-blue-800" />
           </Box>
         </Pressable>
       </Box>

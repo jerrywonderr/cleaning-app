@@ -108,7 +108,7 @@ export function CustomTabBar({
             <View style={{ zIndex: 10, alignItems: "center" }}>
               <Icon
                 as={IconComponent}
-                size="xl"
+                size={isFocused ? ("3xl" as any) : "xl"}
                 color={isFocused ? "white" : "#6B7280"}
               />
               {/* <Text

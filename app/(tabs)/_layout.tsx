@@ -1,7 +1,7 @@
 import { CustomTabBar } from "@/lib/components/CustomTabBar";
 import ScreenHeader from "@/lib/components/ScreenHeader";
 import { Icon } from "@/lib/components/ui/icon";
-import { useColorScheme } from "@/lib/hooks/useColorScheme";
+// import { useColorScheme } from "@/lib/hooks/useColorScheme";
 import { Tabs } from "expo-router";
 import {
   Home,
@@ -12,7 +12,7 @@ import {
 import React from "react";
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  // const colorScheme = useColorScheme();
 
   return (
     <Tabs
