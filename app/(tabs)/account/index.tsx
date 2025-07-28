@@ -1,25 +1,30 @@
+import ScreenHeader from "@/lib/components/ScreenHeader";
 import FixedScreen from "@/lib/components/screens/FixedScreen";
 import { Avatar, AvatarImage } from "@/lib/components/ui/avatar";
 import { Box } from "@/lib/components/ui/box";
+import { Button, ButtonIcon } from "@/lib/components/ui/button";
 import { HStack } from "@/lib/components/ui/hstack";
 import { Icon } from "@/lib/components/ui/icon";
 import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
-import { router } from "expo-router";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { router, useNavigation } from "expo-router";
 import {
   Calendar,
   ChevronRight,
   CreditCard,
   LayoutDashboard,
+  LogOutIcon,
   MessageSquare,
   User,
 } from "lucide-react-native";
+import { useEffect } from "react";
 import { Alert } from "react-native";
 
 type RoutePath =
   | "/account/profile"
-  | "/account/services"
+  | "/account/offers"
   | "/account/support"
   | "/account/appointments"
   | "/account/payment";
@@ -33,7 +38,7 @@ const menuItems: { icon: any; label: string; route: RoutePath }[] = [
   {
     icon: LayoutDashboard,
     label: "Services",
-    route: "/account/services",
+    route: "/account/offers",
   },
   {
     icon: MessageSquare,
@@ -53,6 +58,44 @@ const menuItems: { icon: any; label: string; route: RoutePath }[] = [
 ];
 
 export default function AccountScreen() {
+  const navigation = useNavigation<NativeStackNavigationProp<any>>();
+
+  useEffect(() => {
+    navigation.setOptions({
+      header: ({ navigation, options }: { navigation: any; options: any }) => (
+        <ScreenHeader
+          navigation={navigation}
+          title={options.title}
+          rightContent={
+            <Button
+              onPress={confirmLogout}
+              variant="outline"
+              action="negative"
+              size="sm"
+              className="border-red-500 rounded-lg px-2 py-1"
+            >
+              <ButtonIcon as={LogOutIcon} size="sm" />
+            </Button>
+          }
+        />
+      ),
+    });
+  }, [navigation]);
+
+  const confirmLogout = () => {
+    Alert.alert("Logout", "Are you sure you want to logout?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Logout",
+        style: "destructive",
+        onPress: () => {
+          // TODO: Trigger logout logic
+          console.log("User logged out");
+        },
+      },
+    ]);
+  };
+
   const confirmDeleteAccount = () => {
     Alert.alert(
       "Delete Account",

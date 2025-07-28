@@ -7,10 +7,17 @@ export default function AccountLayout() {
       screenOptions={{
         headerTitleAlign: "center",
         headerTitleStyle: { fontWeight: "bold", fontSize: 18 },
-        header: ({ navigation }) => <ScreenHeader navigation={navigation} />,
+        header: ({ navigation, options }) => (
+          <ScreenHeader navigation={navigation} title={options.title} />
+        ),
       }}
     >
-
+      <Stack.Screen
+        name="index"
+        options={{
+          title: "Account",
+        }}
+      />
     </Stack>
   );
 }
