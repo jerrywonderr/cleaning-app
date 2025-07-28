@@ -13,6 +13,18 @@ export default function AccountLayout() {
       }}
     >
       <Stack.Screen
+        name="view-profile"
+        options={{
+          title: "Profile",
+        }}
+      />
+      <Stack.Screen
+        name="edit-profile"
+        options={{
+          title: "Edit Profile",
+        }}
+      />
+      <Stack.Screen
         name="support"
         options={{
           title: "Support",

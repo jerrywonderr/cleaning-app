@@ -27,7 +27,7 @@ const menuItems: { icon: any; label: string; route: Href }[] = [
   {
     icon: User,
     label: "Profile",
-    route: "/account/profile",
+    route: "/account/view-profile",
   },
   {
     icon: LayoutDashboard,
