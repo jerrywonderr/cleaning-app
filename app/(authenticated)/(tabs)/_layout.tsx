@@ -3,12 +3,7 @@ import ScreenHeader from "@/lib/components/ScreenHeader";
 import { Icon } from "@/lib/components/ui/icon";
 // import { useColorScheme } from "@/lib/hooks/useColorScheme";
 import { Tabs } from "expo-router";
-import {
-  Home,
-  MessageSquareText,
-  UserRound,
-  Wrench,
-} from "lucide-react-native";
+import { Gift, HelpCircle, Home, UserRound } from "lucide-react-native";
 import React from "react";
 
 export default function TabLayout() {
@@ -41,11 +36,11 @@ export default function TabLayout() {
         options={{
           title: "Offers",
           tabBarIcon: ({ color }) => (
-            <Icon as={Wrench} size="xl" height={36} width={36} color={color} />
+            <Icon as={Gift} size="xl" height={36} width={36} color={color} />
           ),
         }}
       />
-      <Tabs.Screen
+      {/* <Tabs.Screen
         name="messages"
         options={{
           title: "Messages",
@@ -59,9 +54,9 @@ export default function TabLayout() {
             />
           ),
         }}
-      />
+      /> */}
       <Tabs.Screen
-        name="account"
+        name="account-home"
         options={{
           title: "Account",
           tabBarIcon: ({ color }) => (
@@ -73,7 +68,21 @@ export default function TabLayout() {
               color={color}
             />
           ),
-          headerShown: false,
+        }}
+      />
+      <Tabs.Screen
+        name="support"
+        options={{
+          title: "Support",
+          tabBarIcon: ({ color }) => (
+            <Icon
+              as={HelpCircle}
+              size="xl"
+              height={36}
+              width={36}
+              color={color}
+            />
+          ),
         }}
       />
     </Tabs>

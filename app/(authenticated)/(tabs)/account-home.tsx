@@ -9,7 +9,7 @@ import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { router, useNavigation } from "expo-router";
+import { Href, router, useNavigation } from "expo-router";
 import {
   Calendar,
   ChevronRight,
@@ -23,14 +23,7 @@ import {
 import { useEffect } from "react";
 import { Alert } from "react-native";
 
-type RoutePath =
-  | "/account/profile"
-  | "/account/offers"
-  | "/account/support"
-  | "/account/appointments"
-  | "/account/payment";
-
-const menuItems: { icon: any; label: string; route: RoutePath }[] = [
+const menuItems: { icon: any; label: string; route: Href }[] = [
   {
     icon: User,
     label: "Profile",
@@ -39,12 +32,12 @@ const menuItems: { icon: any; label: string; route: RoutePath }[] = [
   {
     icon: LayoutDashboard,
     label: "Services",
-    route: "/account/offers",
+    route: "/offers",
   },
   {
     icon: MessageSquare,
     label: "Customer Support",
-    route: "/account/support",
+    route: "/support",
   },
   {
     icon: Calendar,
@@ -116,12 +109,12 @@ export default function AccountScreen() {
   };
 
   return (
-    <FixedScreen addTopInset={true}>
+    <FixedScreen addTopInset={false}>
       <Box className="flex-1">
-        <VStack className="items-center mb-6 gap-3">
+        <VStack className="items-center my-6 gap-3">
           <Avatar
             size="xl"
-            className="border-4 border-blue-700 rounded-full shadow-sm active:opacity-60 overflow-hidden"
+            className="border-4 border-brand-500 rounded-full shadow-sm active:opacity-60 overflow-hidden"
           >
             <AvatarImage
               source={{

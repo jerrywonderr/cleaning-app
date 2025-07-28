@@ -13,12 +13,6 @@ export default function AccountLayout() {
       }}
     >
       <Stack.Screen
-        name="index"
-        options={{
-          title: "Account",
-        }}
-      />
-      <Stack.Screen
         name="support"
         options={{
           title: "Support",
