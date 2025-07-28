@@ -1,4 +1,5 @@
 import { HapticTab } from "@/lib/components/HapticTab";
+import ScreenHeader from "@/lib/components/ScreenHeader";
 import { Icon } from "@/lib/components/ui/icon";
 import TabBarBackground from "@/lib/components/ui/TabBarBackground";
 import { Colors } from "@/lib/constants/Colors";
@@ -25,6 +26,9 @@ export default function TabLayout() {
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
         headerTitleAlign: "center",
+        header: ({ navigation, options }) => (
+          <ScreenHeader navigation={navigation} title={options.title} />
+        ),
         tabBarStyle: Platform.select({
           ios: {
             // Use a transparent background on iOS to show the blur effect
