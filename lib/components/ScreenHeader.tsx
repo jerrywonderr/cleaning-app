@@ -1,20 +1,60 @@
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Box } from "./ui/box";
+import { Heading } from "./ui/heading";
 import { ChevronLeftIcon, Icon } from "./ui/icon";
 import { Pressable } from "./ui/pressable";
 
-export default function ScreenHeader({ navigation, }: { navigation: any }) {
+export default function ScreenHeader({
+  navigation,
+  title,
+  showBackButton = true,
+  onBackPress,
+  rightContent,
+}: {
+  navigation: any;
+  title?: string;
+  showBackButton?: boolean;
+  onBackPress?: () => void;
+  rightContent?: React.ReactNode;
+}) {
   const { top } = useSafeAreaInsets();
 
   return (
-    <Box style={{ paddingTop: top }}>
-      <Pressable onPress={() => navigation.canGoBack() && navigation.goBack()}>
-        <Icon
-          as={ChevronLeftIcon}
-          className="text-typography-900 m-2 w-10 h-10"
-          fill="none"
-        />
-      </Pressable>
+    <Box className="bg-white" style={{ paddingTop: top }}>
+      <Box className="flex-row items-center justify-between py-2 px-4">
+        {/* Left side - Back button or spacer */}
+        <Box className="w-10 h-10 justify-center items-center">
+          {showBackButton ? (
+            <Pressable
+              onPress={() =>
+                onBackPress
+                  ? onBackPress()
+                  : navigation.canGoBack() && navigation.goBack()
+              }
+            >
+              <Icon
+                as={ChevronLeftIcon}
+                className="text-typography-900 w-8 h-8"
+                fill="none"
+              />
+            </Pressable>
+          ) : null}
+        </Box>
+
+        {/* Center - Title */}
+        <Box className="flex-1 justify-center items-center">
+          {title && (
+            <Heading className="text-typography-900 text-2xl text-center">
+              {title}
+            </Heading>
+          )}
+        </Box>
+
+        {/* Right side - Custom content or spacer */}
+        <Box className="w-10 h-10 justify-center items-center">
+          {rightContent}
+        </Box>
+      </Box>
     </Box>
   );
 }
