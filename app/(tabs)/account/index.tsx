@@ -2,7 +2,7 @@ import ScreenHeader from "@/lib/components/ScreenHeader";
 import FixedScreen from "@/lib/components/screens/FixedScreen";
 import { Avatar, AvatarImage } from "@/lib/components/ui/avatar";
 import { Box } from "@/lib/components/ui/box";
-import { Button, ButtonIcon } from "@/lib/components/ui/button";
+import { Button, ButtonIcon, ButtonText } from "@/lib/components/ui/button";
 import { HStack } from "@/lib/components/ui/hstack";
 import { Icon } from "@/lib/components/ui/icon";
 import { Pressable } from "@/lib/components/ui/pressable";
@@ -13,6 +13,7 @@ import { router, useNavigation } from "expo-router";
 import {
   Calendar,
   ChevronRight,
+  CircleX,
   CreditCard,
   LayoutDashboard,
   LogOutIcon,
@@ -129,7 +130,7 @@ export default function AccountScreen() {
               alt="Profile Image"
             />
           </Avatar>
-          <Text className="text-xl font-bold text-black">Mr/Mrs Kay</Text>
+          <Text className="text-xl font-inter-bold text-black">Mr/Mrs Kay</Text>
         </VStack>
 
         <VStack className="gap-4">
@@ -144,23 +145,25 @@ export default function AccountScreen() {
               >
                 <HStack className="gap-4 items-center">
                   <Icon as={item.icon} className="text-black" size="xl" />
-                  <Text className="text-lg text-black">{item.label}</Text>
+                  <Text className="text-black font-inter-medium">
+                    {item.label}
+                  </Text>
                 </HStack>
                 <Icon as={ChevronRight} className="text-gray-400" size="xl" />
               </HStack>
             </Pressable>
           ))}
 
-          <Pressable
+          <Button
             onPress={confirmDeleteAccount}
-            className="active:opacity-70"
+            variant="solid"
+            action="negative"
+            size="lg"
+            className="mt-8 bg-red-600 rounded-lg h-16"
           >
-            <Box className="mt-6 items-center border border-red-300 rounded-lg px-4 py-2">
-              <Text className="text-red-600 font-semibold text-base">
-                Delete Account
-              </Text>
-            </Box>
-          </Pressable>
+            <ButtonIcon as={CircleX} className="h-6 w-6" />
+            <ButtonText>Delete Account</ButtonText>
+          </Button>
         </VStack>
       </Box>
     </FixedScreen>
