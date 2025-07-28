@@ -2,13 +2,13 @@ import { PrimaryButton } from "@/lib/components/custom-buttons";
 import { PasswordField } from "@/lib/components/form/PasswordField";
 import { TextField } from "@/lib/components/form/TextField";
 import Link from "@/lib/components/Link";
-import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
+import FixedScreen from "@/lib/components/screens/FixedScreen";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useRouter } from "expo-router";
 import { FormProvider, useForm } from "react-hook-form";
+import { ScrollView } from "react-native";
 import * as yup from "yup";
 
 const schema = yup.object().shape({
@@ -37,7 +37,6 @@ const schema = yup.object().shape({
 
 const Signup = () => {
   const { signup } = useAuthStore();
-  const router = useRouter();
   const methods = useForm({ mode: "all", resolver: yupResolver(schema) });
 
   const handleSignUp = async () => {
@@ -54,52 +53,53 @@ const Signup = () => {
   };
 
   return (
-    <ScrollableScreen addTopInset={false}>
-      <Text className="text-2xl font-bold mt-8 mb-6 text-left">
-        Create account
-      </Text>
-      <FormProvider {...methods}>
-        <VStack className="flex-1 gap-4">
-          <TextField name="firstName" label="First name" placeholder="Kay" />
-          <TextField
-            name="lastName"
-            label="Last name"
-            placeholder="Adegboyega"
-          />
-          <TextField name="phone" label="Phone" placeholder="+444874875048" />
-          <TextField name="dob" label="DOB" placeholder="08/08/72" />
-          <TextField
-            name="email"
-            label="Email"
-            placeholder="Sirphil987@gmail.com"
-          />
-          <PasswordField
-            name="password"
-            label="Password"
-            placeholder="Enter your password"
-          />
-          <PasswordField
-            name="cPassword"
-            label="Confirm Password"
-            placeholder="Confirm your password"
-          />
-
-          <VStack className="gap-4 mt-4">
-            <PrimaryButton
-              onPress={methods.handleSubmit(handleSignUp)}
-              isLoading={methods.formState.isSubmitting}
-              disabled={!methods.formState.isValid}
-            >
-              Confirm
-            </PrimaryButton>
-
-            <Text className="text-center font-medium">
-              Already have an account? <Link href="/login">Log in</Link>
-            </Text>
+    <FixedScreen addTopInset={false}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Text className="text-2xl font-inter-bold mt-8 mb-6 text-left">
+          Create account
+        </Text>
+        <FormProvider {...methods}>
+          <VStack className="flex-1 gap-4">
+            <TextField name="firstName" label="First name" placeholder="Kay" />
+            <TextField
+              name="lastName"
+              label="Last name"
+              placeholder="Adegboyega"
+            />
+            <TextField name="phone" label="Phone" placeholder="+444874875048" />
+            <TextField name="dob" label="DOB" placeholder="08/08/72" />
+            <TextField
+              name="email"
+              label="Email"
+              placeholder="Sirphil987@gmail.com"
+            />
+            <PasswordField
+              name="password"
+              label="Password"
+              placeholder="Enter your password"
+            />
+            <PasswordField
+              name="cPassword"
+              label="Confirm Password"
+              placeholder="Confirm your password"
+            />
           </VStack>
-        </VStack>
-      </FormProvider>
-    </ScrollableScreen>
+        </FormProvider>
+      </ScrollView>
+      <VStack className="gap-4 mt-4">
+        <PrimaryButton
+          onPress={methods.handleSubmit(handleSignUp)}
+          isLoading={methods.formState.isSubmitting}
+          disabled={!methods.formState.isValid}
+        >
+          Confirm
+        </PrimaryButton>
+
+        <Text className="text-center font-inter-medium">
+          Already have an account? <Link href="/login">Log in</Link>
+        </Text>
+      </VStack>
+    </FixedScreen>
   );
 };
 

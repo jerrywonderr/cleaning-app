@@ -5,7 +5,7 @@ import FixedScreen from "@/lib/components/screens/FixedScreen";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useRouter } from "expo-router";
+// import { useRouter } from "expo-router";
 import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
 
@@ -17,7 +17,7 @@ const schema = yup.object().shape({
 });
 
 const ForgotPassword = () => {
-  const router = useRouter();
+  // const router = useRouter();
 
   const methods = useForm({
     mode: "all",
@@ -48,7 +48,7 @@ const ForgotPassword = () => {
             >
               Send Reset Link
             </PrimaryButton>
-            <Text className="text-center font-medium">
+            <Text className="text-center font-inter-medium">
               Remembered your password? <Link href="/login">Back to login</Link>
             </Text>
           </VStack>

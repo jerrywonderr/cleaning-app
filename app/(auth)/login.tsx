@@ -34,21 +34,18 @@ const Login = () => {
       console.log("Login");
       const response = await login();
       console.log("Login response:", response);
-      router.push("/(tabs)"); // Redirect after login
+      router.push("/(authenticated)/(tabs)"); // Redirect after login
     } catch (err) {
       console.log("Login error:", err);
       methods.resetField("password");
     }
   };
 
-  const handleLogout = () => {
-    logout();
-    router.replace("/login"); // Or any other home route
-  };
-
   return (
     <FixedScreen addTopInset={false}>
-      <Text className="text-2xl font-bold mt-8 mb-6 text-left">Log in</Text>
+      <Text className="text-2xl font-inter-bold mt-8 mb-6 text-left">
+        Log in
+      </Text>
       <FormProvider {...methods}>
         <VStack className="flex-1 gap-4">
           <TextField name="email" label="Email" placeholder="your@email.com" />
@@ -73,8 +70,8 @@ const Login = () => {
               Confirm
             </PrimaryButton>
 
-            <Text className="text-center font-medium">
-              Already have an account? <Link href="/signup">Sign up</Link>
+            <Text className="text-center font-inter-medium">
+              Don&apos;t have an account? <Link href="/signup">Sign up</Link>
             </Text>
 
             {/* <SecondaryButton onPress={handleLogout}>Back Home</SecondaryButton> */}

@@ -122,7 +122,7 @@ const ProfileScreen = () => {
         </ScrollView>
 
         {/* Save Button */}
-        <Box>
+        <Box className="pt-4">
           <PrimaryButton onPress={handleSaveProfile} icon={Save}>
             Save Changes
           </PrimaryButton>

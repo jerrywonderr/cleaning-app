@@ -10,7 +10,7 @@ export default function Link({
   return (
     <GLink>
       <RNLink asChild {...props}>
-        <LinkText className={cn("font-medium", textClassName)}>
+        <LinkText className={cn("font-inter-medium", textClassName)}>
           {children}
         </LinkText>
       </RNLink>

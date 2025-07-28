@@ -8,6 +8,7 @@ import { Icon } from "@/lib/components/ui/icon";
 import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
+import { useAuthStore } from "@/lib/store/useAuthStore";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Href, router, useNavigation } from "expo-router";
 import {
@@ -20,7 +21,7 @@ import {
   MessageSquare,
   User,
 } from "lucide-react-native";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { Alert } from "react-native";
 
 const menuItems: { icon: any; label: string; route: Href }[] = [
@@ -54,6 +55,21 @@ const menuItems: { icon: any; label: string; route: Href }[] = [
 export default function AccountScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
 
+  const { logout } = useAuthStore();
+
+  const confirmLogout = useCallback(() => {
+    Alert.alert("Logout", "Are you sure you want to logout?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Logout",
+        style: "destructive",
+        onPress: () => {
+          logout();
+        },
+      },
+    ]);
+  }, [logout]);
+
   useEffect(() => {
     navigation.setOptions({
       header: ({ navigation, options }: { navigation: any; options: any }) => (
@@ -74,21 +90,7 @@ export default function AccountScreen() {
         />
       ),
     });
-  }, [navigation]);
-
-  const confirmLogout = () => {
-    Alert.alert("Logout", "Are you sure you want to logout?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Logout",
-        style: "destructive",
-        onPress: () => {
-          // TODO: Trigger logout logic
-          console.log("User logged out");
-        },
-      },
-    ]);
-  };
+  }, [navigation, confirmLogout]);
 
   const confirmDeleteAccount = () => {
     Alert.alert(
