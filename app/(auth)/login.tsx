@@ -22,7 +22,7 @@ const schema = yup.object().shape({
 });
 
 const Login = () => {
-  const { login, logout } = useAuthStore();
+  const { login } = useAuthStore();
   const router = useRouter();
 
   const methods = useForm({
