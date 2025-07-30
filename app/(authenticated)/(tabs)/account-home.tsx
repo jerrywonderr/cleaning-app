@@ -76,6 +76,7 @@ export default function AccountScreen() {
         <ScreenHeader
           navigation={navigation}
           title={options.title}
+          showBackButton={false}
           rightContent={
             <Button
               onPress={confirmLogout}

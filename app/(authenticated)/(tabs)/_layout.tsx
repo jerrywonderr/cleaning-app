@@ -16,9 +16,18 @@ export default function TabLayout() {
         headerShown: true,
         headerShadowVisible: false,
         headerTitleAlign: "center",
-        header: ({ navigation, options }) => (
-          <ScreenHeader navigation={navigation} title={options.title} />
-        ),
+        header: ({ navigation, options }) => {
+          const { title } = options;
+          const showBackButton = (options as any).showBackButton ?? true;
+
+          return (
+            <ScreenHeader
+              navigation={navigation}
+              title={title}
+              showBackButton={showBackButton}
+            />
+          );
+        },
       }}
     >
       <Tabs.Screen
@@ -33,12 +42,13 @@ export default function TabLayout() {
       />
       <Tabs.Screen
         name="offers"
-        options={{
+        options={() => ({
           title: "Offers",
+          showBackButton: false,
           tabBarIcon: ({ color }) => (
             <Icon as={Gift} size="xl" height={36} width={36} color={color} />
           ),
-        }}
+        })}
       />
       {/* <Tabs.Screen
         name="messages"
@@ -72,8 +82,9 @@ export default function TabLayout() {
       />
       <Tabs.Screen
         name="support"
-        options={{
+        options={() => ({
           title: "Support",
+          showBackButton: false,
           tabBarIcon: ({ color }) => (
             <Icon
               as={HelpCircle}
@@ -83,7 +94,7 @@ export default function TabLayout() {
               color={color}
             />
           ),
-        }}
+        })}
       />
     </Tabs>
   );
