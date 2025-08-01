@@ -3,7 +3,7 @@ import ScreenHeader from "@/lib/components/ScreenHeader";
 import { Icon } from "@/lib/components/ui/icon";
 // import { useColorScheme } from "@/lib/hooks/useColorScheme";
 import { Tabs } from "expo-router";
-import { Gift, HelpCircle, Home, UserRound } from "lucide-react-native";
+import { Calendar, Gift, Home, UserRound } from "lucide-react-native";
 import React from "react";
 
 export default function TabLayout() {
@@ -66,6 +66,22 @@ export default function TabLayout() {
         }}
       /> */}
       <Tabs.Screen
+        name="appointments"
+        options={() => ({
+          title: "Appointments",
+          showBackButton: false,
+          tabBarIcon: ({ color }) => (
+            <Icon
+              as={Calendar}
+              size="xl"
+              height={36}
+              width={36}
+              color={color}
+            />
+          ),
+        })}
+      />
+      <Tabs.Screen
         name="account-home"
         options={{
           title: "Account",
@@ -79,22 +95,6 @@ export default function TabLayout() {
             />
           ),
         }}
-      />
-      <Tabs.Screen
-        name="support"
-        options={() => ({
-          title: "Support",
-          showBackButton: false,
-          tabBarIcon: ({ color }) => (
-            <Icon
-              as={HelpCircle}
-              size="xl"
-              height={36}
-              width={36}
-              color={color}
-            />
-          ),
-        })}
       />
     </Tabs>
   );

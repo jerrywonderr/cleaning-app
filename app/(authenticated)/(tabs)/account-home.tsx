@@ -38,7 +38,7 @@ const menuItems: { icon: any; label: string; route: Href }[] = [
   {
     icon: MessageSquare,
     label: "Customer Support",
-    route: "/support",
+    route: "/account/support",
   },
   {
     icon: Calendar,
