@@ -16,10 +16,9 @@ import {
   ChevronRight,
   CircleX,
   CreditCard,
-  LayoutDashboard,
   LogOutIcon,
   MessageSquare,
-  User,
+  User
 } from "lucide-react-native";
 import { useCallback, useEffect } from "react";
 import { Alert } from "react-native";
@@ -29,11 +28,6 @@ const menuItems: { icon: any; label: string; route: Href }[] = [
     icon: User,
     label: "Profile",
     route: "/customer/account/view-profile",
-  },
-  {
-    icon: LayoutDashboard,
-    label: "Services",
-    route: "/customer/offers",
   },
   {
     icon: MessageSquare,
