@@ -28,27 +28,27 @@ const menuItems: { icon: any; label: string; route: Href }[] = [
   {
     icon: User,
     label: "Profile",
-    route: "/account/view-profile",
+    route: "/service-provider/account/view-profile",
   },
   {
     icon: LayoutDashboard,
     label: "Services",
-    route: "/offers",
+    route: "/service-provider/offers",
   },
   {
     icon: MessageSquare,
     label: "Customer Support",
-    route: "/account/support",
+    route: "/service-provider/account/support",
   },
   {
     icon: Calendar,
     label: "My Appointments",
-    route: "/account/appointments",
+    route: "/service-provider/account/appointments",
   },
   {
     icon: CreditCard,
     label: "Payment method",
-    route: "/account/payment",
+    route: "/service-provider/account/payment",
   },
 ];
 
