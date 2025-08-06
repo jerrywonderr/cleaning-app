@@ -15,8 +15,10 @@ import {
   ChevronRight,
   CircleX,
   CreditCard,
+  FileText,
   LogOutIcon,
   MessageSquare,
+  Shield,
   User
 } from "lucide-react-native";
 import { useCallback, useEffect } from "react";
@@ -37,6 +39,16 @@ const menuItems: { icon: any; label: string; route: Href }[] = [
     icon: CreditCard,
     label: "Payment method",
     route: "/customer/account/payment",
+  },
+  {
+    icon: Shield,
+    label: "Privacy Policy",
+    route: "/customer/account/privacy-policy",
+  },
+  {
+    icon: FileText,
+    label: "Terms of Service",
+    route: "/customer/account/terms-of-service",
   },
 ];
 
