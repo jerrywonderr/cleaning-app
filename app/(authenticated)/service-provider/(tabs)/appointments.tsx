@@ -1,8 +1,9 @@
+import AppointmentItem from "@/lib/components/AppointmentItem";
 import { Box } from "@/lib/components/ui/box";
 import { Icon } from "@/lib/components/ui/icon";
 import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
-import { Calendar, ChevronRight, Clock, User } from "lucide-react-native";
+import { Calendar } from "lucide-react-native";
 import { useState } from "react";
 
 // Single appointments list with status
@@ -13,7 +14,7 @@ const appointments = [
     time: "09:00",
     client: "Mrs/Mrs kay",
     service: "Deep Cleaning",
-    status: "upcoming"
+    status: "upcoming" as const
   },
   {
     id: 2,
@@ -21,7 +22,7 @@ const appointments = [
     time: "14:30",
     client: "Mr. Johnson",
     service: "Standard Cleaning",
-    status: "upcoming"
+    status: "upcoming" as const
   },
   {
     id: 3,
@@ -29,7 +30,7 @@ const appointments = [
     time: "11:00",
     client: "Ms. Smith",
     service: "Deep Cleaning",
-    status: "upcoming"
+    status: "upcoming" as const
   },
   {
     id: 4,
@@ -37,7 +38,7 @@ const appointments = [
     time: "16:00",
     client: "Dr. Williams",
     service: "Move-in Cleaning",
-    status: "upcoming"
+    status: "upcoming" as const
   },
   {
     id: 5,
@@ -45,7 +46,7 @@ const appointments = [
     time: "10:30",
     client: "Mrs. Davis",
     service: "Standard Cleaning",
-    status: "upcoming"
+    status: "upcoming" as const
   },
   {
     id: 6,
@@ -53,7 +54,7 @@ const appointments = [
     time: "09:00",
     client: "Mr. Brown",
     service: "Deep Cleaning",
-    status: "delivered"
+    status: "delivered" as const
   },
   {
     id: 7,
@@ -61,7 +62,7 @@ const appointments = [
     time: "14:00",
     client: "Ms. Wilson",
     service: "Standard Cleaning",
-    status: "delivered"
+    status: "delivered" as const
   },
   {
     id: 8,
@@ -69,7 +70,7 @@ const appointments = [
     time: "11:30",
     client: "Mrs. Taylor",
     service: "Move-out Cleaning",
-    status: "delivered"
+    status: "delivered" as const
   }
 ];
 
@@ -121,59 +122,16 @@ export default function AppointmentsScreen() {
           </Text>
         )}
         
-        {filteredAppointments.map((appointment, index) => (
-          <Pressable
+        {filteredAppointments.map((appointment) => (
+          <AppointmentItem
             key={appointment.id}
-            className="bg-white rounded-xl p-5 mb-4 shadow-sm border border-gray-100"
-          >
-            <Box className="flex-row items-start justify-between">
-              {/* Left side - Client and Service */}
-              <Box className="flex-1 mr-4">
-                <Box className="flex-row items-center mb-2">
-                  <Icon 
-                    as={User} 
-                    size="sm" 
-                    className="text-gray-400 mr-2" 
-                  />
-                  <Text className="text-base font-semibold text-gray-900">
-                    {appointment.client}
-                  </Text>
-                </Box>
-                <Text className="text-sm text-gray-600 ml-6">
-                  {appointment.service}
-                </Text>
-              </Box>
-
-              {/* Right side - Date, Time, and Arrow */}
-              <Box className="items-end justify-start">
-                <Box className="flex-row items-center mb-1">
-                  <Icon 
-                    as={Calendar} 
-                    size="sm" 
-                    className="text-gray-400 mr-1" 
-                  />
-                  <Text className="text-sm font-medium text-gray-900">
-                    {appointment.date}
-                  </Text>
-                </Box>
-                <Box className="flex-row items-center mb-2">
-                  <Icon 
-                    as={Clock} 
-                    size="sm" 
-                    className="text-gray-400 mr-1" 
-                  />
-                  <Text className="text-sm text-gray-600">
-                    {appointment.time}
-                  </Text>
-                </Box>
-                <Icon 
-                  as={ChevronRight} 
-                  size="sm" 
-                  className="text-gray-300" 
-                />
-              </Box>
-            </Box>
-          </Pressable>
+            id={appointment.id}
+            date={appointment.date}
+            time={appointment.time}
+            client={appointment.client}
+            service={appointment.service}
+            status={appointment.status}
+          />
         ))}
 
         {filteredAppointments.length === 0 && (
