@@ -12,7 +12,6 @@ import { useAuthStore } from "@/lib/store/useAuthStore";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Href, router, useNavigation } from "expo-router";
 import {
-  Calendar,
   ChevronRight,
   CircleX,
   CreditCard,
@@ -33,11 +32,6 @@ const menuItems: { icon: any; label: string; route: Href }[] = [
     icon: MessageSquare,
     label: "Customer Support",
     route: "/customer/account/support",
-  },
-  {
-    icon: Calendar,
-    label: "My Appointments",
-    route: "/customer/account/appointments",
   },
   {
     icon: CreditCard,
