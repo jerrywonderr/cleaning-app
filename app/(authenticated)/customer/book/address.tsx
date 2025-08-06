@@ -16,7 +16,9 @@ export default function AddressScreen() {
       </Box>
 
       <Box className="mb-6">
-        <PrimaryButton onPress={() => router.push("/book/service-type")}>
+        <PrimaryButton
+          onPress={() => router.push("/customer/book/service-type")}
+        >
           Next
         </PrimaryButton>
       </Box>

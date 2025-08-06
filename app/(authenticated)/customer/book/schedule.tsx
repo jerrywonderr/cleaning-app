@@ -45,7 +45,7 @@ export default function ScheduleStep() {
       </Box>
 
       <Box className="mb-6">
-        <PrimaryButton onPress={() => router.push("/book/confirm")}>
+        <PrimaryButton onPress={() => router.push("/customer/book/confirm")}>
           Next
         </PrimaryButton>
       </Box>

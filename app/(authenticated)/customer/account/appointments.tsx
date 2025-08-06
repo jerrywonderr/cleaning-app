@@ -7,17 +7,19 @@ import { WebBrowserResult } from "expo-web-browser";
 import { useState } from "react";
 
 export default function AppointmentsScreen() {
-  const [result,setResult] = useState<WebBrowserResult | null>(null)
+  const [result, setResult] = useState<WebBrowserResult | null>(null);
 
   const _handlePressButtonAsync = async () => {
-    let result = await WebBrowser.openBrowserAsync("https://paystack.shop/pay/lj60y-3np9");
+    let result = await WebBrowser.openBrowserAsync(
+      "https://paystack.shop/pay/lj60y-3np9"
+    );
     setResult(result);
   };
 
   return (
     <Box className="flex-1 items-center justify-center bg-white">
-      <PrimaryButton onPress={() => router.push("/book/address")}>
-          Book a cleaning appointment
+      <PrimaryButton onPress={() => router.push("/customer/book/address")}>
+        Book a cleaning appointment
       </PrimaryButton>
       <PrimaryButton onPress={_handlePressButtonAsync}>
         Open Web Browser

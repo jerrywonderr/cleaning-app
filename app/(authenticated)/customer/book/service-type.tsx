@@ -50,7 +50,7 @@ export default function ServiceTypeStep() {
 
       <Box className="mb-6">
         <PrimaryButton
-          onPress={() => router.push("/book/schedule")}
+          onPress={() => router.push("/customer/book/schedule")}
           isDisabled={!serviceType}
         >
           Next
