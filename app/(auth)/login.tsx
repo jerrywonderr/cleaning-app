@@ -9,7 +9,6 @@ import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useRouter } from "expo-router";
 import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
 
@@ -23,7 +22,6 @@ const schema = yup.object().shape({
 
 const Login = () => {
   const { login } = useAuthStore();
-  const router = useRouter();
 
   const methods = useForm({
     mode: "all",
@@ -33,9 +31,20 @@ const Login = () => {
   const handleLogin = async () => {
     try {
       console.log("Login");
-      const response = await login();
+      const formData = methods.getValues();
+      
+      const userData = {
+        email: formData.email,
+        firstName: "John", 
+        lastName: "Doe",  
+        phone: "+1234567890", 
+        dob: "01/01/1990", 
+        isServiceProvider: false, 
+      };
+      
+      const response = await login(userData);
       console.log("Login response:", response);
-      router.push("/(authenticated)/(tabs)"); // Redirect after login
+
     } catch (err) {
       console.log("Login error:", err);
       methods.resetField("password");

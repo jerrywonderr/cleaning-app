@@ -3,7 +3,9 @@ import { PasswordField } from "@/lib/components/form/PasswordField";
 import { TextField } from "@/lib/components/form/TextField";
 import Link from "@/lib/components/Link";
 import FixedScreen from "@/lib/components/screens/FixedScreen";
+import { Box } from "@/lib/components/ui/box";
 import { HStack } from "@/lib/components/ui/hstack";
+import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import { useAuthStore } from "@/lib/store/useAuthStore";
@@ -34,11 +36,18 @@ const schema = yup.object().shape({
     .string()
     .oneOf([yup.ref("password")], "Passwords do not match")
     .required("Confirm password field is required"),
+  isServiceProvider: yup.boolean().required(),
 });
 
 const Signup = () => {
   const { signup } = useAuthStore();
-  const methods = useForm({ mode: "all", resolver: yupResolver(schema) });
+  const methods = useForm({ 
+    mode: "all", 
+    resolver: yupResolver(schema),
+    defaultValues: {
+      isServiceProvider: false
+    }
+  });
 
   const handleSignUp = async () => {
     const payload = methods.getValues();
@@ -51,6 +60,11 @@ const Signup = () => {
       methods.resetField("password");
       methods.resetField("cPassword");
     }
+  };
+
+  const toggleServiceProvider = () => {
+    const currentValue = methods.getValues("isServiceProvider");
+    methods.setValue("isServiceProvider", !currentValue);
   };
 
   return (
@@ -84,6 +98,23 @@ const Signup = () => {
               label="Confirm Password"
               placeholder="Confirm your password"
             />
+            
+            {/* Service Provider Toggle */}
+            <Box className="flex-row items-center justify-between py-3">
+              <Text className="text-base font-medium text-gray-900">
+                I&apos;m a service provider
+              </Text>
+              <Pressable
+                onPress={toggleServiceProvider}
+                className={`w-12 h-6 rounded-full flex-row items-center ${
+                  methods.watch("isServiceProvider") 
+                    ? "bg-brand-500 justify-end" 
+                    : "bg-gray-300 justify-start"
+                }`}
+              >
+                <Box className="w-5 h-5 bg-white rounded-full mx-0.5 shadow-sm" />
+              </Pressable>
+            </Box>
           </VStack>
         </FormProvider>
       </ScrollView>

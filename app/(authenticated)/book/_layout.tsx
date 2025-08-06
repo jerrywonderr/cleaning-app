@@ -11,8 +11,8 @@ export default function BookLayout() {
         <Stack
           screenOptions={{
             headerShown: false,
-            // title: "Book Appointment",
           }}
+          initialRouteName="address"
         />
       </ScrollableScreen>
     </FormProvider>
