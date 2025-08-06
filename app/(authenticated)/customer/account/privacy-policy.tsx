@@ -24,11 +24,9 @@ export default function PrivacyPolicyScreen() {
 
   return (
     <ScrollableScreen>
-      <Box className="flex-1 px-4 py-6">
+      <Box className="flex-1 px-4 pb-6">
         <VStack className="gap-6">
-          <Text className="text-2xl font-inter-bold text-black mb-4">
-            Privacy Policy
-          </Text>
+
           
           <Text className="text-sm text-gray-600 mb-2">
             Last updated: {new Date().toLocaleDateString()}
