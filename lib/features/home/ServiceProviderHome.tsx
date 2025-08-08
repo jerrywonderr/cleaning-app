@@ -1,19 +1,28 @@
 import AppointmentItem from "@/lib/components/AppointmentItem";
 import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
+import { Button, ButtonText } from "@/lib/components/ui/button";
 import { HStack } from "@/lib/components/ui/hstack";
 import { Icon } from "@/lib/components/ui/icon";
 import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import { useAuthStore } from "@/lib/store/useAuthStore";
-import { Bell, Eye, EyeOff, Info } from "lucide-react-native";
+import { Bell, ChevronRight, Eye, EyeOff, Info } from "lucide-react-native";
 import React, { useState } from "react";
 
 export default function ServiceProviderHome() {
   const { user } = useAuthStore();
   const hasNotification = true;
   const [showBalance, setShowBalance] = useState(true);
+
+  const formatNaira = (amount: number): string => {
+    return new Intl.NumberFormat("en-NG", {
+      style: "currency",
+      currency: "NGN",
+      minimumFractionDigits: 2,
+    }).format(amount);
+  };
 
   return (
     <ScrollableScreen addTopInset={true} addBottomInset={false}>
@@ -43,23 +52,36 @@ export default function ServiceProviderHome() {
         </HStack>
 
         {/* Balance Card */}
-        <Box className="bg-brand-500 rounded-xl p-4 mb-6">
-          <HStack className="justify-between items-center mb-2">
-            <Text className="text-white font-medium text-base">
-              Available Balance
-            </Text>
-            <Pressable onPress={() => setShowBalance((prev) => !prev)}>
-              <Icon as={showBalance ? EyeOff : Eye} className="text-white" />
+        <Box className="bg-brand-500 px-6 py-4 mb-6 gap-3 rounded-xl">
+          <HStack className="justify-between items-center gap-4 mb-2">
+            <HStack className="gap-2">
+              <Text className="text-white">Available Balance</Text>
+              <Pressable onPress={() => setShowBalance((prev) => !prev)}>
+                <Icon
+                  as={showBalance ? EyeOff : Eye}
+                  size="xl"
+                  className="text-white"
+                />
+              </Pressable>
+            </HStack>
+
+            <Pressable>
+              <HStack className="items-center gap-1">
+                <Text className="text-sm text-white">Transaction History</Text>
+                <Icon as={ChevronRight} size="sm" className="text-white" />
+              </HStack>
             </Pressable>
           </HStack>
-          <Text className="text-2xl font-bold text-white mb-2">
-            {showBalance ? "$250.00" : "•••••"}
-          </Text>
-          <Pressable>
-            <Text className="text-sm text-white underline">
-              View Transaction History
+          <HStack className="justify-between items-center gap-4 mb-2">
+            <Text className="text-4xl font-bold text-white mb-2">
+              {showBalance ? formatNaira(85000) : "****"}
             </Text>
-          </Pressable>
+            <Button className="bg-white rounded-2xl">
+              <ButtonText className="text-brand-500 text-lg">
+                Cashout
+              </ButtonText>
+            </Button>
+          </HStack>
         </Box>
 
         {/* Upcoming Appointments */}
