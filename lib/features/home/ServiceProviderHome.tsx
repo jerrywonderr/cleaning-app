@@ -7,68 +7,60 @@ import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import { useAuthStore } from "@/lib/store/useAuthStore";
-import { Bell, Info } from "lucide-react-native";
-import React from "react";
+import { Bell, Eye, EyeOff, Info } from "lucide-react-native";
+import React, { useState } from "react";
 
 export default function ServiceProviderHome() {
   const { user } = useAuthStore();
   const hasNotification = true;
+  const [showBalance, setShowBalance] = useState(true);
 
   return (
     <ScrollableScreen addTopInset={true} addBottomInset={false}>
-      <Box className="mb-4">
+      <Box>
         {/* Header */}
-        <HStack className="flex-row justify-between items-center">
-          <VStack>
-            <Text className="text-2xl font-inter-bold mt-8 mb-6 text-left">
-              Welcome back, {user?.firstName}!
-            </Text>
-            <Text className="text-gray-600">
-              Service Provider Dashboard
-            </Text>
-          </VStack>
+        <HStack className="flex-row justify-between items-center mb-4 pt-4">
+          <Text className="text-2xl font-inter-bold">
+            Welcome back, {user?.firstName}!
+          </Text>
           <HStack className="flex-row gap-3">
             <Pressable>
               <Box className="relative">
                 <Box className="bg-[#e3e5f4] p-2.5 rounded-xl">
-                  <Icon className="" as={Bell} />
+                  <Icon as={Bell} />
                 </Box>
-
                 {hasNotification && (
-                  <Box className="absolute top-2 right-2 w-2 h-2 bg-red-500" />
+                  <Box className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full" />
                 )}
               </Box>
             </Pressable>
             <Pressable>
               <Box className="bg-[#e3e5f4] p-2.5 rounded-xl">
-                <Icon className="" as={Info} />
+                <Icon as={Info} />
               </Box>
             </Pressable>
           </HStack>
         </HStack>
 
-        {/* Quick Stats */}
-        <Box className="bg-gray-50 rounded-xl p-6 mb-6">
-          <Text className="text-lg font-semibold text-gray-900 mb-4">
-            Today&apos;s Overview
+        {/* Balance Card */}
+        <Box className="bg-brand-500 rounded-xl p-4 mb-6">
+          <HStack className="justify-between items-center mb-2">
+            <Text className="text-white font-medium text-base">
+              Available Balance
+            </Text>
+            <Pressable onPress={() => setShowBalance((prev) => !prev)}>
+              <Icon as={showBalance ? EyeOff : Eye} className="text-white" />
+            </Pressable>
+          </HStack>
+          <Text className="text-2xl font-bold text-white mb-2">
+            {showBalance ? "$250.00" : "•••••"}
           </Text>
-          <VStack className="space-y-3">
-            <Box className="flex-row justify-between">
-              <Text className="text-gray-600">Pending Jobs</Text>
-              <Text className="font-semibold text-gray-900">5</Text>
-            </Box>
-            <Box className="flex-row justify-between">
-              <Text className="text-gray-600">Completed Today</Text>
-              <Text className="font-semibold text-gray-900">3</Text>
-            </Box>
-            <Box className="flex-row justify-between">
-              <Text className="text-gray-600">Earnings Today</Text>
-              <Text className="font-semibold text-green-600">$120</Text>
-            </Box>
-          </VStack>
+          <Pressable>
+            <Text className="text-sm text-white underline">
+              View Transaction History
+            </Text>
+          </Pressable>
         </Box>
-
-
 
         {/* Upcoming Appointments */}
         <Text className="text-lg font-semibold text-gray-900 mb-4">
@@ -82,7 +74,7 @@ export default function ServiceProviderHome() {
               time: "14:00",
               client: "Mrs. Johnson",
               service: "Deep Cleaning",
-              status: "upcoming" as const
+              status: "upcoming" as const,
             },
             {
               id: 2,
@@ -90,7 +82,7 @@ export default function ServiceProviderHome() {
               time: "10:00",
               client: "Mr. Smith",
               service: "Standard Cleaning",
-              status: "upcoming" as const
+              status: "upcoming" as const,
             },
             {
               id: 3,
@@ -98,7 +90,7 @@ export default function ServiceProviderHome() {
               time: "13:30",
               client: "Ms. Davis",
               service: "Move-in Cleaning",
-              status: "upcoming" as const
+              status: "upcoming" as const,
             },
           ].map((appointment) => (
             <AppointmentItem
@@ -115,4 +107,4 @@ export default function ServiceProviderHome() {
       </Box>
     </ScrollableScreen>
   );
-} 
+}
