@@ -1,30 +1,26 @@
 import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
-import { HStack } from "@/lib/components/ui/hstack";
-import { Icon } from "@/lib/components/ui/icon";
-import { Pressable } from "@/lib/components/ui/pressable";
-import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
-import { ChevronRight } from "lucide-react-native";
-import { Image } from "react-native";
+import OfferCard, { OfferCardProps } from "@/lib/features/offers/OfferCard";
+import { useRouter } from "expo-router";
 
-const offers = [
+const offers: OfferCardProps[] = [
   {
     title: "Cleaning",
-    price: "$789.78",
+    price: 15000,
     provider: "Mr kay",
     description: "Classic Cleaning",
     image: "https://picsum.photos/200/200",
   },
   {
     title: "Cleaning",
-    price: "$789.78",
+    price: 32500,
     provider: "Mr kay",
     description: "Classic Cleaning",
     image: "https://picsum.photos/200/200",
   },
   {
     title: "Cleaning",
-    price: "$789.78",
+    price: 257000,
     provider: "Mr kay",
     description: "Classic Cleaning",
     image: "https://picsum.photos/200/200",
@@ -32,44 +28,32 @@ const offers = [
 ];
 
 export default function OffersScreen() {
+  const router = useRouter();
+
   return (
     <ScrollableScreen
       addTopInset={false}
       addBottomInset={false}
       contentContainerClassName="px-[0]"
     >
-      <VStack className="gap-6 mt-4 py-4">
-        {offers.map((service, idx) => (
-          <Pressable
+      <VStack className="gap-3">
+        {offers.map((offer, idx) => (
+          <OfferCard
             key={idx}
-            className="rounded-2xl bg-white shadow-sm p-4 mx-4"
-          >
-            <HStack className="items-center justify-between">
-              <HStack className="gap-5">
-                <Image
-                  source={{ uri: service.image }}
-                  style={{
-                    width: 72,
-                    height: 72,
-                    borderRadius: 16,
-                    backgroundColor: "#f0f0f0",
-                  }}
-                />
-                <VStack className="justify-center">
-                  <Text className="text-lg font-inter-bold text-gray-900">
-                    {service.title}
-                  </Text>
-                  <Text className="text-base text-gray-800 font-inter-medium">
-                    {service.price} • {service.provider}
-                  </Text>
-                  <Text className="text-sm text-gray-500">
-                    {service.description}
-                  </Text>
-                </VStack>
-              </HStack>
-              <Icon as={ChevronRight} className="text-gray-300" size="md" />
-            </HStack>
-          </Pressable>
+            {...offer}
+            onPress={() =>
+              router.push({
+                pathname: "/customer/customer-offer-details",
+                params: {
+                  title: offer.title,
+                  price: offer.price.toString(),
+                  provider: offer.provider,
+                  description: offer.description,
+                  image: offer.image,
+                },
+              })
+            }
+          />
         ))}
       </VStack>
     </ScrollableScreen>
