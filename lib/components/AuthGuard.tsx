@@ -14,7 +14,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       // Redirect to the login page if not authenticated
       router.replace("/login");
     } else if (isAuthenticated && inAuthGroup) {
-      if (!user?.isServiceProvider) {
+      if (user?.isServiceProvider) {
         // Redirect to service provider home if authenticated as a service provider
         router.replace("/service-provider");
       } else {
