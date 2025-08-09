@@ -45,7 +45,7 @@ export default function CustomerHome() {
         </HStack>
 
         {/* Address Card */}
-        <Box className="bg-[#454eb0] p-3 rounded-xl mb-4">
+        <Box className="bg-brand-500 p-3 rounded-xl mb-4">
           <HStack className="flex-row items-center gap-3">
             <Box className="bg-white p-2 rounded-full">
               <Icon className="" as={Send} />
@@ -172,4 +172,4 @@ export default function CustomerHome() {
       </Box>
     </ScrollableScreen>
   );
-} 
+}
