@@ -1,4 +1,3 @@
-import AppointmentItem from "@/lib/components/AppointmentItem";
 import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
 import { Button, ButtonText } from "@/lib/components/ui/button";
@@ -7,6 +6,7 @@ import { Icon } from "@/lib/components/ui/icon";
 import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
+import AppointmentItem from "@/lib/features/appointments/AppointmentItem";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { Bell, ChevronRight, Eye, EyeOff, Info } from "lucide-react-native";
 import React, { useState } from "react";
