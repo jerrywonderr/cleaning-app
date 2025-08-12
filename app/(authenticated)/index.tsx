@@ -6,18 +6,20 @@ import { router, useFocusEffect } from "expo-router";
 import { useCallback } from "react";
 
 export default function WelcomeSreen() {
-  const { user } = useAuthStore();
+  const { isServiceProvider } = useAuthStore();
 
   useFocusEffect(
     useCallback(() => {
-      setTimeout(() => {
-        if (user?.isServiceProvider) {
+      const timeout = setTimeout(() => {
+        if (isServiceProvider) {
           router.replace("/service-provider");
         } else {
           router.replace("/customer");
         }
       }, 1500); // Simulate a delay for the welcome screen
-    }, [])
+
+      return () => clearTimeout(timeout);
+    }, [isServiceProvider])
   );
 
   return (

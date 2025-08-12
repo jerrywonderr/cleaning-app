@@ -14,6 +14,7 @@ interface User {
 
 interface AuthState {
   isAuthenticated: boolean;
+  isServiceProvider: boolean;
   user: User | null;
   login: (userData: User) => void;
   logout: () => void;
@@ -25,7 +26,13 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       isAuthenticated: false,
       user: null,
-      login: (userData: User) => set({ isAuthenticated: true, user: userData }),
+      isServiceProvider: false,
+      login: (userData: User) =>
+        set({
+          isAuthenticated: true,
+          user: userData,
+          isServiceProvider: !userData.isServiceProvider,
+        }),
       logout: () => set({ isAuthenticated: false, user: null }),
       signup: async (payload: any) => {
         // Create user object from signup payload
@@ -37,7 +44,7 @@ export const useAuthStore = create<AuthState>()(
           dob: payload.dob,
           isServiceProvider: payload.isServiceProvider,
         };
-        
+
         set({ isAuthenticated: true, user: userData });
         return { success: true };
       },
