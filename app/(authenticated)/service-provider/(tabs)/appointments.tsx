@@ -213,6 +213,7 @@ export default function AppointmentsScreen() {
               />
             )}
             showsVerticalScrollIndicator={false}
+            ItemSeparatorComponent={() => <Box className="h-4" />}
           />
         ) : (
           <Box className="flex-1 items-center justify-center py-12">

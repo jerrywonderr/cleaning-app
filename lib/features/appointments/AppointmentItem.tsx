@@ -11,7 +11,7 @@ interface AppointmentItemProps {
   time: string;
   client: string;
   service: string;
-  status: 'upcoming' | 'delivered' | 'completed' | 'cancelled';
+  status: "upcoming" | "delivered" | "completed" | "cancelled";
   onPress?: () => void;
   className?: string;
 }
@@ -24,60 +24,38 @@ export default function AppointmentItem({
   service,
   status,
   onPress,
-  className = ""
+  className = "",
 }: AppointmentItemProps) {
   return (
     <Pressable
       onPress={onPress}
-      className={`bg-white rounded-xl p-5 mb-4 shadow-sm border border-gray-100 ${className}`}
+      className={`bg-white rounded-xl shadow-sm border border-gray-100 ${className}`}
     >
-      <Box className="flex-row items-start justify-between">
-        {/* Left side - Client and Service */}
+      <Box className="flex-row items-start justify-between p-4">
+        {/* Left side - Client & Service */}
         <Box className="flex-1 mr-4">
-          <Box className="flex-row items-center mb-2">
-            <Icon 
-              as={User} 
-              size="sm" 
-              className="text-gray-400 mr-2" 
-            />
+          <Box className="flex-row items-center mb-1">
+            <Icon as={User} size="sm" className="text-gray-400 mr-2" />
             <Text className="text-base font-semibold text-gray-900">
               {client}
             </Text>
           </Box>
-          <Text className="text-sm text-gray-600 ml-6">
-            {service}
-          </Text>
+          <Text className="text-sm text-gray-600 ml-6">{service}</Text>
         </Box>
 
-        {/* Right side - Date, Time, and Arrow */}
-        <Box className="items-end justify-start">
+        {/* Right side - Date & Time */}
+        <Box className="items-end">
           <Box className="flex-row items-center mb-1">
-            <Icon 
-              as={Calendar} 
-              size="sm" 
-              className="text-gray-400 mr-1" 
-            />
-            <Text className="text-sm font-medium text-gray-900">
-              {date}
-            </Text>
+            <Icon as={Calendar} size="sm" className="text-gray-400 mr-1" />
+            <Text className="text-sm font-medium text-gray-900">{date}</Text>
           </Box>
           <Box className="flex-row items-center mb-2">
-            <Icon 
-              as={Clock} 
-              size="sm" 
-              className="text-gray-400 mr-1" 
-            />
-            <Text className="text-sm text-gray-600">
-              {time}
-            </Text>
+            <Icon as={Clock} size="sm" className="text-gray-400 mr-1" />
+            <Text className="text-sm text-gray-600">{time}</Text>
           </Box>
-          <Icon 
-            as={ChevronRight} 
-            size="sm" 
-            className="text-gray-300" 
-          />
+          <Icon as={ChevronRight} size="sm" className="text-gray-300" />
         </Box>
       </Box>
     </Pressable>
   );
-} 
+}
