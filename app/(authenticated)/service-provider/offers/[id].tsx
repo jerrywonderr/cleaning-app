@@ -49,7 +49,7 @@ export default function OfferDetailsScreen() {
             try {
               await deleteOfferMutation.mutateAsync(offerId);
               router.back();
-            } catch (error) {
+            } catch {
               Alert.alert("Error", "Failed to delete offer. Please try again.");
             }
           },

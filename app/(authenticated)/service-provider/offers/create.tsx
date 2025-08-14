@@ -52,7 +52,7 @@ export default function CreateOfferScreen() {
       await createOfferMutation.mutateAsync(formData);
       Alert.alert("Success", "Offer created successfully!");
       router.back();
-    } catch (error) {
+    } catch {
       Alert.alert("Error", "Failed to create offer. Please try again.");
     }
   };

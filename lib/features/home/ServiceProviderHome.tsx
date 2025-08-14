@@ -88,7 +88,7 @@ export default function ServiceProviderHome() {
             </Pressable>
           </HStack>
           <HStack className="justify-between items-center gap-1 mb-2">
-            <Text className="text-2xl font-bold text-white">
+            <Text className="text-2xl font-inter-bold text-white">
               {showBalance ? formatNaira(85000) : "****"}
             </Text>
             <Button className="bg-white rounded-full">

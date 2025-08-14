@@ -70,7 +70,7 @@ export default function EditOfferScreen() {
 
       Alert.alert("Success", "Offer updated successfully!");
       router.back();
-    } catch (error) {
+    } catch {
       Alert.alert("Error", "Failed to update offer. Please try again.");
     }
   };
