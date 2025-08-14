@@ -8,7 +8,7 @@ import { Icon } from "@/lib/components/ui/icon";
 import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
-import { useAuthStore } from "@/lib/store/useAuthStore";
+import { useSignOut } from "@/lib/hooks/useAuth";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Href, router, useNavigation } from "expo-router";
 import {
@@ -19,7 +19,7 @@ import {
   LogOutIcon,
   MessageSquare,
   Shield,
-  User
+  User,
 } from "lucide-react-native";
 import { useCallback, useEffect } from "react";
 import { Alert } from "react-native";
@@ -54,8 +54,7 @@ const menuItems: { icon: any; label: string; route: Href }[] = [
 
 export default function AccountScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
-
-  const { logout } = useAuthStore();
+  const signOutMutation = useSignOut();
 
   const confirmLogout = useCallback(() => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
@@ -63,12 +62,16 @@ export default function AccountScreen() {
       {
         text: "Logout",
         style: "destructive",
-        onPress: () => {
-          logout();
+        onPress: async () => {
+          try {
+            await signOutMutation.mutateAsync();
+          } catch (error) {
+            console.error("Logout error:", error);
+          }
         },
       },
     ]);
-  }, [logout]);
+  }, [signOutMutation]);
 
   useEffect(() => {
     navigation.setOptions({

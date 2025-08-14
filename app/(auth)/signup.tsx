@@ -8,8 +8,10 @@ import { HStack } from "@/lib/components/ui/hstack";
 import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
-import { useAuthStore } from "@/lib/store/useAuthStore";
+import { useSignUp } from "@/lib/hooks/useAuth";
+import { getAuthErrorMessage } from "@/lib/utils/errorHandling";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { ScrollView } from "react-native";
 import * as yup from "yup";
@@ -40,23 +42,40 @@ const schema = yup.object().shape({
 });
 
 const Signup = () => {
-  const { signup } = useAuthStore();
-  const methods = useForm({ 
-    mode: "all", 
+  const [error, setError] = useState<string | null>(null);
+  const signUpMutation = useSignUp();
+
+  const methods = useForm({
+    mode: "all",
     resolver: yupResolver(schema),
     defaultValues: {
-      isServiceProvider: false
-    }
+      isServiceProvider: false,
+    },
   });
 
+  // Clear error when component mounts or when form changes
+  useEffect(() => {
+    setError(null);
+  }, []);
+
   const handleSignUp = async () => {
-    const payload = methods.getValues();
     try {
-      const response = await signup(payload);
-      console.log(response);
-      // router.push("/(auth)/activate-account");
+      setError(null);
+      const payload = methods.getValues();
+
+      await signUpMutation.mutateAsync({
+        email: payload.email,
+        password: payload.password,
+        firstName: payload.firstName,
+        lastName: payload.lastName,
+        phone: payload.phone,
+        dob: payload.dob,
+        isServiceProvider: payload.isServiceProvider,
+      });
     } catch (err: any) {
       console.log(err);
+      const errorMessage = getAuthErrorMessage(err.code);
+      setError(errorMessage);
       methods.resetField("password");
       methods.resetField("cPassword");
     }
@@ -73,6 +92,13 @@ const Signup = () => {
         <Text className="text-2xl font-inter-bold mt-8 mb-6 text-left">
           Create account
         </Text>
+
+        {error && (
+          <Box className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <Text className="text-red-700">{error}</Text>
+          </Box>
+        )}
+
         <FormProvider {...methods}>
           <VStack className="flex-1 gap-4">
             <TextField name="firstName" label="First name" placeholder="Kay" />
@@ -98,7 +124,7 @@ const Signup = () => {
               label="Confirm Password"
               placeholder="Confirm your password"
             />
-            
+
             {/* Service Provider Toggle */}
             <Box className="flex-row items-center justify-between py-3">
               <Text className="text-base font-medium text-gray-900">
@@ -107,8 +133,8 @@ const Signup = () => {
               <Pressable
                 onPress={toggleServiceProvider}
                 className={`w-12 h-6 rounded-full flex-row items-center ${
-                  methods.watch("isServiceProvider") 
-                    ? "bg-brand-500 justify-end" 
+                  methods.watch("isServiceProvider")
+                    ? "bg-brand-500 justify-end"
                     : "bg-gray-300 justify-start"
                 }`}
               >
@@ -121,8 +147,8 @@ const Signup = () => {
       <VStack className="gap-4 mt-4">
         <PrimaryButton
           onPress={methods.handleSubmit(handleSignUp)}
-          isLoading={methods.formState.isSubmitting}
-          disabled={!methods.formState.isValid}
+          isLoading={signUpMutation.isPending}
+          disabled={!methods.formState.isValid || signUpMutation.isPending}
         >
           Confirm
         </PrimaryButton>

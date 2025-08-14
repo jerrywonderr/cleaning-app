@@ -7,12 +7,13 @@ import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import AppointmentItem from "@/lib/features/appointments/AppointmentItem";
-import { useAuthStore } from "@/lib/store/useAuthStore";
+import { useUserStore } from "@/lib/store/useUserStore";
 import { Bell, ChevronRight, Eye, EyeOff, Info } from "lucide-react-native";
 import React, { useState } from "react";
 
 export default function ServiceProviderHome() {
-  const { user } = useAuthStore();
+  const { profile } = useUserStore();
+
   const hasNotification = true;
   const [showBalance, setShowBalance] = useState(true);
 
@@ -24,13 +25,23 @@ export default function ServiceProviderHome() {
     }).format(amount);
   };
 
+  if (!profile) {
+    return (
+      <ScrollableScreen addTopInset={true} addBottomInset={false}>
+        <Box className="flex-1 items-center justify-center">
+          <Text>Loading...</Text>
+        </Box>
+      </ScrollableScreen>
+    );
+  }
+
   return (
     <ScrollableScreen addTopInset={true} addBottomInset={false}>
       <Box>
         {/* Header */}
         <HStack className="flex-row justify-between items-center mb-4 pt-4">
           <Text className="text-2xl font-inter-bold">
-            Welcome back, {user?.firstName}!
+            Welcome back, {profile.firstName || "Service Provider"}!
           </Text>
           <HStack className="flex-row gap-3">
             <Pressable>
