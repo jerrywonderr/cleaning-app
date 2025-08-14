@@ -5,15 +5,15 @@ import Link from "@/lib/components/Link";
 import FixedScreen from "@/lib/components/screens/FixedScreen";
 import { Box } from "@/lib/components/ui/box";
 import { HStack } from "@/lib/components/ui/hstack";
-import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import { useSignUp } from "@/lib/hooks/useAuth";
 import { getAuthErrorMessage } from "@/lib/utils/errorHandling";
 import { yupResolver } from "@hookform/resolvers/yup";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { ScrollView } from "react-native";
+import { Pressable, ScrollView, Switch, View } from "react-native";
 import * as yup from "yup";
 
 const schema = yup.object().shape({
@@ -43,6 +43,7 @@ const schema = yup.object().shape({
 
 const Signup = () => {
   const [error, setError] = useState<string | null>(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const signUpMutation = useSignUp();
 
   const methods = useForm({
@@ -81,11 +82,6 @@ const Signup = () => {
     }
   };
 
-  const toggleServiceProvider = () => {
-    const currentValue = methods.getValues("isServiceProvider");
-    methods.setValue("isServiceProvider", !currentValue);
-  };
-
   return (
     <FixedScreen>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -107,40 +103,80 @@ const Signup = () => {
               label="Last name"
               placeholder="Adegboyega"
             />
-            <TextField name="phone" label="Phone" placeholder="+444874875048" />
-            <TextField name="dob" label="DOB" placeholder="08/08/72" />
+            <TextField
+              name="phone"
+              label="Phone"
+              placeholder="+444874875048"
+              keyboardType="phone-pad"
+            />
+
+            {/* DOB Date Picker */}
+            <Pressable onPress={() => setShowDatePicker(true)}>
+              <View pointerEvents="none">
+                <TextField
+                  name="dob"
+                  label="DOB"
+                  placeholder="Select date of birth"
+                  editable={false}
+                  value={methods.watch("dob")}
+                />
+              </View>
+            </Pressable>
+
+            {showDatePicker && (
+              <DateTimePicker
+                value={
+                  methods.watch("dob")
+                    ? new Date(methods.watch("dob"))
+                    : new Date()
+                }
+                mode="date"
+                display="default"
+                maximumDate={new Date()}
+                onChange={(event, selectedDate) => {
+                  setShowDatePicker(false);
+                  if (selectedDate) {
+                    const formatted = selectedDate.toLocaleDateString();
+                    methods.setValue("dob", formatted, {
+                      shouldValidate: true,
+                    });
+                  }
+                }}
+              />
+            )}
+
             <TextField
               name="email"
               label="Email"
               placeholder="Sirphil987@gmail.com"
+              autoCapitalize="none"
+              keyboardType="email-address"
             />
             <PasswordField
               name="password"
               label="Password"
               placeholder="Enter your password"
+              autoCapitalize="none"
             />
             <PasswordField
               name="cPassword"
               label="Confirm Password"
               placeholder="Confirm your password"
+              autoCapitalize="none"
             />
 
             {/* Service Provider Toggle */}
-            <Box className="flex-row items-center justify-between py-3">
+            <HStack className="items-center justify-between">
               <Text className="text-base font-medium text-gray-900">
                 I&apos;m a service provider
               </Text>
-              <Pressable
-                onPress={toggleServiceProvider}
-                className={`w-12 h-6 rounded-full flex-row items-center ${
-                  methods.watch("isServiceProvider")
-                    ? "bg-brand-500 justify-end"
-                    : "bg-gray-300 justify-start"
-                }`}
-              >
-                <Box className="w-5 h-5 bg-white rounded-full mx-0.5 shadow-sm" />
-              </Pressable>
-            </Box>
+              <Switch
+                value={methods.watch("isServiceProvider")}
+                onValueChange={(val) =>
+                  methods.setValue("isServiceProvider", val)
+                }
+              />
+            </HStack>
           </VStack>
         </FormProvider>
       </ScrollView>
