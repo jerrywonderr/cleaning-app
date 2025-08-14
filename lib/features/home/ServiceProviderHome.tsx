@@ -54,12 +54,14 @@ export default function ServiceProviderHome() {
         {/* Balance Card */}
         <Box className="bg-brand-500 px-6 py-4 mb-6 gap-3 rounded-xl">
           <HStack className="justify-between items-center gap-4 mb-2">
-            <HStack className="gap-2">
-              <Text className="text-white">Available Balance</Text>
+            <HStack className="gap-3">
+              <Text className="text-white text-sm font-inter-semibold">
+                Available Balance
+              </Text>
               <Pressable onPress={() => setShowBalance((prev) => !prev)}>
                 <Icon
                   as={showBalance ? EyeOff : Eye}
-                  size="xl"
+                  size="lg"
                   className="text-white"
                 />
               </Pressable>
@@ -67,17 +69,19 @@ export default function ServiceProviderHome() {
 
             <Pressable>
               <HStack className="items-center gap-1">
-                <Text className="text-sm text-white">Transaction History</Text>
+                <Text className="text-sm font-bold text-white">
+                  Transaction History
+                </Text>
                 <Icon as={ChevronRight} size="sm" className="text-white" />
               </HStack>
             </Pressable>
           </HStack>
-          <HStack className="justify-between items-center gap-4 mb-2">
-            <Text className="text-4xl font-bold text-white mb-2">
+          <HStack className="justify-between items-center gap-1 mb-2">
+            <Text className="text-2xl font-bold text-white">
               {showBalance ? formatNaira(85000) : "****"}
             </Text>
-            <Button className="bg-white rounded-2xl">
-              <ButtonText className="text-brand-500 text-lg">
+            <Button className="bg-white rounded-full">
+              <ButtonText className="text-brand-500 text-sm">
                 Cashout
               </ButtonText>
             </Button>
