@@ -43,7 +43,7 @@ export default function OffersScreen() {
             {...offer}
             onPress={() =>
               router.push({
-                pathname: "/service-provider/service-provider-offer-details",
+                pathname: "/service-provider/offer-details",
                 params: {
                   title: offer.title,
                   price: offer.price.toString(),
