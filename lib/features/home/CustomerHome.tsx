@@ -5,12 +5,14 @@ import { Icon } from "@/lib/components/ui/icon";
 import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
+import { useUserStore } from "@/lib/store/useUserStore";
 import { Bell, Info, Send, WashingMachine } from "lucide-react-native";
 import React from "react";
 import { Dimensions, Image as RNImage } from "react-native";
 import Carousel from "react-native-reanimated-carousel";
 
 export default function CustomerHome() {
+  const { profile } = useUserStore();
   const hasNotification = true;
   const [currentIndex, setCurrentIndex] = React.useState(0);
 
@@ -21,7 +23,7 @@ export default function CustomerHome() {
         <HStack className="flex-row justify-between items-center">
           <VStack>
             <Text className="text-2xl font-inter-bold mt-8 mb-6 text-left">
-              Hello, Kay!
+              Hello, {profile?.firstName || "Customer"}!
             </Text>
           </VStack>
           <HStack className="flex-row gap-3">

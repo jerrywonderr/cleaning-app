@@ -1,0 +1,234 @@
+import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
+import { Box } from "@/lib/components/ui/box";
+import { Button, ButtonText } from "@/lib/components/ui/button";
+import { HStack } from "@/lib/components/ui/hstack";
+import { Icon } from "@/lib/components/ui/icon";
+import { Text } from "@/lib/components/ui/text";
+import { VStack } from "@/lib/components/ui/vstack";
+import { useOffer } from "@/lib/hooks/useOffers";
+import { formatNaira } from "@/lib/utils/formatNaira";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { Clock, MapPin, MessageCircle, Phone, Star } from "lucide-react-native";
+import { Alert, Image } from "react-native";
+
+type URLParams = {
+  id: string;
+};
+
+export default function CustomerOfferDetailsScreen() {
+  const router = useRouter();
+  const params = useLocalSearchParams<URLParams>();
+  const offerId = params.id as string;
+
+  // Fetch offer data using the service
+  const { data: offer, isLoading, error } = useOffer(offerId);
+
+  const handleContactProvider = () => {
+    if (!offer) return;
+
+    Alert.alert(
+      "Contact Provider",
+      `Would you like to contact ${offer.provider}?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Call",
+          onPress: () => Alert.alert("Call", "Call functionality coming soon!"),
+        },
+        {
+          text: "Message",
+          onPress: () =>
+            Alert.alert("Message", "Message functionality coming soon!"),
+        },
+      ]
+    );
+  };
+
+  const handleBookService = () => {
+    if (!offer) return;
+
+    Alert.alert(
+      "Book Service",
+      `Book "${offer.title}" with ${offer.provider}?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Book Now",
+          onPress: () =>
+            Alert.alert("Booking", "Booking functionality coming soon!"),
+        },
+      ]
+    );
+  };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <ScrollableScreen addTopInset={false} addBottomInset={true}>
+        <Box className="flex-1 items-center justify-center">
+          <Text>Loading offer details...</Text>
+        </Box>
+      </ScrollableScreen>
+    );
+  }
+
+  // Show error state
+  if (error || !offer) {
+    return (
+      <ScrollableScreen addTopInset={false} addBottomInset={true}>
+        <Box className="flex-1 items-center justify-center">
+          <Text className="text-red-500">Failed to load offer details</Text>
+          <Button onPress={() => router.back()} className="mt-4">
+            <ButtonText>Go Back</ButtonText>
+          </Button>
+        </Box>
+      </ScrollableScreen>
+    );
+  }
+
+  return (
+    <ScrollableScreen addTopInset={false} addBottomInset={true}>
+      <Box className="mb-3 mt-3">
+        {/* Offer Image */}
+        <Box className="mb-6">
+          <Image
+            source={{ uri: offer.image }}
+            style={{
+              width: "100%",
+              height: 250,
+              borderRadius: 16,
+              backgroundColor: "#f0f0f0",
+            }}
+          />
+        </Box>
+
+        {/* Offer Info */}
+        <VStack className="space-y-4 mb-6">
+          <VStack className="flex-1">
+            <Text className="text-2xl font-inter-bold text-gray-900 mb-2">
+              {offer.title}
+            </Text>
+            <Text className="text-xl font-inter-semibold text-brand-500">
+              {formatNaira(offer.price)}
+            </Text>
+          </VStack>
+
+          {/* Provider Info */}
+          <HStack className="items-center gap-2">
+            <Icon as={MapPin} className="text-gray-500" size="sm" />
+            <Text className="text-base text-gray-700">
+              Provided by{" "}
+              <Text className="font-inter-semibold">{offer.provider}</Text>
+            </Text>
+          </HStack>
+
+          {/* Duration */}
+          <HStack className="items-center gap-2">
+            <Icon as={Clock} className="text-gray-500" size="sm" />
+            <Text className="text-base text-gray-700">
+              Estimated duration: {offer.duration} hour
+              {offer.duration !== 1 ? "s" : ""}
+            </Text>
+          </HStack>
+
+          {/* Category */}
+          {offer.category && (
+            <HStack className="items-center gap-2">
+              <Box className="bg-brand-100 px-3 py-1 rounded-full">
+                <Text className="text-brand-700 text-sm font-medium capitalize">
+                  {offer.category.replace("-", " ")}
+                </Text>
+              </Box>
+            </HStack>
+          )}
+
+          {/* Provider Rating (Placeholder) */}
+          <HStack className="items-center gap-2">
+            <Icon as={Star} className="text-yellow-400" size="sm" />
+            <Text className="text-base text-gray-700">
+              4.8 (24 reviews) • Professional cleaner
+            </Text>
+          </HStack>
+        </VStack>
+
+        {/* Description */}
+        <VStack className="gap-2 mb-6">
+          <Text className="text-lg font-inter-semibold text-gray-900">
+            About This Service
+          </Text>
+          <Text className="text-base text-gray-700 leading-6">
+            {offer.description}
+          </Text>
+        </VStack>
+
+        {/* What's Included */}
+        {offer.whatIncluded && offer.whatIncluded.length > 0 && (
+          <VStack className="gap-2 mb-6">
+            <Text className="text-lg font-inter-semibold text-gray-900">
+              What&apos;s Included
+            </Text>
+            <VStack className="gap-1">
+              {offer.whatIncluded.map((item, index) => (
+                <HStack key={index} className="items-center gap-2">
+                  <Box className="w-2 h-2 bg-brand-500 rounded-full" />
+                  <Text className="text-base text-gray-700">{item}</Text>
+                </HStack>
+              ))}
+            </VStack>
+          </VStack>
+        )}
+
+        {/* Requirements */}
+        {offer.requirements && offer.requirements.length > 0 && (
+          <VStack className="gap-2 mb-6">
+            <Text className="text-lg font-inter-semibold text-gray-900">
+              What You Need to Prepare
+            </Text>
+            <VStack className="gap-1">
+              {offer.requirements.map((item, index) => (
+                <HStack key={index} className="items-center gap-2">
+                  <Box className="w-2 h-2 bg-gray-400 rounded-full" />
+                  <Text className="text-base text-gray-700">{item}</Text>
+                </HStack>
+              ))}
+            </VStack>
+          </VStack>
+        )}
+
+        {/* Action Buttons */}
+        <VStack className="gap-3">
+          <Button
+            onPress={handleBookService}
+            className="rounded-xl bg-brand-500"
+          >
+            <ButtonText className="text-lg">Book This Service</ButtonText>
+          </Button>
+
+          <HStack className="gap-3">
+            <Button
+              variant="outline"
+              onPress={handleContactProvider}
+              className="flex-1 rounded-xl border-brand-500"
+            >
+              <Icon as={Phone} className="text-brand-500 mr-2" size="sm" />
+              <ButtonText className="text-brand-500">Call</ButtonText>
+            </Button>
+
+            <Button
+              variant="outline"
+              onPress={handleContactProvider}
+              className="flex-1 rounded-xl border-brand-500"
+            >
+              <Icon
+                as={MessageCircle}
+                className="text-brand-500 mr-2"
+                size="sm"
+              />
+              <ButtonText className="text-brand-500">Message</ButtonText>
+            </Button>
+          </HStack>
+        </VStack>
+      </Box>
+    </ScrollableScreen>
+  );
+}

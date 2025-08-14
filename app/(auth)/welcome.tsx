@@ -1,11 +1,7 @@
 import { router } from "expo-router";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useAuthStore } from "../../lib/store/useAuthStore";
 
 export default function LoginScreen() {
-  const { login } = useAuthStore();
-  // const { signup } = useAuthStore();
-
   return (
     <View className="flex gap-3" style={styles.container}>
       <Text style={styles.title}>Welcome</Text>

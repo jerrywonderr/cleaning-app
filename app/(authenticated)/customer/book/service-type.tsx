@@ -2,14 +2,9 @@ import { PrimaryButton } from "@/lib/components/custom-buttons";
 import { Box } from "@/lib/components/ui/box";
 import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
+import serviceCategoryOptions from "@/lib/constants/service-category";
 import { router } from "expo-router";
 import { useState } from "react";
-
-const serviceOptions = [
-  { label: "Standard Cleaning", value: "standard" },
-  { label: "Deep Cleaning", value: "deep" },
-  { label: "Move-in/Move-out", value: "move" },
-];
 
 export default function ServiceTypeStep() {
   const [serviceType, setServiceType] = useState("");
@@ -22,7 +17,7 @@ export default function ServiceTypeStep() {
         <Text className="text-base mb-2">Choose your preferred service</Text>
 
         <Box className="gap-4">
-          {serviceOptions.map((option) => {
+          {serviceCategoryOptions.map((option) => {
             const isSelected = serviceType === option.value;
 
             return (

@@ -1,58 +1,129 @@
 import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
+import { Box } from "@/lib/components/ui/box";
+import { Button, ButtonText } from "@/lib/components/ui/button";
+import { HStack } from "@/lib/components/ui/hstack";
+import { Icon } from "@/lib/components/ui/icon";
+import { Pressable } from "@/lib/components/ui/pressable";
+import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
-import OfferCard, { OfferCardProps } from "@/lib/features/offers/OfferCard";
+import OfferCard from "@/lib/features/offers/OfferCard";
+import { useProviderOffers } from "@/lib/hooks/useOffers";
 import { useRouter } from "expo-router";
-
-const offers: OfferCardProps[] = [
-  {
-    title: "Cleaning",
-    price: 15000,
-    provider: "Mr kay",
-    description: "Classic Cleaning",
-    image: "https://picsum.photos/200/200",
-  },
-  {
-    title: "Cleaning",
-    price: 32500,
-    provider: "Mr kay",
-    description: "Classic Cleaning",
-    image: "https://picsum.photos/200/200",
-  },
-  {
-    title: "Cleaning",
-    price: 257000,
-    provider: "Mr kay",
-    description: "Classic Cleaning",
-    image: "https://picsum.photos/200/200",
-  },
-];
+import { Package, Plus } from "lucide-react-native";
 
 export default function OffersScreen() {
   const router = useRouter();
+  const { data: offers, isLoading, error } = useProviderOffers();
+
+  const handleCreateOffer = () => {
+    router.push("/service-provider/offers/create");
+  };
+
+  const handleViewOffer = (offerId: string) => {
+    router.push(`/service-provider/offers/${offerId}`);
+  };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <ScrollableScreen
+        addTopInset={false}
+        addBottomInset={false}
+        contentContainerClassName="px-4"
+      >
+        <Box className="flex-1 items-center justify-center">
+          <Text>Loading your offers...</Text>
+        </Box>
+      </ScrollableScreen>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <ScrollableScreen
+        addTopInset={false}
+        addBottomInset={false}
+        contentContainerClassName="px-4"
+      >
+        <Box className="flex-1 items-center justify-center">
+          <Text className="text-red-500 mb-4">Failed to load offers</Text>
+          <Button
+            onPress={() => window.location.reload()}
+            className="bg-brand-500"
+          >
+            <ButtonText>Try Again</ButtonText>
+          </Button>
+        </Box>
+      </ScrollableScreen>
+    );
+  }
+
+  // Show empty state
+  if (!offers || offers.length === 0) {
+    return (
+      <ScrollableScreen
+        addTopInset={false}
+        addBottomInset={false}
+        contentContainerClassName="px-4"
+      >
+        <VStack className="flex-1 items-center justify-center gap-4">
+          <Box className="bg-gray-100 p-6 rounded-full">
+            <Icon as={Package} className="text-gray-400" size="xl" />
+          </Box>
+          <Text className="text-xl font-inter-semibold text-gray-900 text-center">
+            No offers yet
+          </Text>
+          <Text className="text-gray-500 text-center max-w-xs">
+            Create your first offer to start attracting customers and growing
+            your business.
+          </Text>
+          <Button
+            onPress={handleCreateOffer}
+            className="bg-brand-500 rounded-xl"
+          >
+            <ButtonText className="text-lg">Create Your First Offer</ButtonText>
+          </Button>
+        </VStack>
+      </ScrollableScreen>
+    );
+  }
 
   return (
     <ScrollableScreen
       addTopInset={false}
       addBottomInset={false}
-      contentContainerClassName="px-[0]"
+      contentContainerClassName="px-4"
     >
+      {/* Header with Create Button */}
+      <HStack className="justify-between items-center mb-6">
+        <VStack>
+          <Text className="text-2xl font-inter-bold text-gray-900">
+            My Offers
+          </Text>
+          <Text className="text-gray-500">
+            {offers.length} offer{offers.length !== 1 ? "s" : ""} • Manage your
+            services
+          </Text>
+        </VStack>
+        <Pressable onPress={handleCreateOffer}>
+          <Box className="bg-brand-500 p-3 rounded-full">
+            <Icon as={Plus} className="text-white" size="lg" />
+          </Box>
+        </Pressable>
+      </HStack>
+
+      {/* Offers List */}
       <VStack className="gap-3">
-        {offers.map((offer, idx) => (
+        {offers.map((offer) => (
           <OfferCard
-            key={idx}
-            {...offer}
-            onPress={() =>
-              router.push({
-                pathname: "/service-provider/service-provider-offer-details",
-                params: {
-                  title: offer.title,
-                  price: offer.price.toString(),
-                  provider: offer.provider,
-                  description: offer.description,
-                  image: offer.image,
-                },
-              })
-            }
+            key={offer.id}
+            title={offer.title}
+            price={offer.price}
+            provider={offer.provider}
+            description={offer.description}
+            image={offer.image}
+            onPress={() => handleViewOffer(offer.id)}
           />
         ))}
       </VStack>

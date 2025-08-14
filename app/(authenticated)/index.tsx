@@ -1,15 +1,21 @@
 import FixedScreen from "@/lib/components/screens/FixedScreen";
 import { Heading } from "@/lib/components/ui/heading";
 import { Text } from "@/lib/components/ui/text";
-import { useAuthStore } from "@/lib/store/useAuthStore";
+import { VStack } from "@/lib/components/ui/vstack";
+import { useIsAuthenticated, useUserType } from "@/lib/hooks/useAuth";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback } from "react";
 
 export default function WelcomeSreen() {
-  const { isServiceProvider } = useAuthStore();
+  const { isLoading: authLoading } = useIsAuthenticated();
+  const { isServiceProvider, isLoading: profileLoading } = useUserType();
+
+  const isLoading = authLoading || profileLoading;
 
   useFocusEffect(
     useCallback(() => {
+      if (isLoading) return;
+
       const timeout = setTimeout(() => {
         if (isServiceProvider) {
           router.replace("/service-provider");
@@ -19,13 +25,25 @@ export default function WelcomeSreen() {
       }, 1500); // Simulate a delay for the welcome screen
 
       return () => clearTimeout(timeout);
-    }, [isServiceProvider])
+    }, [isServiceProvider, isLoading])
   );
+
+  if (isLoading) {
+    return (
+      <FixedScreen>
+        <VStack className="flex-1 items-center justify-center gap-6">
+          <Text>Loading...</Text>
+        </VStack>
+      </FixedScreen>
+    );
+  }
 
   return (
     <FixedScreen>
-      <Heading>Welcome to the App!</Heading>
-      <Text>Enjoy our services.</Text>
+      <VStack className="flex-1 items-center justify-center gap-6">
+        <Heading>Welcome to the App!</Heading>
+        <Text>Enjoy our services.</Text>
+      </VStack>
     </FixedScreen>
   );
 }
