@@ -24,7 +24,7 @@ const ViewProfileScreen = () => {
   };
 
   const handleEditProfile = () => {
-    router.push("/account/edit-profile");
+    router.push("/service-provider/account/edit-profile");
   };
 
   const ProfileInfoRow = ({
