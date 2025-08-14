@@ -97,17 +97,24 @@ const Signup = () => {
 
         <FormProvider {...methods}>
           <VStack className="flex-1 gap-4">
-            <TextField name="firstName" label="First name" placeholder="Kay" />
+            <TextField
+              name="firstName"
+              label="First name"
+              placeholder="Kay"
+              textContentType="givenName"
+            />
             <TextField
               name="lastName"
               label="Last name"
               placeholder="Adegboyega"
+              textContentType="familyName"
             />
             <TextField
               name="phone"
               label="Phone"
               placeholder="+444874875048"
               keyboardType="phone-pad"
+              textContentType="telephoneNumber"
             />
 
             {/* DOB Date Picker */}
@@ -148,21 +155,24 @@ const Signup = () => {
             <TextField
               name="email"
               label="Email"
-              placeholder="Sirphil987@gmail.com"
+              placeholder="Enter your email"
               autoCapitalize="none"
               keyboardType="email-address"
+              textContentType="emailAddress"
             />
             <PasswordField
               name="password"
               label="Password"
               placeholder="Enter your password"
               autoCapitalize="none"
+              textContentType="newPassword"
             />
             <PasswordField
               name="cPassword"
               label="Confirm Password"
               placeholder="Confirm your password"
               autoCapitalize="none"
+              textContentType="password"
             />
 
             {/* Service Provider Toggle */}
