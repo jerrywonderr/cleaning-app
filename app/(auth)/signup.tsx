@@ -1,6 +1,5 @@
 import { PrimaryButton } from "@/lib/components/custom-buttons";
-import { PasswordField } from "@/lib/components/form/PasswordField";
-import { TextField } from "@/lib/components/form/TextField";
+import { DateField, PasswordField, TextField } from "@/lib/components/form";
 import Link from "@/lib/components/Link";
 import FixedScreen from "@/lib/components/screens/FixedScreen";
 import { Box } from "@/lib/components/ui/box";
@@ -10,10 +9,9 @@ import { VStack } from "@/lib/components/ui/vstack";
 import { useSignUp } from "@/lib/hooks/useAuth";
 import { getAuthErrorMessage } from "@/lib/utils/errorHandling";
 import { yupResolver } from "@hookform/resolvers/yup";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { Pressable, ScrollView, Switch, View } from "react-native";
+import { ScrollView, Switch } from "react-native";
 import * as yup from "yup";
 
 const schema = yup.object().shape({
@@ -43,7 +41,7 @@ const schema = yup.object().shape({
 
 const Signup = () => {
   const [error, setError] = useState<string | null>(null);
-  const [showDatePicker, setShowDatePicker] = useState(false);
+
   const signUpMutation = useSignUp();
 
   const methods = useForm({
@@ -58,6 +56,8 @@ const Signup = () => {
   useEffect(() => {
     setError(null);
   }, []);
+
+
 
   const handleSignUp = async () => {
     try {
@@ -117,40 +117,13 @@ const Signup = () => {
               textContentType="telephoneNumber"
             />
 
-            {/* DOB Date Picker */}
-            <Pressable onPress={() => setShowDatePicker(true)}>
-              <View pointerEvents="none">
-                <TextField
-                  name="dob"
-                  label="DOB"
-                  placeholder="Select date of birth"
-                  editable={false}
-                  value={methods.watch("dob")}
-                />
-              </View>
-            </Pressable>
-
-            {showDatePicker && (
-              <DateTimePicker
-                value={
-                  methods.watch("dob")
-                    ? new Date(methods.watch("dob"))
-                    : new Date()
-                }
-                mode="date"
-                display="default"
-                maximumDate={new Date()}
-                onChange={(event, selectedDate) => {
-                  setShowDatePicker(false);
-                  if (selectedDate) {
-                    const formatted = selectedDate.toLocaleDateString();
-                    methods.setValue("dob", formatted, {
-                      shouldValidate: true,
-                    });
-                  }
-                }}
-              />
-            )}
+            <DateField
+              name="dob"
+              label="DOB"
+              placeholder="Select date of birth"
+              methods={methods}
+              maximumDate={new Date()}
+            />
 
             <TextField
               name="email"
