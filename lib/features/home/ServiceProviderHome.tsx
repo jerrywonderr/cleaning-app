@@ -103,7 +103,7 @@ export default function ServiceProviderHome() {
         <Text className="text-lg font-semibold text-gray-900 mb-4">
           Upcoming Appointments
         </Text>
-        <VStack className="space-y-3">
+        <VStack className="gap-4">
           {[
             {
               id: 1,
