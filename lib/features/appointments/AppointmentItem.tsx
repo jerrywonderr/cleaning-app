@@ -44,12 +44,12 @@ export default function AppointmentItem({
         </Box>
 
         {/* Right side - Date & Time */}
-        <Box className="items-end">
-          <Box className="flex-row items-center mb-1">
+        <Box className="items-col items-end justify-between">
+          <Box className="flex-row justify-end items-center gap-2 mb-1" >
             <Icon as={Calendar} size="sm" className="text-gray-400 mr-1" />
             <Text className="text-sm font-medium text-gray-900">{date}</Text>
           </Box>
-          <Box className="flex-row items-center mb-2">
+          <Box className="flex-row justify-end items-center gap-2">
             <Icon as={Clock} size="sm" className="text-gray-400 mr-1" />
             <Text className="text-sm text-gray-600">{time}</Text>
           </Box>
