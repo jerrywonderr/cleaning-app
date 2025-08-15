@@ -6,25 +6,35 @@ import { HStack } from "@/lib/components/ui/hstack";
 import { Icon } from "@/lib/components/ui/icon";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
+import { useUserStore } from "@/lib/store/useUserStore";
+import { formatDate } from "@/lib/utils/date-helper";
 import { router } from "expo-router";
 import { Calendar, Edit, Mail, MapPin, Phone, User } from "lucide-react-native";
 import { ScrollView } from "react-native";
 
 const ViewProfileScreen = () => {
-  // Mock profile data - in a real app, this would come from your state management
-  const profileData = {
-    firstName: "Kay",
-    lastName: "Adegboyega",
-    email: "Sirphil987@gmail.com",
-    phone: "+234874875048",
+  const dummyProfileData = {
     address: "Flat 9, Geoffery House, Pardoner Street London",
-    dob: "08/08/72",
     avatar:
       "https://images.unsplash.com/photo-1548142813-c348350df52b?&w=150&h=150&dpr=2&q=80",
   };
 
+  const profileData = useUserStore((state) => state.profile);
+
+  if (!profileData) {
+    return (
+      <FixedScreen addTopInset={false}>
+        <VStack className="flex-1 justify-center items-center">
+          <Text className="text-lg text-gray-500">
+            No profile data available.
+          </Text>
+        </VStack>
+      </FixedScreen>
+    );
+  }
+
   const handleEditProfile = () => {
-    router.push("/service-provider/account/edit-profile");
+    router.push("/customer/account/edit-profile");
   };
 
   const ProfileInfoRow = ({
@@ -58,7 +68,7 @@ const ViewProfileScreen = () => {
             <Avatar size="xl" className="rounded-full overflow-hidden">
               <AvatarImage
                 source={{
-                  uri: profileData.avatar,
+                  uri: dummyProfileData.avatar,
                 }}
                 alt="Profile"
               />
@@ -69,7 +79,6 @@ const ViewProfileScreen = () => {
             <Text className="text-2xl font-bold text-gray-900">
               {profileData.firstName} {profileData.lastName}
             </Text>
-            <Text className="text-gray-600">Member since 2024</Text>
           </VStack>
         </VStack>
 
@@ -95,17 +104,17 @@ const ViewProfileScreen = () => {
             <ProfileInfoRow
               icon={Phone}
               label="Phone Number"
-              value={profileData.phone}
+              value={profileData.phone.replace(/^\+/, "0")}
             />
             <ProfileInfoRow
               icon={MapPin}
               label="Address"
-              value={profileData.address}
+              value={dummyProfileData.address}
             />
             <ProfileInfoRow
               icon={Calendar}
               label="Date of Birth"
-              value={profileData.dob}
+              value={formatDate(profileData.dob)}
             />
           </VStack>
         </VStack>
