@@ -9,12 +9,12 @@ import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import { useSignOut } from "@/lib/hooks/useAuth";
+import { useUserStore } from "@/lib/store/useUserStore";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Href, router, useNavigation } from "expo-router";
 import {
   ChevronRight,
   CircleX,
-  CreditCard,
   FileText,
   LogOutIcon,
   MessageSquare,
@@ -36,11 +36,6 @@ const menuItems: { icon: any; label: string; route: Href }[] = [
     route: "/customer/account/support",
   },
   {
-    icon: CreditCard,
-    label: "Payment method",
-    route: "/customer/account/payment",
-  },
-  {
     icon: Shield,
     label: "Privacy Policy",
     route: "/customer/account/privacy-policy",
@@ -53,6 +48,9 @@ const menuItems: { icon: any; label: string; route: Href }[] = [
 ];
 
 export default function AccountScreen() {
+  const firstName = useUserStore((state) => state.profile?.firstName);
+  const lastName = useUserStore((state) => state.profile?.lastName);
+
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const signOutMutation = useSignOut();
 
@@ -129,7 +127,9 @@ export default function AccountScreen() {
               alt="Profile Image"
             />
           </Avatar>
-          <Text className="text-xl font-inter-bold text-black">Mr/Mrs Kay</Text>
+          <Text className="text-xl font-inter-bold text-black">
+            {firstName} {lastName}
+          </Text>
         </VStack>
 
         <VStack className="gap-4">
