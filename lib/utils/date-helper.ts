@@ -12,38 +12,38 @@ import {
  * Handles multiple date formats including MM/DD/YY, MM/DD/YYYY, and ISO dates
  */
 export const formatDate = (dateString: string): string => {
-  if (!dateString) return 'Not set';
-  
+  if (!dateString) return "Not set";
+
   try {
     let date: Date;
-    
+
     // Handle different date formats
-    if (dateString.includes('/')) {
+    if (dateString.includes("/")) {
       // Handle "08/08/08" format - assume MM/DD/YY or MM/DD/YYYY
-      const parts = dateString.split('/');
+      const parts = dateString.split("/");
       if (parts.length === 3) {
         const month = parseInt(parts[0]) - 1; // Month is 0-indexed
         const day = parseInt(parts[1]);
         let year = parseInt(parts[2]);
-        
+
         // Handle 2-digit years (assume 20xx for years < 50, 19xx for years >= 50)
         if (year < 50) year += 2000;
         else if (year < 100) year += 1900;
-        
+
         date = new Date(year, month, day);
       } else {
-        throw new Error('Invalid date format');
+        throw new Error("Invalid date format");
       }
     } else {
       // Try ISO format first
       date = parseISO(dateString);
     }
-    
+
     // Check if date is valid
     if (isNaN(date.getTime())) {
-      throw new Error('Invalid date');
+      throw new Error("Invalid date");
     }
-    
+
     return format(date, "do 'of' MMMM, yyyy");
   } catch (error) {
     // If parsing fails, return the original string
@@ -85,8 +85,6 @@ export const combineDateAndTimeISO = (
 
   // Get the timezone offset in minutes
   const offset = combinedDate.getTimezoneOffset();
-
-  // console.log("offset", offset);
 
   // Create a date string with timezone information
   const dateWithTimezone = combinedDate.toISOString().replace(

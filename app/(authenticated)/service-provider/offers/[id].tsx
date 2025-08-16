@@ -192,7 +192,7 @@ export default function OfferDetailsScreen() {
                     onPress={handleViewProviderInfo}
                   >
                     <Icon as={User} size="sm" className="mr-2 text-gray-600" />
-                    <MenuItemLabel>View Service Provider Info</MenuItemLabel>
+                    <MenuItemLabel>View Customer Profile</MenuItemLabel>
                   </MenuItem>
 
                   <MenuItem

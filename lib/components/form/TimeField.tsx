@@ -45,33 +45,10 @@ export const TimeField = ({
     fieldState: { error },
   } = useController({ name, control });
 
-  // Reset picker state when field value changes
-  useEffect(() => {
-    if (field.value) {
-      console.log(`TimeField ${name} field value changed:`, field.value);
-    }
-  }, [field.value, name]);
-
-  // Debug logging
-  console.log(`TimeField ${name}:`, {
-    value: field.value,
-    error,
-    parsedValue: field.value ? new Date(field.value) : null,
-    currentTime: new Date(),
-    displayValue:
-      field.value && !isNaN(new Date(field.value).getTime())
-        ? format(new Date(field.value), "HH:mm")
-        : "NO_VALUE",
-  });
-
   // Get the current time for the picker, defaulting to 9 AM today if no value exists
   const getPickerDate = () => {
     if (field.value && !isNaN(new Date(field.value).getTime())) {
       const parsedDate = new Date(field.value);
-      console.log(
-        `TimeField ${name} getPickerDate - using existing value:`,
-        parsedDate
-      );
       // Return a fresh date object to avoid reference issues
       return new Date(parsedDate.getTime());
     }
@@ -79,8 +56,6 @@ export const TimeField = ({
     // Default to 9:00 AM today to avoid any timezone or edge case issues
     const now = new Date();
     now.setHours(9, 0, 0, 0);
-
-    console.log(`TimeField ${name} getPickerDate - using default time:`, now);
     return now;
   };
 
@@ -100,11 +75,6 @@ export const TimeField = ({
       >
         <Pressable
           onPress={() => {
-            const pickerDate = getPickerDate();
-            console.log(
-              `TimeField ${name} opening picker with date:`,
-              pickerDate
-            );
             // Reset picker state to ensure it doesn't get stuck
             setIsOpen(false);
             setTimeout(() => setIsOpen(true), 100);
@@ -136,14 +106,6 @@ export const TimeField = ({
         mode="time"
         date={getPickerDate()}
         onConfirm={(date: Date) => {
-          console.log(`TimeField ${name} onConfirm:`, {
-            selectedDate: date,
-            selectedTimeString: date.toTimeString(),
-            selectedHours: date.getHours(),
-            selectedMinutes: date.getMinutes(),
-            fieldValueBefore: field.value,
-            fieldValueAfter: date,
-          });
           field.onChange(date);
           onConfirm?.(date);
           setIsOpen(false);

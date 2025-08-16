@@ -27,19 +27,8 @@ export default function OfferAppointmentsScreen() {
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
 
-  console.log(
-    `🔍 [DEBUG] OfferAppointmentsScreen loaded with offerId:`,
-    offerId
-  );
-
   // Fetch offer details
   const { data: offer, isLoading: offerLoading } = useOffer(offerId as string);
-
-  console.log(`🔍 [DEBUG] Offer data:`, {
-    offer,
-    isLoading: offerLoading,
-    offerId,
-  });
 
   // Fetch all appointments for this offer
   const {
@@ -47,12 +36,6 @@ export default function OfferAppointmentsScreen() {
     isLoading: appointmentsLoading,
     refetch,
   } = useAppointmentsByOffer(offerId as string);
-
-  console.log(`🔍 [DEBUG] Appointments data:`, {
-    appointments,
-    isLoading: appointmentsLoading,
-    appointmentsCount: appointments.length,
-  });
 
   const handleRefresh = async () => {
     setRefreshing(true);

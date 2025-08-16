@@ -93,48 +93,24 @@ export class AppointmentService {
     appointmentId: string
   ): Promise<Appointment | null> {
     try {
-      console.log(
-        `🔍 [DEBUG] getAppointmentById called with ID:`,
-        appointmentId
-      );
-
       const docRef = doc(
         collection(db, this.APPOINTMENTS_COLLECTION),
         appointmentId
       );
-
-      console.log(`🔍 [DEBUG] Document reference created:`, docRef.path);
-
       const docSnap = await getDoc(docRef);
-
-      console.log(`🔍 [DEBUG] Document snapshot result:`, {
-        exists: docSnap.exists(),
-        id: docSnap.id,
-        hasData: !!docSnap.data(),
-      });
 
       if (docSnap.exists()) {
         const rawData = docSnap.data();
-        console.log(`🔍 [DEBUG] Raw document data:`, rawData);
-
         const convertedAppointment = this.convertFirestoreData(
           rawData,
           docSnap.id
         );
-        console.log(`🔍 [DEBUG] Converted appointment:`, convertedAppointment);
-
         return convertedAppointment;
       }
 
-      console.log(`🔍 [DEBUG] Document does not exist`);
       return null;
     } catch (error: any) {
       console.error(`❌ [ERROR] getAppointmentById failed:`, error);
-      console.error(`❌ [ERROR] Error details:`, {
-        message: error.message,
-        code: error.code,
-        stack: error.stack,
-      });
       throw new Error(`Failed to get appointment: ${error.message}`);
     }
   }
@@ -308,15 +284,7 @@ export class AppointmentService {
     status: "upcoming" | "ongoing" | "past"
   ): Promise<Appointment[]> {
     try {
-      const now = new Date();
       const constraints: QueryConstraint[] = [];
-
-      console.log(`🔍 [DEBUG] getAppointmentsByStatus called with:`, {
-        userId,
-        userType,
-        status,
-        now: now.toISOString(),
-      });
 
       // Add user type constraint
       if (userType === "customer") {
@@ -340,30 +308,18 @@ export class AppointmentService {
       }
 
       constraints.push(orderBy("scheduledDate", "asc"));
-
-      console.log(`🔍 [DEBUG] Query constraints:`, constraints);
-
       const q = query(
         collection(db, this.APPOINTMENTS_COLLECTION),
         ...constraints
       );
 
       const querySnapshot = await getDocs(q);
-      console.log(`🔍 [DEBUG] Query result:`, {
-        totalDocs: querySnapshot.size,
-        docs: querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          data: doc.data(),
-        })),
-      });
 
       const appointments: Appointment[] = [];
 
       querySnapshot.forEach((doc) => {
         appointments.push(this.convertFirestoreData(doc.data(), doc.id));
       });
-
-      console.log(`🔍 [DEBUG] Converted appointments:`, appointments);
 
       return appointments;
     } catch (error: any) {

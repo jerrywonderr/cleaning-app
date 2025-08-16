@@ -28,14 +28,6 @@ export default function BookLayout() {
     }
   }, [offerId, form]);
 
-  // Debug: Log form values when they change
-  useEffect(() => {
-    const subscription = form.watch((value) => {
-      console.log("Form values changed:", value);
-    });
-    return () => subscription.unsubscribe();
-  }, [form]);
-
   return (
     <FormProvider {...form}>
       <Stack

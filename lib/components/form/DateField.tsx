@@ -49,14 +49,6 @@ export const DateField = ({
     fieldState: { error },
   } = useController({ name, control });
 
-  // Debug logging
-  console.log(`DateField ${name}:`, {
-    value: field.value,
-    error,
-    parsedValue: field.value ? new Date(field.value) : null,
-    currentDate: new Date(),
-  });
-
   // Get the current date for the picker, defaulting to today if no value exists
   const getPickerDate = () => {
     if (field.value && !isNaN(new Date(field.value).getTime())) {
@@ -105,7 +97,6 @@ export const DateField = ({
         mode="date"
         date={getPickerDate()}
         onConfirm={(date: Date) => {
-          console.log(`DateField ${name} onConfirm:`, date);
           field.onChange(date);
           onConfirm?.(date);
           setIsOpen(false);

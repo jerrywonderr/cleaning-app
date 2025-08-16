@@ -77,7 +77,6 @@ const ProfileScreen = () => {
   }
 
   const handleSaveProfile = async () => {
-    console.log("Saving profile:", values);
     setEditingField(null);
 
     if (!profileData) return;

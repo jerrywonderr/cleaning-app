@@ -29,15 +29,9 @@ export const PROVIDER_APPOINTMENTS_QUERY_KEY = ["provider", "appointments"];
  * @returns Query result with appointment data
  */
 export function useAppointment(appointmentId: string) {
-  console.log(`🔍 [DEBUG] useAppointment hook called with ID:`, appointmentId);
-
   return useQuery({
     queryKey: [...APPOINTMENT_QUERY_KEY, appointmentId],
     queryFn: () => {
-      console.log(
-        `🔍 [DEBUG] Executing query for appointment ID:`,
-        appointmentId
-      );
       return AppointmentService.getAppointmentById(appointmentId);
     },
     enabled: !!appointmentId,
@@ -126,21 +120,9 @@ export function useAppointmentsByStatus(
   const { profile } = useUserStore();
   const userId = profile?.id;
 
-  console.log(`🔍 [DEBUG] useAppointmentsByStatus hook:`, {
-    status,
-    userType,
-    userId,
-    hasProfile: !!profile,
-  });
-
   return useQuery({
     queryKey: [...APPOINTMENTS_QUERY_KEY, "status", userId, userType, status],
     queryFn: () => {
-      console.log(`🔍 [DEBUG] Executing query for:`, {
-        status,
-        userType,
-        userId,
-      });
       return AppointmentService.getAppointmentsByStatus(
         userId!,
         userType,
@@ -160,35 +142,16 @@ export function useAppointmentsByStatus(
  * @returns Query result with array of appointments for the specific offer
  */
 export function useAppointmentsByOffer(offerId: string) {
-  console.log(
-    `🔍 [DEBUG] useAppointmentsByOffer called with offerId:`,
-    offerId
-  );
-
   return useQuery({
     queryKey: [...APPOINTMENTS_QUERY_KEY, "offer", offerId],
     queryFn: async () => {
-      console.log(
-        `🔍 [DEBUG] Executing useAppointmentsByOffer query for offerId:`,
-        offerId
-      );
-
       try {
         // For now, we'll get all appointments and filter by offerId
         // In the future, we can add a direct query method to the service
         const allAppointments = await AppointmentService.getAllAppointments();
-        console.log(
-          `🔍 [DEBUG] All appointments fetched:`,
-          allAppointments.length
-        );
 
         const filteredAppointments = allAppointments.filter(
           (appointment: any) => appointment.offerId === offerId
-        );
-
-        console.log(
-          `🔍 [DEBUG] Filtered appointments for offer ${offerId}:`,
-          filteredAppointments.length
         );
         return filteredAppointments;
       } catch (error) {
