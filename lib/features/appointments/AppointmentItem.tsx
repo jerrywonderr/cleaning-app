@@ -95,7 +95,7 @@ export default function AppointmentItem({
   };
 
   return (
-    <Pressable onPress={onPress} className="px-2">
+    <Pressable onPress={onPress} className="px-4">
       <Box
         className={cn(
           "flex-row items-start justify-between bg-white rounded-xl shadow-sm border border-gray-100 p-4",
@@ -106,7 +106,7 @@ export default function AppointmentItem({
         <Box className="flex-1 mr-4">
           <Box className="flex-row items-center mb-1">
             <Icon as={User} size="sm" className="text-gray-400 mr-2" />
-            <Text className="text-base font-semibold text-gray-900">
+            <Text className="text-base font-semibold text-gray-900 capitalize">
               {client}
             </Text>
           </Box>
