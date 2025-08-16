@@ -12,7 +12,7 @@ export default function Layout() {
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="account" options={{ headerShown: false }} />
-      <Stack.Screen name="offers/[id]" options={{ title: "Offer Details" }} />
+      <Stack.Screen name="offers/[id]" options={{ title: "Service Details" }} />
     </Stack>
   );
 }
