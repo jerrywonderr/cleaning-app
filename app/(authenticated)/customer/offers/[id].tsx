@@ -14,7 +14,8 @@ import { useOffer, useUserProfile } from "@/lib/hooks/useOffers";
 import { formatNaira } from "@/lib/utils/formatNaira";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Clock, MapPin, MessageCircle, Phone, Star } from "lucide-react-native";
-import { Alert, Image } from "react-native";
+import { Alert, Image, Linking, Platform } from "react-native";
+
 
 type URLParams = {
   id: string;
@@ -31,26 +32,70 @@ export default function CustomerOfferDetailsScreen() {
   // Fetch service provider details once offer is loaded
   const { data: providerProfile } = useUserProfile(offer?.providerId || "");
 
-  const handleContactProvider = () => {
-    if (!offer) return;
 
+  const handleCallProvider = () => {
+    if (!providerProfile?.phone) {
+      Alert.alert("Error", "Provider phone number not available");
+      return;
+    }
+  
     Alert.alert(
-      "Contact Provider",
-      `Would you like to contact ${offer.provider}?`,
+      "Call Provider",
+      `Do you want to call ${providerProfile.firstName}?`,
       [
         { text: "Cancel", style: "cancel" },
         {
           text: "Call",
-          onPress: () => Alert.alert("Call", "Call functionality coming soon!"),
-        },
-        {
-          text: "Message",
-          onPress: () =>
-            Alert.alert("Message", "Message functionality coming soon!"),
+          onPress: () => {
+            const phoneUrl =
+              Platform.OS === "ios"
+                ? `telprompt:${providerProfile.phone}`
+                : `tel:${providerProfile.phone}`;
+  
+            // Lazy import Linking
+            import("react-native").then(({ Linking }) => {
+              Linking.openURL(phoneUrl).catch(() =>
+                Alert.alert("Error", "Unable to open phone dialer")
+              );
+            });
+          },
         },
       ]
     );
   };
+  
+  const handleMessageProvider = () => {
+    if (!providerProfile?.phone) {
+      Alert.alert("Error", "Provider phone number not available");
+      return;
+    }
+  
+    Alert.alert(
+      "Message Provider",
+      `Do you want to message ${providerProfile.firstName}?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Message",
+          onPress: () => {
+            const smsUrl = `sms:${providerProfile.phone}`;
+            Linking.canOpenURL(smsUrl)
+              .then((supported) => {
+                if (supported) {
+                  Linking.openURL(smsUrl);
+                } else {
+                  Alert.alert("Error", "Cannot open messaging app");
+                }
+              })
+              .catch((err) =>
+                console.error("Error opening messaging app:", err)
+              );
+          },
+        },
+      ]
+    );
+  };
+  
 
   // Show loading state
   if (isLoading) {
@@ -92,7 +137,7 @@ export default function CustomerOfferDetailsScreen() {
           <HStack className="gap-3">
             <Box className="flex-1">
               <PrimaryOutlineButton
-                onPress={handleContactProvider}
+                onPress={handleCallProvider}
                 icon={Phone}
               >
                 Call
@@ -101,7 +146,7 @@ export default function CustomerOfferDetailsScreen() {
 
             <Box className="flex-1">
               <PrimaryOutlineButton
-                onPress={handleContactProvider}
+                onPress={handleMessageProvider}
                 icon={MessageCircle}
               >
                 Message

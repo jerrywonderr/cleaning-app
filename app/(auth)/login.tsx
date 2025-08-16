@@ -67,12 +67,14 @@ const Login = () => {
 
       <FormProvider {...methods}>
         <VStack className="flex-1 gap-4">
-          <TextField name="email" label="Email" placeholder="your@email.com" />
+          <TextField name="email" label="Email" placeholder="email@domain.com" autoCapitalize="none" 
+          keyboardType="email-address" textContentType="emailAddress" autoCorrect={false}/>
           <Box>
             <PasswordField
               name="password"
               label="Password"
-              placeholder="Enter your password"
+              placeholder="******"
+              textContentType="password"
             />
 
             <Link className="ml-auto mt-1" href="/forgot-password">

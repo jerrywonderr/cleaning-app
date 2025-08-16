@@ -1,6 +1,6 @@
+import { PrimaryButton } from "@/lib/components/custom-buttons";
 import FixedScreen from "@/lib/components/screens/FixedScreen";
 import { Box } from "@/lib/components/ui/box";
-import { Button, ButtonText } from "@/lib/components/ui/button";
 import { FormControl } from "@/lib/components/ui/form-control";
 import { HStack } from "@/lib/components/ui/hstack";
 import { Icon } from "@/lib/components/ui/icon";
@@ -11,10 +11,12 @@ import { VStack } from "@/lib/components/ui/vstack";
 import serviceCategoryOptions from "@/lib/constants/service-category";
 import { useCreateOffer } from "@/lib/hooks/useOffers";
 import { CreateOfferData } from "@/lib/types/offer";
+import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from "expo-router";
 import { Camera, Plus, X } from "lucide-react-native";
 import { useState } from "react";
 import { Alert, Image, ScrollView } from "react-native";
+
 
 export default function CreateOfferScreen() {
   const router = useRouter();
@@ -57,10 +59,33 @@ export default function CreateOfferScreen() {
     }
   };
 
-  const handleImagePicker = () => {
-    // TODO: Implement image picker functionality
-    Alert.alert("Image Picker", "Image picker functionality coming soon!");
+
+
+  const handleImagePicker = async () => {
+    // Request permission
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission Required', 'Please grant permission to access your photos.');
+      return;
+    }
+  
+    // Launch picker
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.8,
+      allowsEditing: true,
+    });
+  
+    // Update state if not cancelled
+    if (!result.canceled) {
+      const uri = result.assets[0].uri;
+      setFormData((prev) => ({
+        ...prev,
+        image: uri,
+      }));
+    }
   };
+  
 
   const addWhatIncluded = () => {
     Alert.prompt("Add Service Item", "What's included in this service?", [
@@ -116,9 +141,7 @@ export default function CreateOfferScreen() {
         <Box>
           {/* Image Upload */}
           <VStack className="gap-2 mb-6">
-            <Text className="text-lg font-inter-semibold text-gray-900">
-              Offer Image
-            </Text>
+           
             <Pressable onPress={handleImagePicker}>
               <Box className="relative">
                 <Image
@@ -333,23 +356,20 @@ export default function CreateOfferScreen() {
       </ScrollView>
       {/* Action Buttons */}
       <VStack className="gap-3 mt-8 mb-6 px-4">
-        <Button
-          onPress={handleSave}
-          className="rounded-xl bg-brand-500"
-          disabled={!isFormValid || createOfferMutation.isPending}
-        >
-          <ButtonText className="text-lg">
-            {createOfferMutation.isPending ? "Creating..." : "Create Offer"}
-          </ButtonText>
-        </Button>
-
-        <Button
-          variant="outline"
-          onPress={() => router.back()}
-          className="rounded-xl border-gray-400"
-        >
-          <ButtonText className="text-gray-600 text-lg">Cancel</ButtonText>
-        </Button>
+           <PrimaryButton
+              onPress={handleSave}
+              className="rounded-xl bg-brand-500"
+              disabled={!isFormValid || createOfferMutation.isPending}
+            >
+             {createOfferMutation.isPending ? "Creating..." : "Create Offer"}
+            </PrimaryButton>
+            <PrimaryButton
+               variant="outline"
+               onPress={() => router.back()}
+               className="rounded-xl border-gray-400"
+            >
+             Cancel
+            </PrimaryButton>
       </VStack>
     </FixedScreen>
   );

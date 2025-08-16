@@ -86,7 +86,6 @@ export const DateField = ({
         isVisible={isOpen}
         mode="date"
         onConfirm={(date: Date) => {
-          field.onChange(date);
           onConfirm?.(date);
           setIsOpen(false);
           setIsFocused(false);

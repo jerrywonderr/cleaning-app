@@ -76,7 +76,7 @@ const ViewProfileScreen = () => {
           </Box>
 
           <VStack className="items-center gap-1">
-            <Text className="text-2xl font-bold text-gray-900">
+            <Text className="text-2xl font-inter-bold text-gray-900">
               {profileData.firstName} {profileData.lastName}
             </Text>
           </VStack>
@@ -85,7 +85,7 @@ const ViewProfileScreen = () => {
         {/* Profile Information */}
         <VStack className="bg-white rounded-xl shadow-sm overflow-hidden">
           <Box className="px-4 py-3 bg-gray-50 border-b border-gray-100">
-            <Text className="text-lg font-semibold text-gray-900">
+            <Text className="text-lg font-inter-semibold  text-gray-900">
               Personal Information
             </Text>
           </Box>
