@@ -1,3 +1,4 @@
+import FixedScreen from "@/lib/components/screens/FixedScreen";
 import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
 import { Button, ButtonText } from "@/lib/components/ui/button";
@@ -9,6 +10,7 @@ import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import OfferCard from "@/lib/features/offers/OfferCard";
 import { useActiveOffers, useSearchOffers } from "@/lib/hooks/useOffers";
+import { FlashList } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
 import { Filter, Package, Search } from "lucide-react-native";
 import { useState } from "react";
@@ -48,7 +50,7 @@ export default function OffersScreen() {
         contentContainerClassName="px-4"
       >
         <Box className="flex-1 items-center justify-center">
-          <Text>Loading available offers...</Text>
+          <Text>Loading available services...</Text>
         </Box>
       </ScrollableScreen>
     );
@@ -67,12 +69,12 @@ export default function OffersScreen() {
             <Icon as={Package} className="text-gray-400" size="xl" />
           </Box>
           <Text className="text-xl font-inter-semibold text-gray-900 text-center">
-            {searchQuery.trim() ? "No offers found" : "No offers available"}
+            {searchQuery.trim() ? "No services found" : "No services available"}
           </Text>
           <Text className="text-gray-500 text-center max-w-xs">
             {searchQuery.trim()
-              ? `No offers match "${searchQuery}". Try a different search term.`
-              : "Check back later for new cleaning service offers."}
+              ? `No services match "${searchQuery}". Try a different search term.`
+              : "Check back later for new cleaning service services."}
           </Text>
           {searchQuery.trim() && (
             <Button
@@ -88,7 +90,7 @@ export default function OffersScreen() {
   }
 
   return (
-    <ScrollableScreen
+    <FixedScreen
       addTopInset={false}
       addBottomInset={false}
       contentContainerClassName="px-4"
@@ -99,7 +101,7 @@ export default function OffersScreen() {
           Available Services
         </Text>
         <Text className="text-gray-500">
-          {offers.length} offer{offers.length !== 1 ? "s" : ""} available
+          {offers.length} service{offers.length !== 1 ? "s" : ""} available
         </Text>
       </VStack>
 
@@ -143,8 +145,9 @@ export default function OffersScreen() {
       </VStack>
 
       {/* Offers List */}
-      <VStack className="gap-3">
-        {offers.map((offer) => (
+      <FlashList
+        data={offers}
+        renderItem={({ item: offer }) => (
           <OfferCard
             key={offer.id}
             title={offer.title}
@@ -154,8 +157,10 @@ export default function OffersScreen() {
             image={offer.image}
             onPress={() => handleViewOffer(offer.id)}
           />
-        ))}
-      </VStack>
-    </ScrollableScreen>
+        )}
+        contentContainerClassName="gap-3 my-4"
+        ItemSeparatorComponent={() => <Box className="h-[0.5] my-2" />}
+      />
+    </FixedScreen>
   );
 }

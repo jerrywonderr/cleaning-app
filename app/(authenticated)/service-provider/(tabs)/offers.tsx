@@ -1,3 +1,4 @@
+import FixedScreen from "@/lib/components/screens/FixedScreen";
 import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
 import { Button, ButtonText } from "@/lib/components/ui/button";
@@ -8,6 +9,7 @@ import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import OfferCard from "@/lib/features/offers/OfferCard";
 import { useProviderOffers } from "@/lib/hooks/useOffers";
+import { FlashList } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
 import { Package, Plus } from "lucide-react-native";
 
@@ -90,7 +92,7 @@ export default function OffersScreen() {
   }
 
   return (
-    <ScrollableScreen
+    <FixedScreen
       addTopInset={false}
       addBottomInset={false}
       contentContainerClassName="px-4"
@@ -99,14 +101,14 @@ export default function OffersScreen() {
       <HStack className="justify-between items-center mb-6">
         <VStack>
           <Text className="text-2xl font-inter-bold text-gray-900">
-            My Offers
+            My Services
           </Text>
           <Text className="text-gray-500">
-            {offers.length} offer{offers.length !== 1 ? "s" : ""} • Manage your
-            services
+            {offers.length} service{offers.length !== 1 ? "s" : ""} • Manage
+            your services
           </Text>
         </VStack>
-        <Pressable onPress={handleCreateOffer}>
+        <Pressable className="shadow-sm" onPress={handleCreateOffer}>
           <Box className="bg-brand-500 p-3 rounded-full">
             <Icon as={Plus} className="text-white" size="lg" />
           </Box>
@@ -114,7 +116,7 @@ export default function OffersScreen() {
       </HStack>
 
       {/* Offers List */}
-      <VStack className="gap-3">
+      {/* <VStack className="gap-3">
         {offers.map((offer) => (
           <OfferCard
             key={offer.id}
@@ -126,7 +128,23 @@ export default function OffersScreen() {
             onPress={() => handleViewOffer(offer.id)}
           />
         ))}
-      </VStack>
-    </ScrollableScreen>
+      </VStack> */}
+      <FlashList
+        data={Array(4).fill(offers).flat()}
+        renderItem={({ item: offer }) => (
+          <OfferCard
+            key={offer.id}
+            title={offer.title}
+            price={offer.price}
+            provider={offer.provider}
+            description={offer.description}
+            image={offer.image}
+            onPress={() => handleViewOffer(offer.id)}
+          />
+        )}
+        contentContainerClassName="gap-3 my-4"
+        ItemSeparatorComponent={() => <Box className="h-[0.5] my-2" />}
+      />
+    </FixedScreen>
   );
 }

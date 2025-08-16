@@ -43,7 +43,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="offers"
         options={() => ({
-          title: "Offers",
+          title: "Services",
           showBackButton: false,
           tabBarIcon: ({ color }) => (
             <Icon as={Gift} size="xl" height={36} width={36} color={color} />
