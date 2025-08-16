@@ -50,37 +50,60 @@ export const DateField = ({
   } = useController({ name, control });
 
   return (
-    <>
-      <Pressable onPress={() => setShowDatePicker(true)}>
-        <View pointerEvents="none">
-          <FormControl>
-            {label && (
-              <FormControlLabel>
-                <FormControlLabelText className="text-sm font-inter-medium">
-                  {label}
-                </FormControlLabelText>
-              </FormControlLabel>
-            )}
-            <View className="h-12 border border-black/60 rounded-lg px-3 justify-center bg-white">
-              <Text className="text-base font-inter-medium text-gray-900">
-                {displayValue}
-              </Text>
-            </View>
-          </FormControl>
-        </View>
-      </Pressable>
+    <FormControl isInvalid={!!error}>
+      {label && (
+        <FormControlLabel>
+          <FormControlLabelText className="text-sm font-inter-medium">
+            {label}
+          </FormControlLabelText>
+        </FormControlLabel>
+      )}
+      <Input
+        className={isFocused ? "border-primary-700" : "border-black/60"}
+        size="xl"
+        variant="outline"
+      >
+        <Pressable
+          onPress={() => setIsOpen(true)}
+          className="flex-1 flex-row items-center px-3"
+          onPressIn={() => setIsFocused(true)}
+          onPressOut={() => setIsFocused(false)}
+        >
+          <InputField
+            value={
+              field.value ? format(new Date(field.value), "dd/MM/yyyy") : ""
+            }
+            editable={false}
+            placeholder={placeholder || "Select date"}
+            className="text-base font-inter-medium flex-1"
+            {...props}
+          />
+          <Calendar size={20} className="text-gray-500 ml-2" />
+        </Pressable>
+      </Input>
 
-      {showDatePicker && (
-        <DateTimePicker
-          value={
-            currentValue ? new Date(currentValue) : new Date()
-          }
-          mode={mode}
-          display={display}
-          maximumDate={maximumDate}
-          minimumDate={minimumDate}
-          onChange={handleChange}
-        />
+      <DateTimePickerModal
+        isVisible={isOpen}
+        mode="date"
+        onConfirm={(date: Date) => {
+          onConfirm?.(date);
+          setIsOpen(false);
+          setIsFocused(false);
+        }}
+        onCancel={() => {
+          setIsOpen(false);
+          setIsFocused(false);
+        }}
+        confirmTextIOS={confirmText}
+        cancelTextIOS={cancelText}
+        minimumDate={minimumDate}
+        maximumDate={maximumDate}
+      />
+
+      {helperText && (
+        <FormControlHelper>
+          <FormControlHelperText>{helperText}</FormControlHelperText>
+        </FormControlHelper>
       )}
       <FormControlError>
         <FormControlErrorIcon as={AlertCircleIcon} />
