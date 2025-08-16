@@ -4,12 +4,19 @@ import { Box } from "@/lib/components/ui/box";
 import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import serviceCategoryOptions from "@/lib/constants/service-category";
+import bookAppointmentSchema from "@/lib/schemas/book-appointment";
 import { router, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useController, useFormContext } from "react-hook-form";
+import { InferType } from "yup";
 
 export default function ServiceTypeStep() {
-  const [serviceType, setServiceType] = useState("");
   const { offerId } = useLocalSearchParams<{ offerId: string }>();
+  const { control, watch } =
+    useFormContext<InferType<typeof bookAppointmentSchema>>();
+  const { fieldState, field } = useController({ control, name: "serviceType" });
+
+  // Watch the current service type value from the form
+  const selectedServiceType = watch("serviceType");
 
   return (
     <FootedScrollableScreen
@@ -19,7 +26,7 @@ export default function ServiceTypeStep() {
           onPress={() =>
             router.push(`/customer/appointments/${offerId}/new/schedule`)
           }
-          isDisabled={!serviceType}
+          disabled={!selectedServiceType}
         >
           Next
         </PrimaryButton>
@@ -35,7 +42,7 @@ export default function ServiceTypeStep() {
 
           <Box className="gap-4">
             {serviceCategoryOptions.map((option) => {
-              const isSelected = serviceType === option.value;
+              const isSelected = selectedServiceType === option.value;
 
               return (
                 <Pressable
@@ -45,7 +52,7 @@ export default function ServiceTypeStep() {
                       ? "bg-brand-500 border-brand-500"
                       : "bg-white border-gray-300"
                   }`}
-                  onPress={() => setServiceType(option.value)}
+                  onPress={() => field.onChange(option.value)}
                 >
                   <Text
                     className={`text-base ${

@@ -1,14 +1,22 @@
 import { PrimaryButton } from "@/lib/components/custom-buttons";
-import { DateTimeField } from "@/lib/components/form";
+import { DateField } from "@/lib/components/form/DateField";
+import { TimeField } from "@/lib/components/form/TimeField";
 import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
 import { Text } from "@/lib/components/ui/text";
+import { VStack } from "@/lib/components/ui/vstack";
+import bookAppointmentSchema from "@/lib/schemas/book-appointment";
 import { router, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useFormContext } from "react-hook-form";
+import { InferType } from "yup";
 
 export default function ScheduleStep() {
-  const [dateTime, setDateTime] = useState(new Date());
   const { offerId } = useLocalSearchParams<{ offerId: string }>();
+  const { watch } = useFormContext<InferType<typeof bookAppointmentSchema>>();
+
+  // Watch the current date and time values for validation
+  const selectedDate = watch("date");
+  const selectedTime = watch("time");
 
   return (
     <FootedScrollableScreen
@@ -18,6 +26,7 @@ export default function ScheduleStep() {
           onPress={() =>
             router.push(`/customer/appointments/${offerId}/new/confirm`)
           }
+          disabled={!selectedDate || !selectedTime}
         >
           Next
         </PrimaryButton>
@@ -30,11 +39,18 @@ export default function ScheduleStep() {
             Pick a convenient date and time
           </Text>
 
-          <DateTimeField
-            value={dateTime}
-            onChange={setDateTime}
-            minimumDate={new Date()}
-          />
+          <VStack className="gap-4">
+            <DateField
+              name="date"
+              label="Pick a date"
+              placeholder="Select date"
+            />
+            <TimeField
+              name="time"
+              label="Pick a time"
+              placeholder="Select time"
+            />
+          </VStack>
         </Box>
       </Box>
     </FootedScrollableScreen>

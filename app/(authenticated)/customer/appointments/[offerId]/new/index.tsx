@@ -3,10 +3,19 @@ import { TextField } from "@/lib/components/form/TextField";
 import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
 import { Text } from "@/lib/components/ui/text";
+import bookAppointmentSchema from "@/lib/schemas/book-appointment";
 import { router, useLocalSearchParams } from "expo-router";
+import { useController, useFormContext } from "react-hook-form";
+import { InferType } from "yup";
 
 export default function AddressScreen() {
   const { offerId } = useLocalSearchParams<{ offerId: string }>();
+  const { control, watch } =
+    useFormContext<InferType<typeof bookAppointmentSchema>>();
+  const { fieldState } = useController({ control, name: "address" });
+
+  // Watch the current address value for real-time validation
+  const addressValue = watch("address");
 
   return (
     <FootedScrollableScreen
@@ -16,6 +25,7 @@ export default function AddressScreen() {
           onPress={() =>
             router.push(`/customer/appointments/${offerId}/new/service-type`)
           }
+          disabled={!addressValue || addressValue.length < 10}
         >
           Next
         </PrimaryButton>

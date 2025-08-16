@@ -1,9 +1,29 @@
 import ScreenHeader from "@/lib/components/ScreenHeader";
+import bookAppointmentSchema from "@/lib/schemas/book-appointment";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { Stack } from "expo-router";
+import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 
 export default function BookLayout() {
-  const form = useForm();
+  const form = useForm({
+    resolver: yupResolver(bookAppointmentSchema),
+    mode: "onChange", // Enable real-time validation
+    defaultValues: {
+      address: "",
+      serviceType: undefined,
+      date: undefined,
+      time: "",
+    },
+  });
+
+  // Debug: Log form values when they change
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      console.log("Form values changed:", value);
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
 
   return (
     <FormProvider {...form}>
