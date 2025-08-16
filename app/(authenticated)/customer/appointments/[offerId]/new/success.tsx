@@ -32,7 +32,7 @@ export default function SuccessStep() {
           <PrimaryButton
             onPress={() => router.replace("/customer/appointments")}
           >
-            Back to Home
+            View Appointments
           </PrimaryButton>
         </Box>
       </Box>
