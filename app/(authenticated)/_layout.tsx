@@ -10,6 +10,7 @@ export default function Layout() {
         ),
       }}
     >
+      <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="customer" options={{ headerShown: false }} />
       <Stack.Screen name="service-provider" options={{ headerShown: false }} />
     </Stack>

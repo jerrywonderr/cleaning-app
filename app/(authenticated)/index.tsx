@@ -1,10 +1,8 @@
-import FixedScreen from "@/lib/components/screens/FixedScreen";
-import { Heading } from "@/lib/components/ui/heading";
-import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import { useIsAuthenticated, useUserType } from "@/lib/hooks/useAuth";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback } from "react";
+import { Image } from "react-native";
 
 export default function WelcomeSreen() {
   const { isLoading: authLoading } = useIsAuthenticated();
@@ -28,23 +26,14 @@ export default function WelcomeSreen() {
     }, [isServiceProvider, isLoading])
   );
 
-  if (isLoading) {
-    return (
-      <FixedScreen>
-        <VStack className="flex-1 items-center justify-center gap-6">
-          <Text>Loading...</Text>
-        </VStack>
-      </FixedScreen>
-    );
-  }
-
   return (
-    <FixedScreen>
-      <VStack className="flex-1 items-center justify-center gap-6">
-        <Heading>Welcome to the App!</Heading>
-        <Text>Enjoy our services.</Text>
-      </VStack>
-    </FixedScreen>
+    <VStack className="bg-black flex-1 items-center justify-center">
+      <Image
+        source={require("@/assets/images/icon.png")}
+        className="w-48 h-48"
+        resizeMode="contain"
+      />
+    </VStack>
   );
 }
 
