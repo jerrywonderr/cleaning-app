@@ -17,6 +17,10 @@ import {
 } from "@/lib/hooks/useAppointments";
 import { useUserProfile } from "@/lib/hooks/useOffers";
 import { formatNaira } from "@/lib/utils/formatNaira";
+import {
+  handleCallProvider,
+  handleMessageProvider
+} from "@/lib/utils/providerContact";
 import { format } from "date-fns";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
@@ -89,30 +93,7 @@ export default function CustomerAppointmentDetailScreen() {
     }
   };
 
-  const handleContactProvider = () => {
-    if (!appointment) return;
-
-    Alert.alert(
-      "Contact Service Provider",
-      `Would you like to contact ${
-        providerProfile
-          ? `${providerProfile.firstName} ${providerProfile.lastName}`
-          : "your service provider"
-      }?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Call",
-          onPress: () => Alert.alert("Call", "Call functionality coming soon!"),
-        },
-        {
-          text: "Message",
-          onPress: () =>
-            Alert.alert("Message", "Message functionality coming soon!"),
-        },
-      ]
-    );
-  };
+ 
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -214,7 +195,7 @@ export default function CustomerAppointmentDetailScreen() {
             <HStack className="gap-3">
               <Box className="flex-1">
                 <PrimaryOutlineButton
-                  onPress={handleContactProvider}
+                  onPress={()=>{handleCallProvider(providerProfile?.phone ?? "", providerProfile?.firstName)}}
                   icon={Phone}
                 >
                   Call
@@ -222,7 +203,9 @@ export default function CustomerAppointmentDetailScreen() {
               </Box>
               <Box className="flex-1">
                 <PrimaryOutlineButton
-                  onPress={handleContactProvider}
+                  onPress={() =>
+                    handleMessageProvider(providerProfile?.phone ?? "", providerProfile?.firstName)
+                  }
                   icon={MessageCircle}
                 >
                   Message
