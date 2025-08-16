@@ -165,8 +165,8 @@ const Signup = () => {
                 onValueChange={(val) =>
                   methods.setValue("isServiceProvider", val)
                 }
-                trackColor={{ false: "#d1d5db", true: "#A5AEE1" }}
-                thumbColor={methods.watch("isServiceProvider") ? "#454EB0" : "#f9fafb"}
+                trackColor={{ false: "#A5AEE1", true: "#454EB0" }}
+                thumbColor={"#f9fafb"}
                 ios_backgroundColor="#A5AEE1"
               />
             </HStack>
