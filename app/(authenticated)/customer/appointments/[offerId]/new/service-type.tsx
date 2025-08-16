@@ -3,11 +3,12 @@ import { Box } from "@/lib/components/ui/box";
 import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import serviceCategoryOptions from "@/lib/constants/service-category";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 
 export default function ServiceTypeStep() {
   const [serviceType, setServiceType] = useState("");
+  const { offerId } = useLocalSearchParams<{ offerId: string }>();
 
   return (
     <Box className="flex-1 bg-white justify-between">
@@ -45,7 +46,9 @@ export default function ServiceTypeStep() {
 
       <Box className="mb-6">
         <PrimaryButton
-          onPress={() => router.push("/customer/book/schedule")}
+          onPress={() =>
+            router.push(`/customer/appointments/${offerId}/new/schedule`)
+          }
           isDisabled={!serviceType}
         >
           Next

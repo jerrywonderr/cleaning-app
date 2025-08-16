@@ -52,23 +52,6 @@ export default function CustomerOfferDetailsScreen() {
     );
   };
 
-  const handleBookService = () => {
-    if (!offer) return;
-
-    Alert.alert(
-      "Book Service",
-      `Book "${offer.title}" with ${offer.provider}?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Book Now",
-          onPress: () =>
-            Alert.alert("Booking", "Booking functionality coming soon!"),
-        },
-      ]
-    );
-  };
-
   // Show loading state
   if (isLoading) {
     return (
@@ -100,7 +83,9 @@ export default function CustomerOfferDetailsScreen() {
       addBottomInset={true}
       footer={
         <VStack className="gap-3">
-          <PrimaryButton onPress={handleBookService}>
+          <PrimaryButton
+            onPress={() => router.push(`/customer/appointments/${offerId}/new`)}
+          >
             Book This Service
           </PrimaryButton>
 

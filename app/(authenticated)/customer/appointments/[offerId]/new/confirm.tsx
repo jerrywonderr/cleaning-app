@@ -1,9 +1,16 @@
 import { PrimaryButton } from "@/lib/components/custom-buttons";
 import { Box } from "@/lib/components/ui/box";
 import { Text } from "@/lib/components/ui/text";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 
 export default function ConfirmStep() {
+  const { offerId } = useLocalSearchParams<{ offerId: string }>();
+
+  // const { data: appointment } = useQuery({
+  //   queryKey: ["appointment", id],
+  //   queryFn: () => getAppointment(id),
+  // });
+
   return (
     <Box className="flex-1 bg-white justify-between">
       <Box>
@@ -34,7 +41,11 @@ export default function ConfirmStep() {
       </Box>
 
       <Box className="mb-6">
-        <PrimaryButton onPress={() => router.push("/customer/book/success")}>
+        <PrimaryButton
+          onPress={() =>
+            router.push(`/customer/appointments/${offerId}/new/success`)
+          }
+        >
           Confirm Appointment
         </PrimaryButton>
       </Box>

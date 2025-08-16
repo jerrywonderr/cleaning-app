@@ -2,9 +2,11 @@ import { PrimaryButton } from "@/lib/components/custom-buttons";
 import { TextField } from "@/lib/components/form/TextField";
 import { Box } from "@/lib/components/ui/box";
 import { Text } from "@/lib/components/ui/text";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 
 export default function AddressScreen() {
+  const { offerId } = useLocalSearchParams<{ offerId: string }>();
+
   return (
     <Box className="flex-1 bg-white pt-6 justify-between">
       <Box>
@@ -17,7 +19,7 @@ export default function AddressScreen() {
 
       <Box className="mb-6">
         <PrimaryButton
-          onPress={() => router.push("/customer/book/service-type")}
+          onPress={() => router.push(`/customer/appointments/${offerId}/new`)}
         >
           Next
         </PrimaryButton>
