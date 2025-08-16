@@ -1,3 +1,8 @@
+import {
+  DangerOutlineButton,
+  PrimaryButton,
+} from "@/lib/components/custom-buttons";
+import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
 import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
 import { Button, ButtonText } from "@/lib/components/ui/button";
@@ -106,7 +111,23 @@ export default function EditOfferScreen() {
   }
 
   return (
-    <ScrollableScreen addTopInset={false} addBottomInset={false}>
+    <FootedScrollableScreen
+      addTopInset={false}
+      footer={
+        <VStack className="gap-3">
+          <PrimaryButton
+            onPress={handleSave}
+            disabled={updateOfferMutation.isPending}
+          >
+            {updateOfferMutation.isPending ? "Saving..." : "Save Changes"}
+          </PrimaryButton>
+
+          <DangerOutlineButton onPress={() => router.back()}>
+            Cancel
+          </DangerOutlineButton>
+        </VStack>
+      }
+    >
       <Box>
         {/* Image Upload */}
         <VStack className="gap-2 mb-6">
@@ -228,28 +249,7 @@ export default function EditOfferScreen() {
             </Input>
           </FormControl>
         </VStack>
-
-        {/* Action Buttons */}
-        <VStack className="gap-3 mt-8">
-          <Button
-            onPress={handleSave}
-            className="rounded-xl bg-brand-500"
-            disabled={updateOfferMutation.isPending}
-          >
-            <ButtonText className="text-lg">
-              {updateOfferMutation.isPending ? "Saving..." : "Save Changes"}
-            </ButtonText>
-          </Button>
-
-          <Button
-            variant="outline"
-            onPress={() => router.back()}
-            className="rounded-xl border-red-600"
-          >
-            <ButtonText className="text-red-600 text-lg">Cancel</ButtonText>
-          </Button>
-        </VStack>
       </Box>
-    </ScrollableScreen>
+    </FootedScrollableScreen>
   );
 }

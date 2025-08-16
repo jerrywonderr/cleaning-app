@@ -1,4 +1,10 @@
+import {
+  DangerOutlineButton,
+  PrimaryButton,
+} from "@/lib/components/custom-buttons";
 import ScreenHeader from "@/lib/components/ScreenHeader";
+import FixedScreen from "@/lib/components/screens/FixedScreen";
+import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
 import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
 import { Button, ButtonText } from "@/lib/components/ui/button";
@@ -72,19 +78,31 @@ export default function OfferDetailsScreen() {
   // Show error state
   if (error || !offer) {
     return (
-      <ScrollableScreen addTopInset={false} addBottomInset={true}>
+      <FixedScreen addTopInset={false} addBottomInset={true}>
         <Box className="flex-1 items-center justify-center">
           <Text className="text-red-500">Failed to load offer details</Text>
           <Button onPress={() => router.back()} className="mt-4">
             <ButtonText>Go Back</ButtonText>
           </Button>
         </Box>
-      </ScrollableScreen>
+      </FixedScreen>
     );
   }
 
   return (
-    <ScrollableScreen addTopInset={false} addBottomInset={true}>
+    <FootedScrollableScreen
+      addTopInset={false}
+      addBottomInset={true}
+      footer={
+        <VStack className="gap-3">
+          <PrimaryButton onPress={handleEditOffer}>Edit Offer</PrimaryButton>
+
+          <DangerOutlineButton onPress={handleDeleteOffer}>
+            Delete Offer
+          </DangerOutlineButton>
+        </VStack>
+      }
+    >
       <Stack.Screen
         options={{
           title: "Offer Details",
@@ -215,24 +233,7 @@ export default function OfferDetailsScreen() {
             </VStack>
           </VStack>
         )}
-
-        {/* Action Buttons */}
-        <VStack className="gap-2">
-          <Button onPress={handleEditOffer} className="rounded-xl bg-brand-500">
-            <ButtonText className="text-lg">Edit Offer</ButtonText>
-          </Button>
-
-          <Button
-            variant="outline"
-            onPress={handleDeleteOffer}
-            className="rounded-xl border-red-600"
-          >
-            <ButtonText className="text-red-600 text-lg">
-              Delete Offer
-            </ButtonText>
-          </Button>
-        </VStack>
       </Box>
-    </ScrollableScreen>
+    </FootedScrollableScreen>
   );
 }
