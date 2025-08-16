@@ -35,8 +35,6 @@ export default function CustomerOfferDetailsScreen() {
   // Fetch service provider details once offer is loaded
   const { data: providerProfile } = useUserProfile(offer?.providerId || "");
 
-  
-
   // Show loading state
   if (isLoading) {
     return (
@@ -78,7 +76,15 @@ export default function CustomerOfferDetailsScreen() {
 
           <HStack className="gap-3">
             <Box className="flex-1">
-              <PrimaryOutlineButton onPress={()=>{handleCallProvider(providerProfile?.phone ?? "", providerProfile?.firstName)}} icon={Phone}>
+              <PrimaryOutlineButton
+                onPress={() =>
+                  handleCallProvider(
+                    providerProfile?.phone ?? "",
+                    providerProfile?.firstName
+                  )
+                }
+                icon={Phone}
+              >
                 Call
               </PrimaryOutlineButton>
             </Box>
@@ -86,7 +92,10 @@ export default function CustomerOfferDetailsScreen() {
             <Box className="flex-1">
               <PrimaryOutlineButton
                 onPress={() =>
-                  handleMessageProvider(providerProfile?.phone ?? "", providerProfile?.firstName)
+                  handleMessageProvider(
+                    providerProfile?.phone ?? "",
+                    providerProfile?.firstName
+                  )
                 }
                 icon={MessageCircle}
               >
@@ -97,27 +106,25 @@ export default function CustomerOfferDetailsScreen() {
         </VStack>
       }
     >
-      <Box className="mb-3 mt-3">
+      <Box className="mb-6 mt-3">
         {/* Offer Image */}
-        <Box className="mb-6">
-          <Image
-            source={{ uri: offer.image }}
-            style={{
-              width: "100%",
-              height: 250,
-              borderRadius: 16,
-              backgroundColor: "#f0f0f0",
-            }}
-          />
-        </Box>
+        <Image
+          source={{ uri: offer.image }}
+          style={{
+            width: "100%",
+            height: 250,
+            borderRadius: 16,
+            backgroundColor: "#f0f0f0",
+          }}
+        />
 
         {/* Offer Info */}
-        <VStack className="space-y-4 mb-6">
+        <VStack className="gap-4 mt-6 bg-white p-4 rounded-2xl shadow-sm">
           <VStack className="flex-1">
-            <Text className="text-2xl font-inter-bold text-gray-900 mb-2">
+            <Text className="text-2xl font-inter-bold text-gray-900 mb-1">
               {offer.title}
             </Text>
-            <Text className="text-xl font-inter-semibold text-brand-500">
+            <Text className="text-xl font-inter-semibold text-brand-600">
               {formatNaira(offer.price)}
             </Text>
           </VStack>
@@ -135,12 +142,12 @@ export default function CustomerOfferDetailsScreen() {
             </Text>
           </HStack>
 
-          {/* Provider Contact Info */}
+          {/* Contact */}
           {providerProfile && (
             <HStack className="items-center gap-2">
               <Icon as={Phone} className="text-gray-500" size="sm" />
               <Text className="text-base text-gray-700">
-                Contact: {providerProfile.phone}
+                {providerProfile.phone}
               </Text>
             </HStack>
           )}
@@ -149,23 +156,20 @@ export default function CustomerOfferDetailsScreen() {
           <HStack className="items-center gap-2">
             <Icon as={Clock} className="text-gray-500" size="sm" />
             <Text className="text-base text-gray-700">
-              Estimated duration: {offer.duration} hour
-              {offer.duration !== 1 ? "s" : ""}
+              {offer.duration} hour{offer.duration !== 1 ? "s" : ""}
             </Text>
           </HStack>
 
           {/* Category */}
           {offer.category && (
-            <HStack className="items-center gap-2">
-              <Box className="bg-brand-100 px-3 py-1 rounded-full">
-                <Text className="text-brand-700 text-sm font-medium capitalize">
-                  {offer.category.replace("-", " ")}
-                </Text>
-              </Box>
-            </HStack>
+            <Box className="self-start bg-brand-100 px-3 py-1 rounded-full">
+              <Text className="text-brand-700 text-sm font-medium capitalize">
+                {offer.category.replace("-", " ")}
+              </Text>
+            </Box>
           )}
 
-          {/* Provider Rating (Placeholder) */}
+          {/* Rating */}
           <HStack className="items-center gap-2">
             <Icon as={Star} className="text-yellow-400" size="sm" />
             <Text className="text-base text-gray-700">
@@ -175,22 +179,22 @@ export default function CustomerOfferDetailsScreen() {
         </VStack>
 
         {/* Description */}
-        <VStack className="gap-2 mb-6">
-          <Text className="text-lg font-inter-semibold text-gray-900">
+        <VStack className="gap-2 mt-6 bg-white p-4 rounded-2xl shadow-sm">
+          <Text className="text-xl font-inter-semibold text-gray-900">
             About This Service
           </Text>
-          <Text className="text-base text-gray-700 leading-6">
+          <Text className="text-base text-gray-600 leading-6">
             {offer.description}
           </Text>
         </VStack>
 
         {/* What's Included */}
         {offer.whatIncluded && offer.whatIncluded.length > 0 && (
-          <VStack className="gap-2 mb-6">
-            <Text className="text-lg font-inter-semibold text-gray-900">
+          <VStack className="gap-2 mt-6 bg-white p-4 rounded-2xl shadow-sm">
+            <Text className="text-xl font-inter-semibold text-gray-900">
               What&apos;s Included
             </Text>
-            <VStack className="gap-1">
+            <VStack className="gap-2">
               {offer.whatIncluded.map((item, index) => (
                 <HStack key={index} className="items-center gap-2">
                   <Box className="w-2 h-2 bg-brand-500 rounded-full" />
@@ -203,11 +207,11 @@ export default function CustomerOfferDetailsScreen() {
 
         {/* Requirements */}
         {offer.requirements && offer.requirements.length > 0 && (
-          <VStack className="gap-2 mb-6">
-            <Text className="text-lg font-inter-semibold text-gray-900">
+          <VStack className="gap-2 mt-6 bg-white p-4 rounded-2xl shadow-sm">
+            <Text className="text-xl font-inter-semibold text-gray-900">
               What You Need to Prepare
             </Text>
-            <VStack className="gap-1">
+            <VStack className="gap-2">
               {offer.requirements.map((item, index) => (
                 <HStack key={index} className="items-center gap-2">
                   <Box className="w-2 h-2 bg-gray-400 rounded-full" />
