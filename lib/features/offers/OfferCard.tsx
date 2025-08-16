@@ -37,14 +37,19 @@ export default function OfferCard({
               backgroundColor: "#f0f0f0",
             }}
           />
-          <VStack className="justify-center flex-1">
-            <Text className="text-lg font-inter-bold text-gray-900">
+          <VStack className="justify-around flex-1">
+            {/* Title - strong emphasis */}
+            <Text className="text-base font-inter-semibold text-gray-900">
               {title}
             </Text>
-            <Text className="text-base text-gray-800 font-inter-medium">
+
+            {/* Price + Provider - slightly lighter emphasis */}
+            <Text className="text-sm font-inter-medium text-gray-700">
               {formatNaira(price)} • {provider}
             </Text>
-            <Text className="text-sm text-gray-500" numberOfLines={2}>
+
+            {/* Description - subtle, secondary */}
+            <Text className="text-xs text-gray-500 mt-1" numberOfLines={2}>
               {description}
             </Text>
           </VStack>
