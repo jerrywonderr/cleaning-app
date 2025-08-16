@@ -1,5 +1,6 @@
 import { PrimaryButton } from "@/lib/components/custom-buttons";
 import { DateField, PasswordField, TextField } from "@/lib/components/form";
+import { PhoneField } from "@/lib/components/form/PhoneField";
 import Link from "@/lib/components/Link";
 import FixedScreen from "@/lib/components/screens/FixedScreen";
 import { Box } from "@/lib/components/ui/box";
@@ -109,18 +110,18 @@ const Signup = () => {
               placeholder="Adegboyega"
               textContentType="familyName"
             />
-            <TextField
+            <PhoneField
               name="phone"
               label="Phone"
-              placeholder="+444874875048"
+              placeholder="874875048"
               keyboardType="phone-pad"
               textContentType="telephoneNumber"
             />
 
             <DateField
               name="dob"
-              label="DOB"
-              placeholder="Select date of birth"
+              label="Date of Birth"
+              placeholder="Select your date of birth"
               methods={methods}
               maximumDate={new Date()}
             />
@@ -128,24 +129,30 @@ const Signup = () => {
             <TextField
               name="email"
               label="Email"
-              placeholder="Enter your email"
+              placeholder="email@domain.com"
               autoCapitalize="none"
+              autoCorrect={false}
               keyboardType="email-address"
               textContentType="emailAddress"
+              returnKeyType="next"
             />
             <PasswordField
               name="password"
               label="Password"
-              placeholder="Enter your password"
+              placeholder="******"
+              autoCorrect={false}
               autoCapitalize="none"
               textContentType="newPassword"
+              returnKeyType="next"
             />
             <PasswordField
               name="cPassword"
               label="Confirm Password"
-              placeholder="Confirm your password"
+              placeholder="******"
               autoCapitalize="none"
+              autoCorrect={false}
               textContentType="password"
+              returnKeyType="done"
             />
 
             {/* Service Provider Toggle */}
@@ -158,6 +165,9 @@ const Signup = () => {
                 onValueChange={(val) =>
                   methods.setValue("isServiceProvider", val)
                 }
+                trackColor={{ false: "#d1d5db", true: "#A5AEE1" }}
+                thumbColor={methods.watch("isServiceProvider") ? "#454EB0" : "#f9fafb"}
+                ios_backgroundColor="#A5AEE1"
               />
             </HStack>
           </VStack>
