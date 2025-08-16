@@ -16,7 +16,6 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { Clock, MapPin, MessageCircle, Phone, Star } from "lucide-react-native";
 import { Alert, Image, Linking, Platform } from "react-native";
 
-
 type URLParams = {
   id: string;
 };
@@ -32,13 +31,12 @@ export default function CustomerOfferDetailsScreen() {
   // Fetch service provider details once offer is loaded
   const { data: providerProfile } = useUserProfile(offer?.providerId || "");
 
-
   const handleCallProvider = () => {
     if (!providerProfile?.phone) {
       Alert.alert("Error", "Provider phone number not available");
       return;
     }
-  
+
     Alert.alert(
       "Call Provider",
       `Do you want to call ${providerProfile.firstName}?`,
@@ -51,7 +49,7 @@ export default function CustomerOfferDetailsScreen() {
               Platform.OS === "ios"
                 ? `telprompt:${providerProfile.phone}`
                 : `tel:${providerProfile.phone}`;
-  
+
             // Lazy import Linking
             import("react-native").then(({ Linking }) => {
               Linking.openURL(phoneUrl).catch(() =>
@@ -63,13 +61,13 @@ export default function CustomerOfferDetailsScreen() {
       ]
     );
   };
-  
+
   const handleMessageProvider = () => {
     if (!providerProfile?.phone) {
       Alert.alert("Error", "Provider phone number not available");
       return;
     }
-  
+
     Alert.alert(
       "Message Provider",
       `Do you want to message ${providerProfile.firstName}?`,
@@ -95,7 +93,6 @@ export default function CustomerOfferDetailsScreen() {
       ]
     );
   };
-  
 
   // Show loading state
   if (isLoading) {
@@ -129,17 +126,16 @@ export default function CustomerOfferDetailsScreen() {
       footer={
         <VStack className="gap-3">
           <PrimaryButton
-            onPress={() => router.push(`/customer/appointments/${offerId}/new`)}
+            onPress={() =>
+              router.push(`/customer/appointments/offer/${offerId}/new`)
+            }
           >
             Book This Service
           </PrimaryButton>
 
           <HStack className="gap-3">
             <Box className="flex-1">
-              <PrimaryOutlineButton
-                onPress={handleCallProvider}
-                icon={Phone}
-              >
+              <PrimaryOutlineButton onPress={handleCallProvider} icon={Phone}>
                 Call
               </PrimaryOutlineButton>
             </Box>

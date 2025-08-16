@@ -58,8 +58,6 @@ const Signup = () => {
     setError(null);
   }, []);
 
-
-
   const handleSignUp = async () => {
     try {
       setError(null);
