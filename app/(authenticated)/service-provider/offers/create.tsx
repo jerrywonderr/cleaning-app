@@ -1,5 +1,8 @@
-import { PrimaryButton } from "@/lib/components/custom-buttons";
-import FixedScreen from "@/lib/components/screens/FixedScreen";
+import {
+  PrimaryButton,
+  PrimaryOutlineButton,
+} from "@/lib/components/custom-buttons";
+import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
 import { FormControl } from "@/lib/components/ui/form-control";
 import { HStack } from "@/lib/components/ui/hstack";
@@ -11,12 +14,11 @@ import { VStack } from "@/lib/components/ui/vstack";
 import serviceCategoryOptions from "@/lib/constants/service-category";
 import { useCreateOffer } from "@/lib/hooks/useOffers";
 import { CreateOfferData } from "@/lib/types/offer";
-import * as ImagePicker from 'expo-image-picker';
+import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { Camera, Plus, X } from "lucide-react-native";
 import { useState } from "react";
-import { Alert, Image, ScrollView } from "react-native";
-
+import { Alert, Image } from "react-native";
 
 export default function CreateOfferScreen() {
   const router = useRouter();
@@ -59,23 +61,24 @@ export default function CreateOfferScreen() {
     }
   };
 
-
-
   const handleImagePicker = async () => {
     // Request permission
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission Required', 'Please grant permission to access your photos.');
+    if (status !== "granted") {
+      Alert.alert(
+        "Permission Required",
+        "Please grant permission to access your photos."
+      );
       return;
     }
-  
+
     // Launch picker
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 0.8,
       allowsEditing: true,
     });
-  
+
     // Update state if not cancelled
     if (!result.canceled) {
       const uri = result.assets[0].uri;
@@ -85,7 +88,6 @@ export default function CreateOfferScreen() {
       }));
     }
   };
-  
 
   const addWhatIncluded = () => {
     Alert.prompt("Add Service Item", "What's included in this service?", [
@@ -136,241 +138,236 @@ export default function CreateOfferScreen() {
   };
 
   return (
-    <FixedScreen addTopInset={false} addBottomInset={false}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <Box>
-          {/* Image Upload */}
-          <VStack className="gap-2 mb-6">
-           
-            <Pressable onPress={handleImagePicker}>
-              <Box className="relative">
-                <Image
-                  source={{ uri: formData.image }}
-                  style={{
-                    width: "100%",
-                    height: 200,
-                    borderRadius: 16,
-                    backgroundColor: "#f0f0f0",
-                  }}
-                />
-                <Box className="absolute top-4 right-4 bg-white/80 p-2 rounded-full">
-                  <Icon as={Camera} className="text-gray-600" size="xl" />
-                </Box>
+    <FootedScrollableScreen
+      addTopInset={false}
+      footer={
+        <VStack className="gap-3">
+          <PrimaryButton
+            onPress={handleSave}
+            disabled={!isFormValid || createOfferMutation.isPending}
+          >
+            {createOfferMutation.isPending ? "Creating..." : "Create Offer"}
+          </PrimaryButton>
+          <PrimaryOutlineButton onPress={() => router.back()}>
+            Cancel
+          </PrimaryOutlineButton>
+        </VStack>
+      }
+    >
+      <Box className="mb-8">
+        {/* Image Upload */}
+        <VStack className="gap-2 mb-6">
+          <Pressable onPress={handleImagePicker}>
+            <Box className="relative">
+              <Image
+                source={{ uri: formData.image }}
+                style={{
+                  width: "100%",
+                  height: 200,
+                  borderRadius: 16,
+                  backgroundColor: "#f0f0f0",
+                }}
+              />
+              <Box className="absolute top-4 right-4 bg-white/80 p-2 rounded-full">
+                <Icon as={Camera} className="text-gray-600" size="xl" />
               </Box>
-            </Pressable>
-          </VStack>
+            </Box>
+          </Pressable>
+        </VStack>
 
-          {/* Form Fields */}
-          <VStack className="gap-3">
-            {/* Title */}
-            <FormControl>
-              <Text className="text-base font-inter-semibold text-gray-900 mb-2">
-                Service Title *
+        {/* Form Fields */}
+        <VStack className="gap-3">
+          {/* Title */}
+          <FormControl>
+            <Text className="text-base font-inter-semibold text-gray-900 mb-2">
+              Service Title *
+            </Text>
+            <Input>
+              <InputField
+                value={formData.title}
+                onChangeText={(text) =>
+                  setFormData((prev) => ({ ...prev, title: text }))
+                }
+                placeholder="Enter service title"
+                className="flex-1 text-base text-gray-900"
+              />
+            </Input>
+          </FormControl>
+
+          {/* Category */}
+          <FormControl>
+            <Text className="text-base font-inter-semibold text-gray-900 mb-2">
+              Service Category *
+            </Text>
+            <Input>
+              <InputField
+                value={
+                  serviceCategoryOptions.find(
+                    (c) => c.value === formData.category
+                  )?.label || ""
+                }
+                onPressIn={() => {
+                  // TODO: Implement category picker
+                  Alert.alert(
+                    "Category Picker",
+                    "Category picker coming soon!"
+                  );
+                }}
+                placeholder="Select service category"
+                className="flex-1 text-base text-gray-900"
+                editable={false}
+              />
+            </Input>
+          </FormControl>
+
+          {/* Price */}
+          <FormControl>
+            <Text className="text-base font-inter-semibold text-gray-900 mb-2">
+              Price (₦) *
+            </Text>
+            <Input>
+              <InputField
+                value={formData.price.toString()}
+                onChangeText={(text) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    price: Number(text) || 0,
+                  }))
+                }
+                placeholder="Enter price"
+                keyboardType="numeric"
+                className="flex-1 text-base text-gray-900"
+              />
+            </Input>
+          </FormControl>
+
+          {/* Duration */}
+          <FormControl>
+            <Text className="text-base font-inter-semibold text-gray-900 mb-2">
+              Duration (hours) *
+            </Text>
+            <Input>
+              <InputField
+                value={formData.duration.toString()}
+                onChangeText={(text) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    duration: Number(text) || 1,
+                  }))
+                }
+                placeholder="Enter duration in hours"
+                keyboardType="numeric"
+                className="flex-1 text-base text-gray-900"
+              />
+            </Input>
+          </FormControl>
+
+          {/* Location */}
+          <FormControl>
+            <Text className="text-base font-inter-semibold text-gray-900 mb-2">
+              Location
+            </Text>
+            <Input>
+              <InputField
+                value={formData.location}
+                onChangeText={(text) =>
+                  setFormData((prev) => ({ ...prev, location: text }))
+                }
+                placeholder="Enter service location"
+                className="flex-1 text-base text-gray-900"
+              />
+            </Input>
+          </FormControl>
+
+          {/* Description */}
+          <FormControl>
+            <Text className="text-base font-inter-semibold text-gray-900 mb-2">
+              Description *
+            </Text>
+            <Input>
+              <InputField
+                value={formData.description}
+                onChangeText={(text) =>
+                  setFormData((prev) => ({ ...prev, description: text }))
+                }
+                placeholder="Enter service description"
+                className="text-base text-gray-900"
+                multiline
+                numberOfLines={4}
+              />
+            </Input>
+          </FormControl>
+
+          {/* What's Included */}
+          <FormControl>
+            <HStack className="justify-between items-center mb-2">
+              <Text className="text-base font-inter-semibold text-gray-900">
+                What&apos;s Included
               </Text>
-              <Input>
-                <InputField
-                  value={formData.title}
-                  onChangeText={(text) =>
-                    setFormData((prev) => ({ ...prev, title: text }))
-                  }
-                  placeholder="Enter service title"
-                  className="flex-1 text-base text-gray-900"
-                />
-              </Input>
-            </FormControl>
-
-            {/* Category */}
-            <FormControl>
-              <Text className="text-base font-inter-semibold text-gray-900 mb-2">
-                Service Category *
-              </Text>
-              <Input>
-                <InputField
-                  value={
-                    serviceCategoryOptions.find(
-                      (c) => c.value === formData.category
-                    )?.label || ""
-                  }
-                  onPressIn={() => {
-                    // TODO: Implement category picker
-                    Alert.alert(
-                      "Category Picker",
-                      "Category picker coming soon!"
-                    );
-                  }}
-                  placeholder="Select service category"
-                  className="flex-1 text-base text-gray-900"
-                  editable={false}
-                />
-              </Input>
-            </FormControl>
-
-            {/* Price */}
-            <FormControl>
-              <Text className="text-base font-inter-semibold text-gray-900 mb-2">
-                Price (₦) *
-              </Text>
-              <Input>
-                <InputField
-                  value={formData.price.toString()}
-                  onChangeText={(text) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      price: Number(text) || 0,
-                    }))
-                  }
-                  placeholder="Enter price"
-                  keyboardType="numeric"
-                  className="flex-1 text-base text-gray-900"
-                />
-              </Input>
-            </FormControl>
-
-            {/* Duration */}
-            <FormControl>
-              <Text className="text-base font-inter-semibold text-gray-900 mb-2">
-                Duration (hours) *
-              </Text>
-              <Input>
-                <InputField
-                  value={formData.duration.toString()}
-                  onChangeText={(text) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      duration: Number(text) || 1,
-                    }))
-                  }
-                  placeholder="Enter duration in hours"
-                  keyboardType="numeric"
-                  className="flex-1 text-base text-gray-900"
-                />
-              </Input>
-            </FormControl>
-
-            {/* Location */}
-            <FormControl>
-              <Text className="text-base font-inter-semibold text-gray-900 mb-2">
-                Location
-              </Text>
-              <Input>
-                <InputField
-                  value={formData.location}
-                  onChangeText={(text) =>
-                    setFormData((prev) => ({ ...prev, location: text }))
-                  }
-                  placeholder="Enter service location"
-                  className="flex-1 text-base text-gray-900"
-                />
-              </Input>
-            </FormControl>
-
-            {/* Description */}
-            <FormControl>
-              <Text className="text-base font-inter-semibold text-gray-900 mb-2">
-                Description *
-              </Text>
-              <Input>
-                <InputField
-                  value={formData.description}
-                  onChangeText={(text) =>
-                    setFormData((prev) => ({ ...prev, description: text }))
-                  }
-                  placeholder="Enter service description"
-                  className="text-base text-gray-900"
-                  multiline
-                  numberOfLines={4}
-                />
-              </Input>
-            </FormControl>
-
-            {/* What's Included */}
-            <FormControl>
-              <HStack className="justify-between items-center mb-2">
-                <Text className="text-base font-inter-semibold text-gray-900">
-                  What&apos;s Included
+              <Pressable onPress={addWhatIncluded}>
+                <Box className="bg-brand-500 p-2 rounded-full">
+                  <Icon as={Plus} className="text-white" size="sm" />
+                </Box>
+              </Pressable>
+            </HStack>
+            <VStack className="gap-2">
+              {(formData.whatIncluded || []).map((item, index) => (
+                <HStack
+                  key={index}
+                  className="items-center gap-2 bg-gray-50 p-3 rounded-lg"
+                >
+                  <Text className="flex-1 text-gray-700">{item}</Text>
+                  <Pressable onPress={() => removeWhatIncluded(index)}>
+                    <Box className="bg-red-100 p-1 rounded-full">
+                      <Icon as={X} className="text-red-600" size="sm" />
+                    </Box>
+                  </Pressable>
+                </HStack>
+              ))}
+              {(formData.whatIncluded || []).length === 0 && (
+                <Text className="text-gray-500 text-sm italic">
+                  No items added yet. Tap the + button to add services.
                 </Text>
-                <Pressable onPress={addWhatIncluded}>
-                  <Box className="bg-brand-500 p-2 rounded-full">
-                    <Icon as={Plus} className="text-white" size="sm" />
-                  </Box>
-                </Pressable>
-              </HStack>
-              <VStack className="gap-2">
-                {(formData.whatIncluded || []).map((item, index) => (
-                  <HStack
-                    key={index}
-                    className="items-center gap-2 bg-gray-50 p-3 rounded-lg"
-                  >
-                    <Text className="flex-1 text-gray-700">{item}</Text>
-                    <Pressable onPress={() => removeWhatIncluded(index)}>
-                      <Box className="bg-red-100 p-1 rounded-full">
-                        <Icon as={X} className="text-red-600" size="sm" />
-                      </Box>
-                    </Pressable>
-                  </HStack>
-                ))}
-                {(formData.whatIncluded || []).length === 0 && (
-                  <Text className="text-gray-500 text-sm italic">
-                    No items added yet. Tap the + button to add services.
-                  </Text>
-                )}
-              </VStack>
-            </FormControl>
+              )}
+            </VStack>
+          </FormControl>
 
-            {/* Requirements */}
-            <FormControl>
-              <HStack className="justify-between items-center mb-2">
-                <Text className="text-base font-inter-semibold text-gray-900">
-                  Customer Requirements
+          {/* Requirements */}
+          <FormControl>
+            <HStack className="justify-between items-center mb-2">
+              <Text className="text-base font-inter-semibold text-gray-900">
+                Customer Requirements
+              </Text>
+              <Pressable onPress={addRequirement}>
+                <Box className="bg-brand-500 p-2 rounded-full">
+                  <Icon as={Plus} className="text-white" size="sm" />
+                </Box>
+              </Pressable>
+            </HStack>
+            <VStack className="gap-2">
+              {(formData.requirements || []).map((item, index) => (
+                <HStack
+                  key={index}
+                  className="items-center gap-2 bg-gray-50 p-3 rounded-lg"
+                >
+                  <Text className="flex-1 text-gray-700">{item}</Text>
+                  <Pressable onPress={() => removeRequirement(index)}>
+                    <Box className="bg-red-100 p-1 rounded-full">
+                      <Icon as={X} className="text-red-600" size="sm" />
+                    </Box>
+                  </Pressable>
+                </HStack>
+              ))}
+              {(formData.requirements || []).length === 0 && (
+                <Text className="text-gray-500 text-sm italic">
+                  No requirements added yet. Tap the + button to add
+                  requirements.
                 </Text>
-                <Pressable onPress={addRequirement}>
-                  <Box className="bg-brand-500 p-2 rounded-full">
-                    <Icon as={Plus} className="text-white" size="sm" />
-                  </Box>
-                </Pressable>
-              </HStack>
-              <VStack className="gap-2">
-                {(formData.requirements || []).map((item, index) => (
-                  <HStack
-                    key={index}
-                    className="items-center gap-2 bg-gray-50 p-3 rounded-lg"
-                  >
-                    <Text className="flex-1 text-gray-700">{item}</Text>
-                    <Pressable onPress={() => removeRequirement(index)}>
-                      <Box className="bg-red-100 p-1 rounded-full">
-                        <Icon as={X} className="text-red-600" size="sm" />
-                      </Box>
-                    </Pressable>
-                  </HStack>
-                ))}
-                {(formData.requirements || []).length === 0 && (
-                  <Text className="text-gray-500 text-sm italic">
-                    No requirements added yet. Tap the + button to add
-                    requirements.
-                  </Text>
-                )}
-              </VStack>
-            </FormControl>
-          </VStack>
-        </Box>
-      </ScrollView>
-      {/* Action Buttons */}
-      <VStack className="gap-3 mt-8 mb-6 px-4">
-           <PrimaryButton
-              onPress={handleSave}
-              className="rounded-xl bg-brand-500"
-              disabled={!isFormValid || createOfferMutation.isPending}
-            >
-             {createOfferMutation.isPending ? "Creating..." : "Create Offer"}
-            </PrimaryButton>
-            <PrimaryButton
-               variant="outline"
-               onPress={() => router.back()}
-               className="rounded-xl border-gray-400"
-            >
-             Cancel
-            </PrimaryButton>
-      </VStack>
-    </FixedScreen>
+              )}
+            </VStack>
+          </FormControl>
+        </VStack>
+      </Box>
+    </FootedScrollableScreen>
   );
 }
