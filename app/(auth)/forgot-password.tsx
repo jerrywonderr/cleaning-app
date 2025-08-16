@@ -76,7 +76,11 @@ const ForgotPassword = () => {
             <TextField
               name="email"
               label="Email"
-              placeholder="your@email.com"
+              placeholder="email@domain.com"
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="email-address"
+              textContentType="emailAddress"
             />
           </VStack>
         </FormProvider>
