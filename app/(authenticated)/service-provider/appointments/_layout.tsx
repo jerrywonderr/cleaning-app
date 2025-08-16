@@ -12,7 +12,7 @@ export default function RootAppointmentLayout() {
         ),
       }}
     >
-      <Stack.Screen name="index" options={{ title: "Appointment Details" }} />
+      <Stack.Screen name="[appointmentId]" options={{ headerShown: false }} />
     </Stack>
   );
 }

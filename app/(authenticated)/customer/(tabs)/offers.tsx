@@ -74,7 +74,7 @@ export default function OffersScreen() {
           <Text className="text-gray-500 text-center max-w-xs">
             {searchQuery.trim()
               ? `No services match "${searchQuery}". Try a different search term.`
-              : "Check back later for new cleaning service services."}
+              : "Check back later for new cleaning services."}
           </Text>
           {searchQuery.trim() && (
             <Button

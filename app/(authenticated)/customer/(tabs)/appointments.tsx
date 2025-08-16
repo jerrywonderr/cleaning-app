@@ -5,6 +5,7 @@ import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import AppointmentItem from "@/lib/features/appointments/AppointmentItem";
 import { FlashList } from "@shopify/flash-list";
+import { useRouter } from "expo-router";
 import { Calendar } from "lucide-react-native";
 import { useState } from "react";
 
@@ -143,6 +144,7 @@ export default function AppointmentsScreen() {
   const [activeTab, setActiveTab] = useState<"upcoming" | "delivered">(
     "upcoming"
   );
+  const router = useRouter();
 
   const filteredAppointments = appointments.filter(
     (appointment) => appointment.status === activeTab
@@ -211,6 +213,7 @@ export default function AppointmentsScreen() {
                 client={item.client}
                 service={item.service}
                 status={item.status}
+                onPress={() => router.push(`/customer/appointments/${item.id}`)}
               />
             )}
             showsVerticalScrollIndicator={false}

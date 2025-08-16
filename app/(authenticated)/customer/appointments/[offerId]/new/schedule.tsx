@@ -1,5 +1,6 @@
 import { PrimaryButton } from "@/lib/components/custom-buttons";
 import { DateTimeField } from "@/lib/components/form";
+import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
 import { Text } from "@/lib/components/ui/text";
 import { router, useLocalSearchParams } from "expo-router";
@@ -10,19 +11,9 @@ export default function ScheduleStep() {
   const { offerId } = useLocalSearchParams<{ offerId: string }>();
 
   return (
-    <Box className="flex-1 bg-white justify-between">
-      <Box>
-        <Text className="text-2xl font-bold mb-6">When should we come?</Text>
-        <Text className="text-base mb-2">Pick a convenient date and time</Text>
-
-        <DateTimeField
-          value={dateTime}
-          onChange={setDateTime}
-          minimumDate={new Date()}
-        />
-      </Box>
-
-      <Box className="mb-6">
+    <FootedScrollableScreen
+      addTopInset={false}
+      footer={
         <PrimaryButton
           onPress={() =>
             router.push(`/customer/appointments/${offerId}/new/confirm`)
@@ -30,7 +21,22 @@ export default function ScheduleStep() {
         >
           Next
         </PrimaryButton>
+      }
+    >
+      <Box className="flex-1 bg-white justify-between">
+        <Box>
+          <Text className="text-2xl font-bold mb-6">When should we come?</Text>
+          <Text className="text-base mb-2">
+            Pick a convenient date and time
+          </Text>
+
+          <DateTimeField
+            value={dateTime}
+            onChange={setDateTime}
+            minimumDate={new Date()}
+          />
+        </Box>
       </Box>
-    </Box>
+    </FootedScrollableScreen>
   );
 }
