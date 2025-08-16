@@ -24,7 +24,7 @@ export default function ScheduleStep() {
       footer={
         <PrimaryButton
           onPress={() =>
-            router.push(`/customer/appointments/${offerId}/new/confirm`)
+            router.push(`/customer/appointments/offer/${offerId}/new/confirm`)
           }
           disabled={!selectedDate || !selectedTime}
         >

@@ -24,7 +24,7 @@ export default function ServiceTypeStep() {
       footer={
         <PrimaryButton
           onPress={() =>
-            router.push(`/customer/appointments/${offerId}/new/schedule`)
+            router.push(`/customer/appointments/offer/${offerId}/new/schedule`)
           }
           disabled={!selectedServiceType}
         >

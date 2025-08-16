@@ -36,7 +36,7 @@ export default function ConfirmStep() {
       await createAppointmentMutation.mutateAsync(appointmentData);
 
       // Navigate to success screen
-      router.push(`/customer/appointments/${offerId}/new/success`);
+      router.push(`/customer/appointments/offer/${offerId}/new/success`);
     } catch (error: any) {
       Alert.alert("Error", `Failed to create appointment: ${error.message}`, [
         { text: "OK" },

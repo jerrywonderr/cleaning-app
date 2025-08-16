@@ -22,7 +22,9 @@ export default function AddressScreen() {
       footer={
         <PrimaryButton
           onPress={() =>
-            router.push(`/customer/appointments/${offerId}/new/service-type`)
+            router.push(
+              `/customer/appointments/offer/${offerId}/new/service-type`
+            )
           }
           disabled={!addressValue || addressValue.length < 10}
         >

@@ -37,8 +37,8 @@ export const DateField = ({
   confirmText,
   cancelText,
   onConfirm,
-  minimumDate,
-  maximumDate = new Date(),
+  minimumDate = new Date(),
+  maximumDate,
   ...props
 }: DateFieldProps) => {
   const [isFocused, setIsFocused] = useState(false);
@@ -48,6 +48,22 @@ export const DateField = ({
     field,
     fieldState: { error },
   } = useController({ name, control });
+
+  // Debug logging
+  console.log(`DateField ${name}:`, {
+    value: field.value,
+    error,
+    parsedValue: field.value ? new Date(field.value) : null,
+    currentDate: new Date(),
+  });
+
+  // Get the current date for the picker, defaulting to today if no value exists
+  const getPickerDate = () => {
+    if (field.value && !isNaN(new Date(field.value).getTime())) {
+      return new Date(field.value);
+    }
+    return new Date();
+  };
 
   return (
     <FormControl isInvalid={!!error}>
@@ -71,7 +87,9 @@ export const DateField = ({
         >
           <InputField
             value={
-              field.value ? format(new Date(field.value), "dd/MM/yyyy") : ""
+              field.value && !isNaN(new Date(field.value).getTime())
+                ? format(new Date(field.value), "MMM d, yyyy")
+                : ""
             }
             editable={false}
             placeholder={placeholder || "Select date"}
@@ -85,7 +103,10 @@ export const DateField = ({
       <DateTimePickerModal
         isVisible={isOpen}
         mode="date"
+        date={getPickerDate()}
         onConfirm={(date: Date) => {
+          console.log(`DateField ${name} onConfirm:`, date);
+          field.onChange(date);
           onConfirm?.(date);
           setIsOpen(false);
           setIsFocused(false);
