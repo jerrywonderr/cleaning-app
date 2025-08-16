@@ -221,7 +221,7 @@ const ProfileScreen = () => {
           </Box>
 
           <VStack className="items-center gap-1">
-            <Text className="text-2xl font-bold text-gray-900">
+            <Text className="text-2xl font-inter-bold text-gray-900">
               Edit Profile
             </Text>
             <Text className="text-sm text-gray-500">
@@ -241,10 +241,10 @@ const ProfileScreen = () => {
           <VStack className="px-4">
             <EditableRow label="First Name" fieldName="firstName" />
             <EditableRow label="Last Name" fieldName="lastName" />
-            <EditableRow label="Email Address" fieldName="email" />
+            {/* <EditableRow label="Email Address" fieldName="email" />
             <EditableRow label="Phone Number" fieldName="phone" />
             <EditableRow label="Address" fieldName="address" />
-            <EditableRow label="Date of Birth" fieldName="dob" isDate />
+            <EditableRow label="Date of Birth" fieldName="dob" isDate /> */}
           </VStack>
         </VStack>
       </ScrollView>

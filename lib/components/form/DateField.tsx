@@ -70,7 +70,10 @@ export const DateField: React.FC<DateFieldProps> = ({
               </FormControlLabel>
             )}
             <View className="h-12 border border-black/60 rounded-lg px-3 justify-center bg-white">
-              <Text className="text-base font-inter-medium text-gray-900">
+            <Text className={`text-base font-inter-medium ${
+                currentValue ? "text-gray-900" : "text-gray-500"
+              }`}
+            >
                 {displayValue}
               </Text>
             </View>
