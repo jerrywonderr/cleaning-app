@@ -5,7 +5,7 @@ import { HStack } from "@/lib/components/ui/hstack";
 import { Icon } from "@/lib/components/ui/icon";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
-import { useOffer } from "@/lib/hooks/useOffers";
+import { useOffer, useUserProfile } from "@/lib/hooks/useOffers";
 import { formatNaira } from "@/lib/utils/formatNaira";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Clock, MapPin, MessageCircle, Phone, Star } from "lucide-react-native";
@@ -22,6 +22,11 @@ export default function CustomerOfferDetailsScreen() {
 
   // Fetch offer data using the service
   const { data: offer, isLoading, error } = useOffer(offerId);
+
+  // Fetch service provider details once offer is loaded
+  const { data: providerProfile, isLoading: providerLoading } = useUserProfile(
+    offer?.providerId || ""
+  );
 
   const handleContactProvider = () => {
     if (!offer) return;
@@ -118,9 +123,23 @@ export default function CustomerOfferDetailsScreen() {
             <Icon as={MapPin} className="text-gray-500" size="sm" />
             <Text className="text-base text-gray-700">
               Provided by{" "}
-              <Text className="font-inter-semibold">{offer.provider}</Text>
+              <Text className="font-inter-semibold">
+                {providerProfile
+                  ? `${providerProfile.firstName} ${providerProfile.lastName}`
+                  : offer.provider}
+              </Text>
             </Text>
           </HStack>
+
+          {/* Provider Contact Info */}
+          {providerProfile && (
+            <HStack className="items-center gap-2">
+              <Icon as={Phone} className="text-gray-500" size="sm" />
+              <Text className="text-base text-gray-700">
+                Contact: {providerProfile.phone}
+              </Text>
+            </HStack>
+          )}
 
           {/* Duration */}
           <HStack className="items-center gap-2">
