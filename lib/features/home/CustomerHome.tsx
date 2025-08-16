@@ -1,24 +1,38 @@
-import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
+import FixedScreen from "@/lib/components/screens/FixedScreen";
 import { Box } from "@/lib/components/ui/box";
 import { HStack } from "@/lib/components/ui/hstack";
 import { Icon } from "@/lib/components/ui/icon";
 import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
+import AppointmentItem from "@/lib/features/appointments/AppointmentItem";
+import { useAppointmentsByStatus } from "@/lib/hooks/useAppointments";
 import { useUserStore } from "@/lib/store/useUserStore";
-import { Bell, Info, Send, WashingMachine } from "lucide-react-native";
+import { useRouter } from "expo-router";
+import { Bell, Calendar, ChevronRight, Info, Send } from "lucide-react-native";
 import React from "react";
-import { Dimensions, Image as RNImage } from "react-native";
+import { Dimensions, Image as RNImage, ScrollView } from "react-native";
 import Carousel from "react-native-reanimated-carousel";
 
 export default function CustomerHome() {
   const { profile } = useUserStore();
+  const router = useRouter();
   const hasNotification = true;
   const [currentIndex, setCurrentIndex] = React.useState(0);
 
+  // Fetch upcoming and ongoing appointments
+  const { data: upcomingAppointments = [] } = useAppointmentsByStatus(
+    "upcoming",
+    "customer"
+  );
+  const { data: ongoingAppointments = [] } = useAppointmentsByStatus(
+    "ongoing",
+    "customer"
+  );
+
   return (
-    <ScrollableScreen addTopInset={true} addBottomInset={false}>
-      <Box className="mb-4">
+    <FixedScreen addTopInset={true} addBottomInset={false}>
+      <Box className="mb-4 flex-1">
         {/* Header */}
         <HStack className="flex-row justify-between items-center">
           <VStack>
@@ -63,7 +77,7 @@ export default function CustomerHome() {
 
         {/* Offers */}
         <Text className="font-inter-medium text-lg mb-2 text-gray-800">
-          Latest Offers
+          What do you want to get done today?
         </Text>
         <Box className="mb-6">
           <Carousel
@@ -112,8 +126,29 @@ export default function CustomerHome() {
           />
         </Box>
 
+        {/* Appointments Section */}
+        <HStack className="flex-row justify-between items-center mb-3">
+          <HStack className="flex-row items-center gap-2">
+            <Icon as={Calendar} size="lg" className="text-brand-500" />
+            <Text className="font-inter-medium text-lg text-gray-800">
+              Appointments
+            </Text>
+          </HStack>
+          <Pressable
+            onPress={() =>
+              router.push("/(authenticated)/customer/(tabs)/appointments")
+            }
+            className="flex-row items-center gap-1"
+          >
+            <Text className="text-brand-500 font-inter-medium text-sm">
+              View All
+            </Text>
+            <Icon as={ChevronRight} size="sm" className="text-brand-500" />
+          </Pressable>
+        </HStack>
+
         {/* Tasks */}
-        <Text className="font-inter-medium text-lg mb-2 text-gray-800">
+        {/* <Text className="font-inter-medium text-lg mb-2 text-gray-800">
           What do you want to get done today?
         </Text>
         <HStack className="flex-row gap-3 mb-6">
@@ -140,38 +175,105 @@ export default function CustomerHome() {
               </Text>
             </Box>
           </Pressable>
-        </HStack>
+        </HStack> */}
 
-        {/* Ongoing Orders */}
-        <Text className="font-inter-medium text-lg mb-2 text-gray-800">
-          Ongoing Orders
-        </Text>
-        <VStack className="gap-3">
-          {[
-            { label: "Washing machine 4", time: "3 mins left" },
-            { label: "Washing machine 12", time: "7 mins left" },
-            { label: "Washing machine 2", time: "14 mins left" },
-            { label: "Washing machine 8", time: "18 mins left" },
-            { label: "Washing machine 3", time: "24 mins left" },
-            { label: "Washing machine 15", time: "38 mins left" },
-            { label: "Washing machine 1", time: "47 mins left" },
-            { label: "Washing machine 10", time: "52 mins left" },
-            { label: "Washing machine 9", time: "73 mins left" },
-            { label: "Washing machine 11", time: "90 mins left" },
-          ].map((order, index) => (
-            <HStack
-              key={index}
-              className="flex-row justify-between items-center  bg-gray-200 p-4 rounded-lg"
-            >
-              <HStack className="flex-row items-center gap-2">
-                <WashingMachine size={18} color="#4F46E5" />
-                <Text>{order.label}</Text>
-              </HStack>
-              <Text className="text-sm text-blue-600">{order.time}</Text>
-            </HStack>
-          ))}
-        </VStack>
+        {/* Appointments List */}
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <VStack className="gap-4">
+            {/* Ongoing Appointments */}
+            <Box className="mb-4">
+              <Box className="bg-white py-2 mb-2">
+                <Text className="font-inter-medium text-base text-gray-700">
+                  Ongoing ({ongoingAppointments.length})
+                </Text>
+              </Box>
+              {ongoingAppointments.length > 0 ? (
+                <VStack className="gap-3">
+                  {ongoingAppointments.slice(0, 5).map((appointment) => (
+                    <AppointmentItem
+                      key={appointment.id}
+                      id={appointment.id}
+                      date={appointment.scheduledDate.toLocaleDateString(
+                        "en-US",
+                        {
+                          month: "short",
+                          day: "numeric",
+                        }
+                      )}
+                      time={appointment.scheduledTime.toLocaleTimeString(
+                        "en-US",
+                        {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        }
+                      )}
+                      client={appointment.serviceType.replace("-", " ")}
+                      service={appointment.serviceType}
+                      status={appointment.status}
+                      onPress={() =>
+                        router.push(`/customer/appointments/${appointment.id}`)
+                      }
+                    />
+                  ))}
+                </VStack>
+              ) : (
+                <Box className="bg-gray-50 p-4 rounded-xl items-center">
+                  <Text className="text-gray-500 text-center text-sm">
+                    No ongoing appointments
+                  </Text>
+                </Box>
+              )}
+            </Box>
+
+            {/* Upcoming Appointments */}
+            <Box className="mb-4">
+              <Box className="bg-white py-2 mb-2">
+                <Text className="font-inter-medium text-base text-gray-700">
+                  Upcoming ({upcomingAppointments.length})
+                </Text>
+              </Box>
+              {upcomingAppointments.length > 0 ? (
+                <VStack className="gap-3">
+                  {upcomingAppointments.slice(0, 5).map((appointment) => (
+                    <AppointmentItem
+                      key={appointment.id}
+                      id={appointment.id}
+                      date={appointment.scheduledDate.toLocaleDateString(
+                        "en-US",
+                        {
+                          month: "short",
+                          day: "numeric",
+                        }
+                      )}
+                      time={appointment.scheduledTime.toLocaleTimeString(
+                        "en-US",
+                        {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        }
+                      )}
+                      client={appointment.serviceType.replace("-", " ")}
+                      service={appointment.serviceType}
+                      status={appointment.status}
+                      onPress={() =>
+                        router.push(`/customer/appointments/${appointment.id}`)
+                      }
+                    />
+                  ))}
+                </VStack>
+              ) : (
+                <Box className="bg-gray-50 p-4 rounded-xl items-center">
+                  <Text className="text-gray-500 text-center text-sm">
+                    No upcoming appointments
+                  </Text>
+                </Box>
+              )}
+            </Box>
+          </VStack>
+        </ScrollView>
       </Box>
-    </ScrollableScreen>
+    </FixedScreen>
   );
 }

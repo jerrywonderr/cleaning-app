@@ -1,4 +1,4 @@
-import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
+import FixedScreen from "@/lib/components/screens/FixedScreen";
 import { Box } from "@/lib/components/ui/box";
 import { Button, ButtonText } from "@/lib/components/ui/button";
 import { HStack } from "@/lib/components/ui/hstack";
@@ -7,17 +7,37 @@ import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import AppointmentItem from "@/lib/features/appointments/AppointmentItem";
+import { useAppointmentsByStatus } from "@/lib/hooks/useAppointments";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { useUserStore } from "@/lib/store/useUserStore";
-import { Bell, ChevronRight, Eye, EyeOff, Info } from "lucide-react-native";
+import { useRouter } from "expo-router";
+import {
+  Bell,
+  Calendar,
+  ChevronRight,
+  Eye,
+  EyeOff,
+  Info,
+} from "lucide-react-native";
 import React from "react";
-import { TouchableOpacity } from "react-native";
+import { ScrollView, TouchableOpacity } from "react-native";
 
 export default function ServiceProviderHome() {
   const { profile } = useUserStore();
+  const router = useRouter();
 
   const hasNotification = true;
   const { balanceVisibile, toggleBalanceVisibility } = useAppStore();
+
+  // Fetch upcoming and ongoing appointments
+  const { data: upcomingAppointments = [] } = useAppointmentsByStatus(
+    "upcoming",
+    "serviceProvider"
+  );
+  const { data: ongoingAppointments = [] } = useAppointmentsByStatus(
+    "ongoing",
+    "serviceProvider"
+  );
 
   const formatNaira = (amount: number): string => {
     return new Intl.NumberFormat("en-NG", {
@@ -29,17 +49,17 @@ export default function ServiceProviderHome() {
 
   if (!profile) {
     return (
-      <ScrollableScreen addTopInset={true} addBottomInset={false}>
+      <FixedScreen addTopInset={true} addBottomInset={false}>
         <Box className="flex-1 items-center justify-center">
           <Text>Loading...</Text>
         </Box>
-      </ScrollableScreen>
+      </FixedScreen>
     );
   }
 
   return (
-    <ScrollableScreen addTopInset={true} addBottomInset={false}>
-      <Box>
+    <FixedScreen addTopInset={true} addBottomInset={false}>
+      <Box className="flex-1">
         {/* Header */}
         <HStack className="flex-row justify-between items-center mb-4 pt-4">
           <Text className="text-xl font-inter-bold">
@@ -104,49 +124,130 @@ export default function ServiceProviderHome() {
           </HStack>
         </Box>
 
-        {/* Upcoming Appointments */}
-        <Text className="text-lg font-semibold text-gray-900 mb-4">
-          Upcoming Appointments
-        </Text>
-        <VStack className="gap-4">
-          {[
-            {
-              id: 1,
-              date: "Today",
-              time: "14:00",
-              client: "Mrs. Johnson",
-              service: "Deep Cleaning",
-              status: "upcoming" as const,
-            },
-            {
-              id: 2,
-              date: "Tomorrow",
-              time: "10:00",
-              client: "Mr. Smith",
-              service: "Standard Cleaning",
-              status: "upcoming" as const,
-            },
-            {
-              id: 3,
-              date: "Dec 15",
-              time: "13:30",
-              client: "Ms. Davis",
-              service: "Move-in Cleaning",
-              status: "upcoming" as const,
-            },
-          ].map((appointment) => (
-            <AppointmentItem
-              key={appointment.id}
-              id={appointment.id}
-              date={appointment.date}
-              time={appointment.time}
-              client={appointment.client}
-              service={appointment.service}
-              status={appointment.status}
-            />
-          ))}
-        </VStack>
+        {/* Appointments Section */}
+        <HStack className="flex-row justify-between items-center mb-4">
+          <HStack className="flex-row items-center gap-2">
+            <Icon as={Calendar} size="lg" className="text-brand-500" />
+            <Text className="text-lg font-semibold text-gray-900">
+              Appointments
+            </Text>
+          </HStack>
+          <Pressable
+            onPress={() =>
+              router.push(
+                "/(authenticated)/service-provider/(tabs)/appointments"
+              )
+            }
+            className="flex-row items-center gap-1"
+          >
+            <Text className="text-brand-500 font-inter-medium text-sm">
+              View All
+            </Text>
+            <Icon as={ChevronRight} size="sm" className="text-brand-500" />
+          </Pressable>
+        </HStack>
+
+        {/* Appointments List */}
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <VStack className="gap-4">
+            {/* Ongoing Appointments */}
+            <Box className="mb-4">
+              <Box className="bg-white py-2 mb-2">
+                <Text className="font-inter-medium text-base text-gray-700">
+                  Ongoing ({ongoingAppointments.length})
+                </Text>
+              </Box>
+              {ongoingAppointments.length > 0 ? (
+                <VStack className="gap-3">
+                  {ongoingAppointments.slice(0, 5).map((appointment) => (
+                    <AppointmentItem
+                      key={appointment.id}
+                      id={appointment.id}
+                      date={appointment.scheduledDate.toLocaleDateString(
+                        "en-US",
+                        {
+                          month: "short",
+                          day: "numeric",
+                        }
+                      )}
+                      time={appointment.scheduledTime.toLocaleTimeString(
+                        "en-US",
+                        {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        }
+                      )}
+                      client={appointment.serviceType.replace("-", " ")}
+                      service={appointment.serviceType}
+                      status={appointment.status}
+                      onPress={() =>
+                        router.push(
+                          `/service-provider/appointments/${appointment.id}`
+                        )
+                      }
+                    />
+                  ))}
+                </VStack>
+              ) : (
+                <Box className="bg-gray-50 p-4 rounded-xl items-center">
+                  <Text className="text-gray-500 text-center text-sm">
+                    No ongoing appointments
+                  </Text>
+                </Box>
+              )}
+            </Box>
+
+            {/* Upcoming Appointments */}
+            <Box className="mb-4">
+              <Box className="bg-white py-2 mb-2">
+                <Text className="font-inter-medium text-base text-gray-700">
+                  Upcoming ({upcomingAppointments.length})
+                </Text>
+              </Box>
+              {upcomingAppointments.length > 0 ? (
+                <VStack className="gap-3">
+                  {upcomingAppointments.slice(0, 5).map((appointment) => (
+                    <AppointmentItem
+                      key={appointment.id}
+                      id={appointment.id}
+                      date={appointment.scheduledDate.toLocaleDateString(
+                        "en-US",
+                        {
+                          month: "short",
+                          day: "numeric",
+                        }
+                      )}
+                      time={appointment.scheduledTime.toLocaleTimeString(
+                        "en-US",
+                        {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        }
+                      )}
+                      client={appointment.serviceType.replace("-", " ")}
+                      service={appointment.serviceType}
+                      status={appointment.status}
+                      onPress={() =>
+                        router.push(
+                          `/service-provider/appointments/${appointment.id}`
+                        )
+                      }
+                    />
+                  ))}
+                </VStack>
+              ) : (
+                <Box className="bg-gray-50 p-4 rounded-xl items-center">
+                  <Text className="text-gray-500 text-center text-sm">
+                    No upcoming appointments
+                  </Text>
+                </Box>
+              )}
+            </Box>
+          </VStack>
+        </ScrollView>
       </Box>
-    </ScrollableScreen>
+    </FixedScreen>
   );
 }
