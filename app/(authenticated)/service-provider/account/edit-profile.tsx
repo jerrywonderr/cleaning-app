@@ -1,6 +1,7 @@
 import { PrimaryButton } from "@/lib/components/custom-buttons";
 import { DateField } from "@/lib/components/form";
 import FixedScreen from "@/lib/components/screens/FixedScreen";
+import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
 import { Avatar, AvatarImage } from "@/lib/components/ui/avatar";
 import { Box } from "@/lib/components/ui/box";
 import { HStack } from "@/lib/components/ui/hstack";
@@ -11,9 +12,18 @@ import { VStack } from "@/lib/components/ui/vstack";
 import { FirebaseFirestoreService } from "@/lib/firebase/firestore";
 import { useUserStore } from "@/lib/store/useUserStore";
 import { formatDate } from "@/lib/utils/date-helper";
-import { Calendar, Mail, MapPin, Pencil, Phone, Save, User, X } from "lucide-react-native";
+import {
+  Calendar,
+  Mail,
+  MapPin,
+  Pencil,
+  Phone,
+  Save,
+  User,
+  X,
+} from "lucide-react-native";
 import { useEffect, useState } from "react";
-import { Alert, ScrollView, TextInput } from "react-native";
+import { Alert, TextInput } from "react-native";
 
 const ProfileScreen = () => {
   const profileData = useUserStore((state) => state.profile);
@@ -47,7 +57,9 @@ const ProfileScreen = () => {
         address: "Flat 9, Geoffery House, Pardoner Street London", // Using dummy address since it's not in UserProfile
         dob: profileData.dob || "",
         email: profileData.email || "",
-        avatar: profileData.profileImage || "https://images.unsplash.com/photo-1548142813-c348350df52b?&w=150&h=150&dpr=2&q=80",
+        avatar:
+          profileData.profileImage ||
+          "https://images.unsplash.com/photo-1548142813-c348350df52b?&w=150&h=150&dpr=2&q=80",
       });
     }
   }, [profileData]);
@@ -67,9 +79,9 @@ const ProfileScreen = () => {
   const handleSaveProfile = async () => {
     console.log("Saving profile:", values);
     setEditingField(null);
-    
+
     if (!profileData) return;
-    
+
     try {
       // Prepare the update data
       const updateData = {
@@ -79,38 +91,33 @@ const ProfileScreen = () => {
         dob: values.dob,
         email: values.email,
       };
-      
+
       // Save to database first
-      await FirebaseFirestoreService.updateUserProfile(profileData.id, updateData);
-      
+      await FirebaseFirestoreService.updateUserProfile(
+        profileData.id,
+        updateData
+      );
+
       // Then update the local store
       useUserStore.getState().updateProfile(updateData);
-      
+
       // Show success feedback
-      Alert.alert(
-        "Success!",
-        "Your profile has been updated successfully.",
-        [
-          {
-            text: "OK",
-            style: "default"
-          }
-        ]
-      );
+      Alert.alert("Success!", "Your profile has been updated successfully.", [
+        {
+          text: "OK",
+          style: "default",
+        },
+      ]);
     } catch (error) {
       console.error("Failed to update profile:", error);
-      
+
       // Show error feedback
-      Alert.alert(
-        "Error",
-        "Failed to update profile. Please try again.",
-        [
-          {
-            text: "OK",
-            style: "default"
-          }
-        ]
-      );
+      Alert.alert("Error", "Failed to update profile. Please try again.", [
+        {
+          text: "OK",
+          style: "default",
+        },
+      ]);
     }
   };
 
@@ -140,7 +147,11 @@ const ProfileScreen = () => {
       <HStack className="items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
         <HStack className="items-center gap-3 flex-1">
           <Box className="bg-gray-50 p-2 rounded-lg">
-            <Icon as={getIconForField(fieldName)} size="md" className="text-gray-600" />
+            <Icon
+              as={getIconForField(fieldName)}
+              size="md"
+              className="text-gray-600"
+            />
           </Box>
           <VStack className="flex-1">
             <Text className="text-sm text-gray-500 font-medium">{label}</Text>
@@ -171,10 +182,16 @@ const ProfileScreen = () => {
 
         {isEditing ? (
           <HStack className="gap-2">
-            <Pressable onPress={handleSave} className="p-2 bg-green-100 rounded-lg">
+            <Pressable
+              onPress={handleSave}
+              className="p-2 bg-green-100 rounded-lg"
+            >
               <Icon as={Save} size="sm" className="text-green-600" />
             </Pressable>
-            <Pressable onPress={() => setEditingField(null)} className="p-2 bg-red-100 rounded-lg">
+            <Pressable
+              onPress={() => setEditingField(null)}
+              className="p-2 bg-red-100 rounded-lg"
+            >
               <Icon as={X} size="sm" className="text-red-600" />
             </Pressable>
           </HStack>
@@ -193,16 +210,16 @@ const ProfileScreen = () => {
   // Helper function to get the appropriate icon for each field
   const getIconForField = (fieldName: string) => {
     switch (fieldName) {
-      case 'firstName':
-      case 'lastName':
+      case "firstName":
+      case "lastName":
         return User;
-      case 'email':
+      case "email":
         return Mail;
-      case 'phone':
+      case "phone":
         return Phone;
-      case 'address':
+      case "address":
         return MapPin;
-      case 'dob':
+      case "dob":
         return Calendar;
       default:
         return User;
@@ -210,8 +227,17 @@ const ProfileScreen = () => {
   };
 
   return (
-    <FixedScreen addTopInset={false}>
-      <ScrollView className="flex-1 gap-6 pt-4">
+    <FootedScrollableScreen
+      addTopInset={false}
+      footer={
+        <Box className="px-4 pb-6">
+          <PrimaryButton onPress={handleSaveProfile} icon={Save}>
+            Save All Changes
+          </PrimaryButton>
+        </Box>
+      }
+    >
+      <Box className="flex-1 gap-6 pt-4">
         {/* Profile Header */}
         <VStack className="items-center gap-4 mb-6">
           <Box className="relative">
@@ -247,26 +273,15 @@ const ProfileScreen = () => {
             <EditableRow label="Date of Birth" fieldName="dob" isDate />
           </VStack>
         </VStack>
-      </ScrollView>
-
-      {/* Save Changes Button */}
-      <Box className="px-4 pb-6">
-        <PrimaryButton onPress={handleSaveProfile} icon={Save}>
-          Save All Changes
-        </PrimaryButton>
       </Box>
-    </FixedScreen>
+    </FootedScrollableScreen>
   );
 };
 
 export default ProfileScreen;
 
-
-
-
-
-
-{/* <Box className="relative">
+{
+  /* <Box className="relative">
               <Avatar size="xl" className="rounded-full overflow-hidden">
                 <AvatarImage
                   source={{
@@ -282,4 +297,5 @@ export default ProfileScreen;
               >
                 <Icon as={Pencil} size="sm" className="text-white" />
               </Pressable>
-            </Box> */}
+            </Box> */
+}

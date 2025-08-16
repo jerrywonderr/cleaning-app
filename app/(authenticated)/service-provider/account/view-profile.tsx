@@ -1,5 +1,6 @@
 import { PrimaryButton } from "@/lib/components/custom-buttons";
 import FixedScreen from "@/lib/components/screens/FixedScreen";
+import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
 import { Avatar, AvatarImage } from "@/lib/components/ui/avatar";
 import { Box } from "@/lib/components/ui/box";
 import { HStack } from "@/lib/components/ui/hstack";
@@ -10,7 +11,6 @@ import { useUserStore } from "@/lib/store/useUserStore";
 import { formatDate } from "@/lib/utils/date-helper";
 import { router } from "expo-router";
 import { Calendar, Edit, Mail, MapPin, Phone, User } from "lucide-react-native";
-import { ScrollView } from "react-native";
 
 const ViewProfileScreen = () => {
   const dummyProfileData = {
@@ -60,8 +60,15 @@ const ViewProfileScreen = () => {
   );
 
   return (
-    <FixedScreen addTopInset={false}>
-      <ScrollView className="flex-1 gap-6 pt-4">
+    <FootedScrollableScreen
+      addTopInset={false}
+      footer={
+        <PrimaryButton onPress={handleEditProfile} icon={Edit}>
+          Edit Profile
+        </PrimaryButton>
+      }
+    >
+      <Box className="flex-1 gap-6 pt-4">
         {/* Profile Header */}
         <VStack className="items-center gap-4 mb-6">
           <Box className="relative">
@@ -118,14 +125,8 @@ const ViewProfileScreen = () => {
             />
           </VStack>
         </VStack>
-      </ScrollView>
-      {/* Edit Profile Button */}
-      <Box>
-        <PrimaryButton onPress={handleEditProfile} icon={Edit}>
-          Edit Profile
-        </PrimaryButton>
       </Box>
-    </FixedScreen>
+    </FootedScrollableScreen>
   );
 };
 
