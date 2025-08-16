@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { Calendar } from "lucide-react-native";
+import { Clock } from "lucide-react-native";
 import { useState } from "react";
 import { useController, useFormContext } from "react-hook-form";
 import { Pressable } from "react-native";
@@ -17,7 +17,7 @@ import {
 import { AlertCircleIcon } from "../ui/icon";
 import { Input, InputField } from "../ui/input";
 
-interface DateFieldProps {
+interface TimeFieldProps {
   name: string;
   label?: string;
   helperText?: string;
@@ -25,11 +25,9 @@ interface DateFieldProps {
   confirmText?: string;
   cancelText?: string;
   onConfirm?: (date: Date) => void;
-  minimumDate?: Date;
-  maximumDate?: Date;
 }
 
-export const DateField = ({
+export const TimeField = ({
   name,
   label,
   helperText,
@@ -37,10 +35,8 @@ export const DateField = ({
   confirmText,
   cancelText,
   onConfirm,
-  minimumDate,
-  maximumDate = new Date(),
   ...props
-}: DateFieldProps) => {
+}: TimeFieldProps) => {
   const [isFocused, setIsFocused] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const { control } = useFormContext();
@@ -70,21 +66,19 @@ export const DateField = ({
           onPressOut={() => setIsFocused(false)}
         >
           <InputField
-            value={
-              field.value ? format(new Date(field.value), "dd/MM/yyyy") : ""
-            }
+            value={field.value ? format(new Date(field.value), "hh:mm a") : ""}
             editable={false}
-            placeholder={placeholder || "Select date"}
+            placeholder={placeholder || "Select time"}
             className="text-base font-inter-medium flex-1"
             {...props}
           />
-          <Calendar size={20} className="text-gray-500 ml-2" />
+          <Clock size={20} className="text-gray-500 ml-2" />
         </Pressable>
       </Input>
 
       <DateTimePickerModal
         isVisible={isOpen}
-        mode="date"
+        mode="time"
         onConfirm={(date: Date) => {
           field.onChange(date);
           onConfirm?.(date);
@@ -97,8 +91,6 @@ export const DateField = ({
         }}
         confirmTextIOS={confirmText}
         cancelTextIOS={cancelText}
-        minimumDate={minimumDate}
-        maximumDate={maximumDate}
       />
 
       {helperText && (
