@@ -25,11 +25,8 @@ export default function OfferCard({
   onPress,
 }: OfferCardProps) {
   return (
-    <Pressable
-      onPress={onPress}
-      className="rounded-2xl bg-white shadow-sm p-4 mx-4"
-    >
-      <HStack className="items-center justify-between">
+    <Pressable onPress={onPress} className="px-2">
+      <HStack className="items-center justify-between rounded-xl shadow-sm bg-white p-4">
         <HStack className="gap-5 flex-1">
           <Image
             source={{ uri: image }}

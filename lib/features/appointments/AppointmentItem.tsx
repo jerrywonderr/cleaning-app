@@ -2,6 +2,7 @@ import { Box } from "@/lib/components/ui/box";
 import { Icon } from "@/lib/components/ui/icon";
 import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
+import { cn } from "@/lib/utils/style";
 import { Calendar, ChevronRight, Clock, User } from "lucide-react-native";
 import React from "react";
 
@@ -27,11 +28,13 @@ export default function AppointmentItem({
   className = "",
 }: AppointmentItemProps) {
   return (
-    <Pressable
-      onPress={onPress}
-      className={`bg-white rounded-xl shadow-sm border border-gray-100 ${className}`}
-    >
-      <Box className="flex-row items-start justify-between p-4">
+    <Pressable onPress={onPress} className="px-2">
+      <Box
+        className={cn(
+          "flex-row items-start justify-between bg-white rounded-xl shadow-sm border border-gray-100 p-4",
+          className
+        )}
+      >
         {/* Left side - Client & Service */}
         <Box className="flex-1 mr-4">
           <Box className="flex-row items-center mb-1">
@@ -45,7 +48,7 @@ export default function AppointmentItem({
 
         {/* Right side - Date & Time */}
         <Box className="items-col items-end justify-between">
-          <Box className="flex-row justify-end items-center gap-2 mb-1" >
+          <Box className="flex-row justify-end items-center gap-2 mb-1">
             <Icon as={Calendar} size="sm" className="text-gray-400 mr-1" />
             <Text className="text-sm font-medium text-gray-900">{date}</Text>
           </Box>

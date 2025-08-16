@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { FirebaseFirestoreService } from "../firebase/firestore";
 import { OfferService } from "../services/offerService";
 import { useUserStore } from "../store/useUserStore";
 import {
@@ -209,5 +210,21 @@ export function useToggleOfferStatus() {
     onError: (error: any) => {
       console.error("Error toggling offer status:", error);
     },
+  });
+}
+
+/**
+ * Hook to get a user profile by ID (for service provider details)
+ *
+ * @param userId - The unique identifier of the user
+ * @returns Query result with user profile data
+ */
+export function useUserProfile(userId: string) {
+  return useQuery({
+    queryKey: ["user", "profile", userId],
+    queryFn: () => FirebaseFirestoreService.getUserProfile(userId),
+    enabled: !!userId,
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    gcTime: 30 * 60 * 1000, // 30 minutes
   });
 }

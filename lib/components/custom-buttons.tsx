@@ -40,7 +40,47 @@ export function PrimaryButton({
   );
 }
 
-export function SecondaryButton({ children, ...props }: CustomButtonProps) {
+export function PrimaryOutlineButton({
+  children,
+  icon,
+  rightIcon,
+  iconProps,
+  rightIconProps,
+  ...props
+}: CustomButtonProps) {
+  return (
+    <ButtonGroup isDisabled={props.disabled ?? undefined}>
+      <Button
+        size={props.size ?? "lg"}
+        className="h-14 rounded-lg border-brand-500"
+        variant="outline"
+        {...props}
+      >
+        {icon && (
+          <ButtonIcon as={icon} className="text-brand-500" {...iconProps} />
+        )}
+        <ButtonText className="text-brand-500">{children}</ButtonText>
+        {rightIcon && (
+          <ButtonIcon
+            as={rightIcon}
+            className="text-brand-500"
+            {...rightIconProps}
+          />
+        )}
+        {props.isLoading && <ButtonSpinner className="text-brand-500" />}
+      </Button>
+    </ButtonGroup>
+  );
+}
+
+export function SecondaryButton({
+  children,
+  icon,
+  rightIcon,
+  iconProps,
+  rightIconProps,
+  ...props
+}: CustomButtonProps) {
   return (
     <ButtonGroup isDisabled={props.disabled ?? undefined}>
       <Button
@@ -49,10 +89,61 @@ export function SecondaryButton({ children, ...props }: CustomButtonProps) {
         action="secondary"
         {...props}
       >
+        {icon && <ButtonIcon as={icon} {...iconProps} />}
         <ButtonText>{children}</ButtonText>
+        {rightIcon && <ButtonIcon as={rightIcon} {...rightIconProps} />}
         {props.isLoading && <ButtonSpinner />}
-        {props.icon && <ButtonIcon />}
-        {props.rightIcon && <ButtonIcon />}
+      </Button>
+    </ButtonGroup>
+  );
+}
+
+export function DangerButton({
+  children,
+  icon,
+  rightIcon,
+  iconProps,
+  rightIconProps,
+  ...props
+}: CustomButtonProps) {
+  return (
+    <ButtonGroup isDisabled={props.disabled ?? undefined}>
+      <Button
+        size={props.size ?? "lg"}
+        className="h-14 rounded-lg bg-red-600"
+        action="negative"
+        {...props}
+      >
+        {icon && <ButtonIcon as={icon} {...iconProps} />}
+        <ButtonText>{children}</ButtonText>
+        {rightIcon && <ButtonIcon as={rightIcon} {...rightIconProps} />}
+        {props.isLoading && <ButtonSpinner />}
+      </Button>
+    </ButtonGroup>
+  );
+}
+
+export function DangerOutlineButton({
+  children,
+  icon,
+  rightIcon,
+  iconProps,
+  rightIconProps,
+  ...props
+}: CustomButtonProps) {
+  return (
+    <ButtonGroup isDisabled={props.disabled ?? undefined}>
+      <Button
+        size={props.size ?? "lg"}
+        className="h-14 rounded-lg border-red-600"
+        action="negative"
+        variant="outline"
+        {...props}
+      >
+        {icon && <ButtonIcon as={icon} {...iconProps} />}
+        <ButtonText className="text-red-600">{children}</ButtonText>
+        {rightIcon && <ButtonIcon as={rightIcon} {...rightIconProps} />}
+        {props.isLoading && <ButtonSpinner />}
       </Button>
     </ButtonGroup>
   );

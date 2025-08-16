@@ -1,8 +1,9 @@
+import { DangerButton } from "@/lib/components/custom-buttons";
 import ScreenHeader from "@/lib/components/ScreenHeader";
 import FixedScreen from "@/lib/components/screens/FixedScreen";
 import { Avatar, AvatarImage } from "@/lib/components/ui/avatar";
 import { Box } from "@/lib/components/ui/box";
-import { Button, ButtonIcon, ButtonText } from "@/lib/components/ui/button";
+import { Button, ButtonIcon } from "@/lib/components/ui/button";
 import { HStack } from "@/lib/components/ui/hstack";
 import { Icon } from "@/lib/components/ui/icon";
 import { Pressable } from "@/lib/components/ui/pressable";
@@ -54,7 +55,6 @@ const menuItems: { icon: any; label: string; route: Href }[] = [
 ];
 
 export default function AccountScreen() {
-
   const firstName = useUserStore((state) => state.profile?.firstName);
   const lastName = useUserStore((state) => state.profile?.lastName);
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
@@ -133,7 +133,9 @@ export default function AccountScreen() {
               alt="Profile Image"
             />
           </Avatar>
-          <Text className="text-xl font-inter-bold text-black">{firstName} {lastName}</Text>
+          <Text className="text-xl font-inter-bold text-black">
+            {firstName} {lastName}
+          </Text>
         </VStack>
 
         <VStack className="gap-4">
@@ -157,16 +159,11 @@ export default function AccountScreen() {
             </Pressable>
           ))}
 
-          <Button
-            onPress={confirmDeleteAccount}
-            variant="solid"
-            action="negative"
-            size="lg"
-            className="mt-8 bg-red-600 rounded-lg h-16"
-          >
-            <ButtonIcon as={CircleX} className="h-6 w-6" />
-            <ButtonText>Delete Account</ButtonText>
-          </Button>
+          <Box className="mt-8">
+            <DangerButton onPress={confirmDeleteAccount} icon={CircleX}>
+              Delete Account
+            </DangerButton>
+          </Box>
         </VStack>
       </Box>
     </FixedScreen>

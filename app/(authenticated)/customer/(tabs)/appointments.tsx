@@ -1,9 +1,11 @@
+import FixedScreen from "@/lib/components/screens/FixedScreen";
 import { Box } from "@/lib/components/ui/box";
 import { Icon } from "@/lib/components/ui/icon";
 import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import AppointmentItem from "@/lib/features/appointments/AppointmentItem";
 import { FlashList } from "@shopify/flash-list";
+import { useRouter } from "expo-router";
 import { Calendar } from "lucide-react-native";
 import { useState } from "react";
 
@@ -142,15 +144,16 @@ export default function AppointmentsScreen() {
   const [activeTab, setActiveTab] = useState<"upcoming" | "delivered">(
     "upcoming"
   );
+  const router = useRouter();
 
   const filteredAppointments = appointments.filter(
     (appointment) => appointment.status === activeTab
   );
 
   return (
-    <Box className="flex-1 bg-gray-50">
+    <FixedScreen addTopInset={false}>
       {/* Header */}
-      <Box className="bg-white px-6 py-4 border-b border-gray-100">
+      <Box className="bg-white px-2 py-4 border-b border-gray-100">
         <Text className="text-gray-500">Manage your cleaning schedules</Text>
       </Box>
 
@@ -189,7 +192,7 @@ export default function AppointmentsScreen() {
       </Box>
 
       {/* Appointments List */}
-      <Box className="flex-1 px-6 pt-6">
+      <Box className="flex-1 pt-6">
         {filteredAppointments.length > 0 && (
           <Text className="text-sm text-gray-500 mb-4 font-medium">
             {filteredAppointments.length} {activeTab} appointment
@@ -210,6 +213,7 @@ export default function AppointmentsScreen() {
                 client={item.client}
                 service={item.service}
                 status={item.status}
+                onPress={() => router.push(`/customer/appointments/${item.id}`)}
               />
             )}
             showsVerticalScrollIndicator={false}
@@ -229,6 +233,6 @@ export default function AppointmentsScreen() {
           </Box>
         )}
       </Box>
-    </Box>
+    </FixedScreen>
   );
 }

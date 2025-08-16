@@ -7,15 +7,17 @@ import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import AppointmentItem from "@/lib/features/appointments/AppointmentItem";
+import { useAppStore } from "@/lib/store/useAppStore";
 import { useUserStore } from "@/lib/store/useUserStore";
 import { Bell, ChevronRight, Eye, EyeOff, Info } from "lucide-react-native";
-import React, { useState } from "react";
+import React from "react";
+import { TouchableOpacity } from "react-native";
 
 export default function ServiceProviderHome() {
   const { profile } = useUserStore();
 
   const hasNotification = true;
-  const [showBalance, setShowBalance] = useState(true);
+  const { balanceVisibile, toggleBalanceVisibility } = useAppStore();
 
   const formatNaira = (amount: number): string => {
     return new Intl.NumberFormat("en-NG", {
@@ -69,13 +71,16 @@ export default function ServiceProviderHome() {
               <Text className="text-white text-sm font-inter-semibold">
                 Available Balance
               </Text>
-              <Pressable onPress={() => setShowBalance((prev) => !prev)}>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={toggleBalanceVisibility}
+              >
                 <Icon
-                  as={showBalance ? EyeOff : Eye}
+                  as={balanceVisibile ? EyeOff : Eye}
                   size="lg"
                   className="text-white"
                 />
-              </Pressable>
+              </TouchableOpacity>
             </HStack>
 
             <Pressable>
@@ -89,7 +94,7 @@ export default function ServiceProviderHome() {
           </HStack>
           <HStack className="justify-between items-center gap-1 mb-2">
             <Text className="text-2xl font-inter-bold text-white">
-              {showBalance ? formatNaira(85000) : "****"}
+              {balanceVisibile ? formatNaira(85000) : "****"}
             </Text>
             <Button className="bg-white rounded-full">
               <ButtonText className="text-brand-500 text-sm">

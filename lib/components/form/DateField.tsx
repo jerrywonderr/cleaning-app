@@ -1,61 +1,53 @@
-import { formatDate } from "@/lib/utils/date-helper";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import React, { useState } from "react";
-import { UseFormReturn } from "react-hook-form";
-import { Pressable, View } from "react-native";
-import { FormControl, FormControlLabel, FormControlLabelText } from "../ui/form-control";
-import { Text } from "../ui/text";
+import { format } from "date-fns";
+import { Calendar } from "lucide-react-native";
+import { useState } from "react";
+import { useController, useFormContext } from "react-hook-form";
+import { Pressable } from "react-native";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+import {
+  FormControl,
+  FormControlError,
+  FormControlErrorIcon,
+  FormControlErrorText,
+  FormControlHelper,
+  FormControlHelperText,
+  FormControlLabel,
+  FormControlLabelText,
+} from "../ui/form-control";
+import { AlertCircleIcon } from "../ui/icon";
+import { Input, InputField } from "../ui/input";
 
 interface DateFieldProps {
   name: string;
-  label: string;
+  label?: string;
+  helperText?: string;
   placeholder?: string;
-  methods?: UseFormReturn<any>;
-  value?: string | Date;
-  onChange?: (value: string) => void;
-  maximumDate?: Date;
+  confirmText?: string;
+  cancelText?: string;
+  onConfirm?: (date: Date) => void;
   minimumDate?: Date;
-  mode?: "date" | "time" | "datetime";
-  display?: "default" | "spinner" | "calendar" | "clock";
+  maximumDate?: Date;
 }
 
-export const DateField: React.FC<DateFieldProps> = ({
+export const DateField = ({
   name,
   label,
-  placeholder = "Select date",
-  methods,
-  value,
-  onChange,
-  maximumDate = new Date(),
+  helperText,
+  placeholder,
+  confirmText,
+  cancelText,
+  onConfirm,
   minimumDate,
-  mode = "date",
-  display = "default",
-}) => {
-  const [showDatePicker, setShowDatePicker] = useState(false);
-
-  // Handle both form context and direct value/onChange props
-  const currentValue = methods ? methods.watch(name) : value;
-  
-  const handleChange = methods ? 
-    (event: any, selectedDate?: Date) => {
-      setShowDatePicker(false);
-      if (selectedDate) {
-        // Store as UTC ISO string
-        methods.setValue(name, selectedDate.toISOString(), {
-          shouldValidate: true,
-        });
-      }
-    } : 
-    (event: any, selectedDate?: Date) => {
-      setShowDatePicker(false);
-      if (selectedDate && onChange) {
-        onChange(selectedDate.toISOString());
-      }
-    };
-
-  const displayValue = currentValue
-    ? formatDate(currentValue)
-    : placeholder;
+  maximumDate = new Date(),
+  ...props
+}: DateFieldProps) => {
+  const [isFocused, setIsFocused] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const { control } = useFormContext();
+  const {
+    field,
+    fieldState: { error },
+  } = useController({ name, control });
 
   return (
     <>
@@ -70,10 +62,7 @@ export const DateField: React.FC<DateFieldProps> = ({
               </FormControlLabel>
             )}
             <View className="h-12 border border-black/60 rounded-lg px-3 justify-center bg-white">
-            <Text className={`text-base font-inter-medium ${
-                currentValue ? "text-gray-900" : "text-gray-500"
-              }`}
-            >
+              <Text className="text-base font-inter-medium text-gray-900">
                 {displayValue}
               </Text>
             </View>
@@ -93,6 +82,10 @@ export const DateField: React.FC<DateFieldProps> = ({
           onChange={handleChange}
         />
       )}
-    </>
+      <FormControlError>
+        <FormControlErrorIcon as={AlertCircleIcon} />
+        <FormControlErrorText>{error?.message}</FormControlErrorText>
+      </FormControlError>
+    </FormControl>
   );
 };

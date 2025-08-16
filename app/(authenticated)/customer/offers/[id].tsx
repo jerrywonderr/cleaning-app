@@ -1,11 +1,16 @@
-import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
+import {
+  PrimaryButton,
+  PrimaryOutlineButton,
+} from "@/lib/components/custom-buttons";
+import FixedScreen from "@/lib/components/screens/FixedScreen";
+import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
 import { Button, ButtonText } from "@/lib/components/ui/button";
 import { HStack } from "@/lib/components/ui/hstack";
 import { Icon } from "@/lib/components/ui/icon";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
-import { useOffer } from "@/lib/hooks/useOffers";
+import { useOffer, useUserProfile } from "@/lib/hooks/useOffers";
 import { formatNaira } from "@/lib/utils/formatNaira";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Clock, MapPin, MessageCircle, Phone, Star } from "lucide-react-native";
@@ -22,6 +27,9 @@ export default function CustomerOfferDetailsScreen() {
 
   // Fetch offer data using the service
   const { data: offer, isLoading, error } = useOffer(offerId);
+
+  // Fetch service provider details once offer is loaded
+  const { data: providerProfile } = useUserProfile(offer?.providerId || "");
 
   const handleContactProvider = () => {
     if (!offer) return;
@@ -44,50 +52,65 @@ export default function CustomerOfferDetailsScreen() {
     );
   };
 
-  const handleBookService = () => {
-    if (!offer) return;
-
-    Alert.alert(
-      "Book Service",
-      `Book "${offer.title}" with ${offer.provider}?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Book Now",
-          onPress: () =>
-            Alert.alert("Booking", "Booking functionality coming soon!"),
-        },
-      ]
-    );
-  };
-
   // Show loading state
   if (isLoading) {
     return (
-      <ScrollableScreen addTopInset={false} addBottomInset={true}>
+      <FixedScreen addTopInset={false} addBottomInset={true}>
         <Box className="flex-1 items-center justify-center">
           <Text>Loading offer details...</Text>
         </Box>
-      </ScrollableScreen>
+      </FixedScreen>
     );
   }
 
   // Show error state
   if (error || !offer) {
     return (
-      <ScrollableScreen addTopInset={false} addBottomInset={true}>
+      <FixedScreen addTopInset={false} addBottomInset={true}>
         <Box className="flex-1 items-center justify-center">
           <Text className="text-red-500">Failed to load offer details</Text>
           <Button onPress={() => router.back()} className="mt-4">
             <ButtonText>Go Back</ButtonText>
           </Button>
         </Box>
-      </ScrollableScreen>
+      </FixedScreen>
     );
   }
 
   return (
-    <ScrollableScreen addTopInset={false} addBottomInset={true}>
+    <FootedScrollableScreen
+      addTopInset={false}
+      addBottomInset={true}
+      footer={
+        <VStack className="gap-3">
+          <PrimaryButton
+            onPress={() => router.push(`/customer/appointments/${offerId}/new`)}
+          >
+            Book This Service
+          </PrimaryButton>
+
+          <HStack className="gap-3">
+            <Box className="flex-1">
+              <PrimaryOutlineButton
+                onPress={handleContactProvider}
+                icon={Phone}
+              >
+                Call
+              </PrimaryOutlineButton>
+            </Box>
+
+            <Box className="flex-1">
+              <PrimaryOutlineButton
+                onPress={handleContactProvider}
+                icon={MessageCircle}
+              >
+                Message
+              </PrimaryOutlineButton>
+            </Box>
+          </HStack>
+        </VStack>
+      }
+    >
       <Box className="mb-3 mt-3">
         {/* Offer Image */}
         <Box className="mb-6">
@@ -118,9 +141,23 @@ export default function CustomerOfferDetailsScreen() {
             <Icon as={MapPin} className="text-gray-500" size="sm" />
             <Text className="text-base text-gray-700">
               Provided by{" "}
-              <Text className="font-inter-semibold">{offer.provider}</Text>
+              <Text className="font-inter-semibold">
+                {providerProfile
+                  ? `${providerProfile.firstName} ${providerProfile.lastName}`
+                  : offer.provider}
+              </Text>
             </Text>
           </HStack>
+
+          {/* Provider Contact Info */}
+          {providerProfile && (
+            <HStack className="items-center gap-2">
+              <Icon as={Phone} className="text-gray-500" size="sm" />
+              <Text className="text-base text-gray-700">
+                Contact: {providerProfile.phone}
+              </Text>
+            </HStack>
+          )}
 
           {/* Duration */}
           <HStack className="items-center gap-2">
@@ -194,41 +231,7 @@ export default function CustomerOfferDetailsScreen() {
             </VStack>
           </VStack>
         )}
-
-        {/* Action Buttons */}
-        <VStack className="gap-3">
-          <Button
-            onPress={handleBookService}
-            className="rounded-xl bg-brand-500"
-          >
-            <ButtonText className="text-lg">Book This Service</ButtonText>
-          </Button>
-
-          <HStack className="gap-3">
-            <Button
-              variant="outline"
-              onPress={handleContactProvider}
-              className="flex-1 rounded-xl border-brand-500"
-            >
-              <Icon as={Phone} className="text-brand-500 mr-2" size="sm" />
-              <ButtonText className="text-brand-500">Call</ButtonText>
-            </Button>
-
-            <Button
-              variant="outline"
-              onPress={handleContactProvider}
-              className="flex-1 rounded-xl border-brand-500"
-            >
-              <Icon
-                as={MessageCircle}
-                className="text-brand-500 mr-2"
-                size="sm"
-              />
-              <ButtonText className="text-brand-500">Message</ButtonText>
-            </Button>
-          </HStack>
-        </VStack>
       </Box>
-    </ScrollableScreen>
+    </FootedScrollableScreen>
   );
 }
