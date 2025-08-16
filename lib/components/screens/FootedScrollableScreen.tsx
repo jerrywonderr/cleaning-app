@@ -28,21 +28,22 @@ export default function FootedScrollableScreen({
       // keyboardVerticalOffset={keyboardVerticalOffset}
     >
       <Box
-        className={cn("px-4", contentContainerClassName)}
         style={{
           flex: 1,
           paddingTop: addTopInset ? top : 0,
           paddingBottom: addBottomInset ? bottom : 0,
         }}
       >
-        <ScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          {children}
-        </ScrollView>
-        <Box>{footer}</Box>
+        <Box className={cn("px-4 flex-1", contentContainerClassName)}>
+          <ScrollView
+            contentContainerStyle={{ flexGrow: 1 }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            {children}
+          </ScrollView>
+        </Box>
+        <Box className="border-t border-gray-300 pt-6 px-4">{footer}</Box>
       </Box>
     </KeyboardAvoidingView>
   );
