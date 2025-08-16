@@ -40,8 +40,8 @@ export default function ServiceProviderHome() {
       <Box>
         {/* Header */}
         <HStack className="flex-row justify-between items-center mb-4 pt-4">
-          <Text className="text-2xl font-inter-bold">
-            Welcome back, {profile.firstName || "Service Provider"}!
+          <Text className="text-xl font-inter-bold">
+            Hello, {profile.firstName || "Service Provider"}!
           </Text>
           <HStack className="flex-row gap-3">
             <Pressable>
