@@ -2,10 +2,12 @@ import { PrimaryButton } from "@/lib/components/custom-buttons";
 import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
 import { Text } from "@/lib/components/ui/text";
+import { useCreateAppointment } from "@/lib/hooks/useAppointments";
 import bookAppointmentSchema from "@/lib/schemas/book-appointment";
 import { format } from "date-fns";
 import { router, useLocalSearchParams } from "expo-router";
 import { useFormContext } from "react-hook-form";
+import { Alert } from "react-native";
 import { InferType } from "yup";
 
 export default function ConfirmStep() {
@@ -13,14 +15,33 @@ export default function ConfirmStep() {
   const { watch, handleSubmit } =
     useFormContext<InferType<typeof bookAppointmentSchema>>();
 
+  const createAppointmentMutation = useCreateAppointment();
+
   // Watch all form values to display them
   const formValues = watch();
 
-  const onSubmit = (data: InferType<typeof bookAppointmentSchema>) => {
-    console.log("Form submitted:", data);
-    // Here you would typically send the data to your API
-    // For now, just navigate to success
-    router.push(`/customer/appointments/${offerId}/new/success`);
+  const onSubmit = async (data: InferType<typeof bookAppointmentSchema>) => {
+    try {
+      // Create the appointment data
+      const appointmentData = {
+        offerId: offerId,
+        serviceType: data.serviceType,
+        address: data.address,
+        scheduledDate: data.scheduledDate,
+        scheduledTime: data.scheduledTime,
+        notes: data.notes,
+      };
+
+      // Create the appointment
+      await createAppointmentMutation.mutateAsync(appointmentData);
+
+      // Navigate to success screen
+      router.push(`/customer/appointments/${offerId}/new/success`);
+    } catch (error: any) {
+      Alert.alert("Error", `Failed to create appointment: ${error.message}`, [
+        { text: "OK" },
+      ]);
+    }
   };
 
   const formatDate = (date: Date | string) => {
@@ -41,8 +62,13 @@ export default function ConfirmStep() {
     <FootedScrollableScreen
       addTopInset={false}
       footer={
-        <PrimaryButton onPress={handleSubmit(onSubmit)}>
-          Confirm Appointment
+        <PrimaryButton
+          onPress={handleSubmit(onSubmit)}
+          disabled={createAppointmentMutation.isPending}
+        >
+          {createAppointmentMutation.isPending
+            ? "Creating..."
+            : "Confirm Appointment"}
         </PrimaryButton>
       }
     >
@@ -72,13 +98,22 @@ export default function ConfirmStep() {
             <Box className="flex-row items-center">
               <Text className="text-lg mr-2">🕒</Text>
               <Text className="text-base text-gray-800">
-                {formValues.date && formValues.time
-                  ? `${formatDate(formValues.date)} at ${formatTime(
-                      formValues.time
+                {formValues.scheduledDate && formValues.scheduledTime
+                  ? `${formatDate(formValues.scheduledDate)} at ${formatTime(
+                      formValues.scheduledTime
                     )}`
                   : "Date/time not set"}
               </Text>
             </Box>
+
+            {formValues.notes && (
+              <Box className="flex-row items-center">
+                <Text className="text-lg mr-2">📝</Text>
+                <Text className="text-base text-gray-800">
+                  {formValues.notes}
+                </Text>
+              </Box>
+            )}
           </Box>
         </Box>
       </Box>

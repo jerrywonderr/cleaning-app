@@ -1,7 +1,7 @@
 import ScreenHeader from "@/lib/components/ScreenHeader";
 import { Stack } from "expo-router";
 
-export default function RootAppointmentLayout() {
+export default function AppointmentLayout() {
   return (
     <Stack
       screenOptions={{
@@ -12,8 +12,7 @@ export default function RootAppointmentLayout() {
         ),
       }}
     >
-      <Stack.Screen name="offer/[offerId]" options={{ headerShown: false }} />
-      <Stack.Screen name="[appointmentId]" options={{ headerShown: false }} />
+      <Stack.Screen name="index" options={{ title: "Appointments" }} />
     </Stack>
   );
 }

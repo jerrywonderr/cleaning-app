@@ -12,6 +12,7 @@ export default function RootAppointmentLayout() {
         ),
       }}
     >
+      <Stack.Screen name="offer/[offerId]" options={{ headerShown: false }} />
       <Stack.Screen name="[appointmentId]" options={{ headerShown: false }} />
     </Stack>
   );

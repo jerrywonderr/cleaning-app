@@ -10,7 +10,7 @@ service cloud.firestore {
       allow read: if request.auth != null;
     }
     
-    // Offers collection - new rules for offer management
+    // Offers collection - offer management
     match /offers/{offerId} {
       // All authenticated users can read any offer
       allow read: if request.auth != null;
@@ -24,5 +24,25 @@ service cloud.firestore {
       allow update, delete: if request.auth != null && 
         resource.data.providerId == request.auth.uid;
     }
+    
+    // Appointments collection - appointment management
+    match /appointments/{appointmentId} {
+      // All authenticated users can read any appointment
+      allow read: if request.auth != null;
+      
+      // Only authenticated regular users (customers) can create appointments
+      allow create: if request.auth != null && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isServiceProvider == false;
+      
+      // Only the customer who created the appointment can delete it
+      allow delete: if request.auth != null && 
+        resource.data.customerId == request.auth.uid;
+      
+      // Both the customer and service provider can update the appointment
+      allow update: if request.auth != null && 
+        (resource.data.customerId == request.auth.uid || 
+         resource.data.serviceProviderId == request.auth.uid);
+    }
   }
-} 
+}

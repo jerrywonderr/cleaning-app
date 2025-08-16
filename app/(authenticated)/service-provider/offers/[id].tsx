@@ -17,6 +17,7 @@ import { useDeleteOffer, useOffer } from "@/lib/hooks/useOffers";
 import { formatNaira } from "@/lib/utils/formatNaira";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import {
+  Calendar,
   Clock,
   Edit,
   MapPin,
@@ -166,6 +167,23 @@ export default function OfferDetailsScreen() {
                   >
                     <Icon as={Edit} size="sm" className="mr-2 text-gray-600" />
                     <MenuItemLabel>Edit</MenuItemLabel>
+                  </MenuItem>
+
+                  <MenuItem
+                    key="ViewAppointments"
+                    textValue="View Appointments"
+                    onPress={() =>
+                      router.push(
+                        `/service-provider/appointments/offer/${offer.id}`
+                      )
+                    }
+                  >
+                    <Icon
+                      as={Calendar}
+                      size="sm"
+                      className="mr-2 text-gray-600"
+                    />
+                    <MenuItemLabel>View Appointments</MenuItemLabel>
                   </MenuItem>
 
                   <MenuItem

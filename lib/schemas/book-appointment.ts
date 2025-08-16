@@ -2,6 +2,7 @@ import * as yup from "yup";
 import serviceCategoryOptions from "../constants/service-category";
 
 const schema = yup.object({
+  offerId: yup.string().required("Offer ID is required"),
   address: yup
     .string()
     .min(10, "Address must be at least 10 characters")
@@ -10,8 +11,9 @@ const schema = yup.object({
     .string()
     .oneOf(serviceCategoryOptions.map((option) => option.value))
     .required("Service type is required"),
-  date: yup.date().required("Date is required"),
-  time: yup.string().required("Time is required"),
+  scheduledDate: yup.date().required("Date is required"),
+  scheduledTime: yup.date().required("Time is required"),
+  notes: yup.string().optional(),
 });
 
 export default schema;

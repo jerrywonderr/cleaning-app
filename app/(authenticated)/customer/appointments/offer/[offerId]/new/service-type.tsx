@@ -13,7 +13,7 @@ export default function ServiceTypeStep() {
   const { offerId } = useLocalSearchParams<{ offerId: string }>();
   const { control, watch } =
     useFormContext<InferType<typeof bookAppointmentSchema>>();
-  const { fieldState, field } = useController({ control, name: "serviceType" });
+  const { field } = useController({ control, name: "serviceType" });
 
   // Watch the current service type value from the form
   const selectedServiceType = watch("serviceType");

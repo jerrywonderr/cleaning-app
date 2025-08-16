@@ -2,17 +2,27 @@ import { Box } from "@/lib/components/ui/box";
 import { Icon } from "@/lib/components/ui/icon";
 import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
+import { AppointmentStatus } from "@/lib/types/appointment";
 import { cn } from "@/lib/utils/style";
-import { Calendar, ChevronRight, Clock, User } from "lucide-react-native";
+import {
+  AlertCircle,
+  Calendar,
+  CheckCircle,
+  ChevronRight,
+  Clock,
+  Clock as ClockIcon,
+  User,
+  XCircle,
+} from "lucide-react-native";
 import React from "react";
 
 interface AppointmentItemProps {
-  id: number;
+  id: string;
   date: string;
   time: string;
   client: string;
   service: string;
-  status: "upcoming" | "delivered" | "completed" | "cancelled";
+  status: AppointmentStatus;
   onPress?: () => void;
   className?: string;
 }
@@ -27,6 +37,63 @@ export default function AppointmentItem({
   onPress,
   className = "",
 }: AppointmentItemProps) {
+  const getStatusIcon = (status: AppointmentStatus) => {
+    switch (status) {
+      case "pending":
+        return <Icon as={ClockIcon} size="sm" className="text-yellow-500" />;
+      case "confirmed":
+        return <Icon as={CheckCircle} size="sm" className="text-blue-500" />;
+      case "in-progress":
+        return <Icon as={ClockIcon} size="sm" className="text-green-500" />;
+      case "completed":
+        return <Icon as={CheckCircle} size="sm" className="text-green-600" />;
+      case "cancelled":
+        return <Icon as={XCircle} size="sm" className="text-red-500" />;
+      case "no-show":
+        return <Icon as={AlertCircle} size="sm" className="text-red-600" />;
+      default:
+        return <Icon as={ClockIcon} size="sm" className="text-gray-400" />;
+    }
+  };
+
+  const getStatusText = (status: AppointmentStatus) => {
+    switch (status) {
+      case "pending":
+        return "Pending";
+      case "confirmed":
+        return "Confirmed";
+      case "in-progress":
+        return "In Progress";
+      case "completed":
+        return "Completed";
+      case "cancelled":
+        return "Cancelled";
+      case "no-show":
+        return "No Show";
+      default:
+        return status;
+    }
+  };
+
+  const getStatusColor = (status: AppointmentStatus) => {
+    switch (status) {
+      case "pending":
+        return "text-yellow-600 bg-yellow-50";
+      case "confirmed":
+        return "text-blue-600 bg-blue-50";
+      case "in-progress":
+        return "text-green-600 bg-green-50";
+      case "completed":
+        return "text-green-700 bg-green-50";
+      case "cancelled":
+        return "text-red-600 bg-red-50";
+      case "no-show":
+        return "text-red-700 bg-red-50";
+      default:
+        return "text-gray-600 bg-gray-50";
+    }
+  };
+
   return (
     <Pressable onPress={onPress} className="px-2">
       <Box
@@ -43,7 +110,21 @@ export default function AppointmentItem({
               {client}
             </Text>
           </Box>
-          <Text className="text-sm text-gray-600 ml-6">{service}</Text>
+          <Text className="text-sm text-gray-600 ml-6 capitalize">
+            {service.replace("-", " ")}
+          </Text>
+
+          {/* Status Badge */}
+          <Box className="flex-row items-center mt-2 ml-6">
+            {getStatusIcon(status)}
+            <Text
+              className={`text-xs font-medium px-2 py-1 rounded-full ml-2 ${getStatusColor(
+                status
+              )}`}
+            >
+              {getStatusText(status)}
+            </Text>
+          </Box>
         </Box>
 
         {/* Right side - Date & Time */}

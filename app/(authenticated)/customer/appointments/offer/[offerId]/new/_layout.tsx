@@ -1,21 +1,32 @@
 import ScreenHeader from "@/lib/components/ScreenHeader";
 import bookAppointmentSchema from "@/lib/schemas/book-appointment";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Stack } from "expo-router";
+import { Stack, useLocalSearchParams } from "expo-router";
 import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 
 export default function BookLayout() {
+  const { offerId } = useLocalSearchParams<{ offerId: string }>();
+
   const form = useForm({
     resolver: yupResolver(bookAppointmentSchema),
     mode: "onChange", // Enable real-time validation
     defaultValues: {
+      offerId: offerId || "",
       address: "",
       serviceType: undefined,
-      date: undefined,
-      time: "",
+      scheduledDate: undefined,
+      scheduledTime: undefined,
+      notes: "",
     },
   });
+
+  // Update offerId when it changes
+  useEffect(() => {
+    if (offerId) {
+      form.setValue("offerId", offerId);
+    }
+  }, [offerId, form]);
 
   // Debug: Log form values when they change
   useEffect(() => {
