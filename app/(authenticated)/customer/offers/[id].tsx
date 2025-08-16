@@ -12,9 +12,13 @@ import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import { useOffer, useUserProfile } from "@/lib/hooks/useOffers";
 import { formatNaira } from "@/lib/utils/formatNaira";
+import {
+  handleCallProvider,
+  handleMessageProvider,
+} from "@/lib/utils/providerContact";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Clock, MapPin, MessageCircle, Phone, Star } from "lucide-react-native";
-import { Alert, Image, Linking, Platform } from "react-native";
+import { Image } from "react-native";
 
 type URLParams = {
   id: string;
@@ -31,68 +35,7 @@ export default function CustomerOfferDetailsScreen() {
   // Fetch service provider details once offer is loaded
   const { data: providerProfile } = useUserProfile(offer?.providerId || "");
 
-  const handleCallProvider = () => {
-    if (!providerProfile?.phone) {
-      Alert.alert("Error", "Provider phone number not available");
-      return;
-    }
-
-    Alert.alert(
-      "Call Provider",
-      `Do you want to call ${providerProfile.firstName}?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Call",
-          onPress: () => {
-            const phoneUrl =
-              Platform.OS === "ios"
-                ? `telprompt:${providerProfile.phone}`
-                : `tel:${providerProfile.phone}`;
-
-            // Lazy import Linking
-            import("react-native").then(({ Linking }) => {
-              Linking.openURL(phoneUrl).catch(() =>
-                Alert.alert("Error", "Unable to open phone dialer")
-              );
-            });
-          },
-        },
-      ]
-    );
-  };
-
-  const handleMessageProvider = () => {
-    if (!providerProfile?.phone) {
-      Alert.alert("Error", "Provider phone number not available");
-      return;
-    }
-
-    Alert.alert(
-      "Message Provider",
-      `Do you want to message ${providerProfile.firstName}?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Message",
-          onPress: () => {
-            const smsUrl = `sms:${providerProfile.phone}`;
-            Linking.canOpenURL(smsUrl)
-              .then((supported) => {
-                if (supported) {
-                  Linking.openURL(smsUrl);
-                } else {
-                  Alert.alert("Error", "Cannot open messaging app");
-                }
-              })
-              .catch((err) =>
-                console.error("Error opening messaging app:", err)
-              );
-          },
-        },
-      ]
-    );
-  };
+  
 
   // Show loading state
   if (isLoading) {
@@ -135,14 +78,16 @@ export default function CustomerOfferDetailsScreen() {
 
           <HStack className="gap-3">
             <Box className="flex-1">
-              <PrimaryOutlineButton onPress={handleCallProvider} icon={Phone}>
+              <PrimaryOutlineButton onPress={()=>{handleCallProvider(providerProfile?.phone ?? "", providerProfile?.firstName)}} icon={Phone}>
                 Call
               </PrimaryOutlineButton>
             </Box>
 
             <Box className="flex-1">
               <PrimaryOutlineButton
-                onPress={handleMessageProvider}
+                onPress={() =>
+                  handleMessageProvider(providerProfile?.phone ?? "", providerProfile?.firstName)
+                }
                 icon={MessageCircle}
               >
                 Message
