@@ -149,7 +149,7 @@ export default function AppointmentsScreen() {
   );
 
   return (
-    <FixedScreen>
+    <FixedScreen addTopInset={false}>
       {/* Header */}
       <Box className="bg-white px-2 py-4 border-b border-gray-100">
         <Text className="text-gray-500">Manage your cleaning schedules</Text>
