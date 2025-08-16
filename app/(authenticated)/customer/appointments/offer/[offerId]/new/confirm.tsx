@@ -1,5 +1,6 @@
 import { PrimaryButton } from "@/lib/components/custom-buttons";
 import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
+import StepIndicator from "@/lib/components/StepIndicator";
 import { Box } from "@/lib/components/ui/box";
 import { Text } from "@/lib/components/ui/text";
 import { useCreateAppointment } from "@/lib/hooks/useAppointments";
@@ -72,11 +73,12 @@ export default function ConfirmStep() {
         </PrimaryButton>
       }
     >
-      <Box className="flex-1 bg-white justify-between">
+      <StepIndicator steps={4} currentStep={4} />
+      <Box className="flex-1 bg-white pt-6 justify-between">
         <Box>
-          <Text className="text-2xl font-bold mb-6">Confirm Details</Text>
+          {/* <Text className="text-2xl font-bold mb-6">Confirm Details</Text> */}
 
-          <Text className="text-base mb-6">
+          <Text className="text-base mb-4">
             Please review your booking information
           </Text>
 

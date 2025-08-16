@@ -2,6 +2,7 @@ import { PrimaryButton } from "@/lib/components/custom-buttons";
 import { DateField } from "@/lib/components/form/DateField";
 import { TimeField } from "@/lib/components/form/TimeField";
 import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
+import StepIndicator from "@/lib/components/StepIndicator";
 import { Box } from "@/lib/components/ui/box";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
@@ -32,10 +33,11 @@ export default function ScheduleStep() {
         </PrimaryButton>
       }
     >
-      <Box className="flex-1 bg-white justify-between">
+      <StepIndicator steps={4} currentStep={3} />
+      <Box className="flex-1 bg-white pt-6 justify-between">
         <Box>
-          <Text className="text-2xl font-bold mb-6">When should we come?</Text>
-          <Text className="text-base mb-2">
+          {/* <Text className="text-2xl font-bold mb-6">When should we come?</Text> */}
+          <Text className="text-base mb-4">
             Pick a convenient date and time
           </Text>
 

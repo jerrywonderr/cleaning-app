@@ -1,6 +1,7 @@
 import { PrimaryButton } from "@/lib/components/custom-buttons";
 import { TextField } from "@/lib/components/form/TextField";
 import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
+import StepIndicator from "@/lib/components/StepIndicator";
 import { Box } from "@/lib/components/ui/box";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
@@ -32,11 +33,13 @@ export default function AddressScreen() {
         </PrimaryButton>
       }
     >
+      <StepIndicator steps={4} currentStep={1} />
+
       <Box className="flex-1 bg-white pt-6 justify-between">
         <Box>
-          <Text className="text-2xl font-bold mb-6 ">
+          {/* <Text className="text-2xl font-bold mb-6 ">
             Where should we clean?
-          </Text>
+          </Text> */}
 
           <Text className="text-base mb-2">Enter your address below</Text>
 

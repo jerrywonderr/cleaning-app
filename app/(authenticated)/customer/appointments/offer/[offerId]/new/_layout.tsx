@@ -41,6 +41,7 @@ export default function BookLayout() {
               showBackButton={options.headerBackVisible}
             />
           ),
+          animation: "fade_from_bottom",
         }}
       >
         <Stack.Screen

@@ -1,5 +1,6 @@
 import { PrimaryButton } from "@/lib/components/custom-buttons";
 import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
+import StepIndicator from "@/lib/components/StepIndicator";
 import { Box } from "@/lib/components/ui/box";
 import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
@@ -32,13 +33,14 @@ export default function ServiceTypeStep() {
         </PrimaryButton>
       }
     >
-      <Box className="flex-1 bg-white justify-between">
+      <StepIndicator steps={4} currentStep={2} />
+      <Box className="flex-1 bg-white pt-6 justify-between">
         <Box>
-          <Text className="text-2xl font-bold mb-6">
+          {/* <Text className="text-2xl font-bold mb-6">
             What type of cleaning?
-          </Text>
+          </Text> */}
 
-          <Text className="text-base mb-2">Choose your preferred service</Text>
+          <Text className="text-base mb-4">Choose your preferred service</Text>
 
           <Box className="gap-4">
             {serviceCategoryOptions.map((option) => {
