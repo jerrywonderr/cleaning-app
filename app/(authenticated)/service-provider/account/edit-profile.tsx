@@ -136,7 +136,7 @@ const ProfileScreen = () => {
     // Sync local value when switching to edit mode
     useEffect(() => {
       if (isEditing) setLocalValue(values[fieldName]);
-    }, [isEditing, values, fieldName]);
+    }, [isEditing, fieldName]);
 
     const handleSave = () => {
       setValues((prev) => ({ ...prev, [fieldName]: localValue }));
