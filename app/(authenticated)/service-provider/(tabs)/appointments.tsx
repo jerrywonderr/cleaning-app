@@ -137,7 +137,7 @@ export default function AppointmentsScreen() {
             )}
             showsVerticalScrollIndicator={false}
             ItemSeparatorComponent={() => <Box className="h-4" />}
-            contentContainerStyle={{ paddingHorizontal: 24 }}
+            // contentContainerStyle={{ paddingHorizontal: 24 }}
             refreshControl={
               <RefreshControl
                 refreshing={isRefetching}
