@@ -1,10 +1,6 @@
-import {
-  DangerOutlineButton,
-  PrimaryButton,
-} from "@/lib/components/custom-buttons";
+import { PrimaryButton } from "@/lib/components/custom-buttons";
 import ScreenHeader from "@/lib/components/ScreenHeader";
 import FixedScreen from "@/lib/components/screens/FixedScreen";
-import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
 import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
 import { Button, ButtonText } from "@/lib/components/ui/button";
@@ -13,7 +9,11 @@ import { Icon } from "@/lib/components/ui/icon";
 import { Menu, MenuItem, MenuItemLabel } from "@/lib/components/ui/menu";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
-import { useDeleteOffer, useOffer } from "@/lib/hooks/useOffers";
+import {
+  useDeleteOffer,
+  useOffer,
+  useUpdateOffer,
+} from "@/lib/hooks/useOffers";
 import { formatNaira } from "@/lib/utils/formatNaira";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import {
@@ -26,24 +26,38 @@ import {
   Trash2,
   User,
 } from "lucide-react-native";
-import { Alert, Image } from "react-native";
+import { useState } from "react";
+import { Alert, Image, Pressable, TextInput } from "react-native";
 
-type URLParams = {
-  id: string;
-};
+type URLParams = { id: string };
 
 export default function OfferDetailsScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<URLParams>();
   const offerId = params.id as string;
 
-  // Fetch offer data using the service
   const { data: offer, isLoading, error } = useOffer(offerId);
   const deleteOfferMutation = useDeleteOffer();
+  const updateOfferMutation = useUpdateOffer();
+
+  // State for editing fields
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editedTitle, setEditedTitle] = useState("");
+
+  const [isEditingPrice, setIsEditingPrice] = useState(false);
+  const [editedPrice, setEditedPrice] = useState("");
+
+  const [isEditingDuration, setIsEditingDuration] = useState(false);
+  const [editedDuration, setEditedDuration] = useState("");
+
+  const [isEditingCategory, setIsEditingCategory] = useState(false);
+  const [editedCategory, setEditedCategory] = useState("");
+
+  const [isEditingDescription, setIsEditingDescription] = useState(false);
+  const [editedDescription, setEditedDescription] = useState("");
 
   const handleEditOffer = () => {
     if (!offer) return;
-
     router.push({
       pathname: "/service-provider/offers/edit/[id]",
       params: { id: offerId },
@@ -74,12 +88,10 @@ export default function OfferDetailsScreen() {
     );
   };
 
-  const handleViewProviderInfo = () => {
+  const handleViewCustomerInfo = () => {
     if (!offer) return;
-
-    // For now, show an alert. You can implement the actual navigation later
     Alert.alert(
-      "Service Provider Info",
+      "Customer Info",
       `Provider: ${offer.provider}\nThis feature will be implemented soon.`,
       [{ text: "OK" }]
     );
@@ -87,8 +99,6 @@ export default function OfferDetailsScreen() {
 
   const handleAddReview = () => {
     if (!offer) return;
-
-    // For now, show an alert. You can implement the actual navigation later
     Alert.alert(
       "Add Review",
       `Add a review for: ${offer.title}\nThis feature will be implemented soon.`,
@@ -96,7 +106,17 @@ export default function OfferDetailsScreen() {
     );
   };
 
-  // Show loading state
+  const handleSave = async (field: string, value: string | number) => {
+    try {
+      await updateOfferMutation.mutateAsync({
+        offerId,
+        data: { [field]: value },
+      });
+    } catch {
+      Alert.alert("Error", `Failed to update ${field}. Please try again.`);
+    }
+  };
+
   if (isLoading) {
     return (
       <ScrollableScreen addTopInset={false} addBottomInset={true}>
@@ -107,7 +127,6 @@ export default function OfferDetailsScreen() {
     );
   }
 
-  // Show error state
   if (error || !offer) {
     return (
       <FixedScreen addTopInset={false} addBottomInset={true}>
@@ -122,19 +141,7 @@ export default function OfferDetailsScreen() {
   }
 
   return (
-    <FootedScrollableScreen
-      addTopInset={false}
-      addBottomInset={true}
-      footer={
-        <VStack className="gap-3">
-          <PrimaryButton onPress={handleEditOffer}>Edit Offer</PrimaryButton>
-
-          <DangerOutlineButton onPress={handleDeleteOffer}>
-            Delete Offer
-          </DangerOutlineButton>
-        </VStack>
-      }
-    >
+    <FixedScreen addTopInset={false} addBottomInset={true}>
       <Stack.Screen
         options={{
           title: "Offer Details",
@@ -187,9 +194,9 @@ export default function OfferDetailsScreen() {
                   </MenuItem>
 
                   <MenuItem
-                    key="ViewProviderInfo"
-                    textValue="View Service Provider Info"
-                    onPress={handleViewProviderInfo}
+                    key="ViewCustomerrInfo"
+                    textValue="View Customer Info"
+                    onPress={handleViewCustomerInfo}
                   >
                     <Icon as={User} size="sm" className="mr-2 text-gray-600" />
                     <MenuItemLabel>View Customer Profile</MenuItemLabel>
@@ -235,55 +242,207 @@ export default function OfferDetailsScreen() {
           />
         </Box>
 
-        {/* Offer Info */}
-        <VStack className="space-y-4 mb-6">
-          <VStack className="flex-1">
-            <Text className="text-2xl font-inter-bold text-gray-900 mb-2">
-              {offer.title}
-            </Text>
-            <Text className="text-xl font-inter-semibold text-brand-500">
-              {formatNaira(offer.price)}
-            </Text>
-          </VStack>
-
-          {/* Provider Info */}
-          <HStack className="items-center gap-2">
-            <Icon as={MapPin} className="text-gray-500" size="sm" />
-            <Text className="text-base text-gray-700">
-              Provided by{" "}
-              <Text className="font-inter-semibold">{offer.provider}</Text>
-            </Text>
-          </HStack>
-
-          {/* Duration */}
-          <HStack className="items-center gap-2">
-            <Icon as={Clock} className="text-gray-500" size="sm" />
-            <Text className="text-base text-gray-700">
-              Estimated duration: {offer.duration} hour
-              {offer.duration !== 1 ? "s" : ""}
-            </Text>
-          </HStack>
-
-          {/* Category */}
-          {offer.category && (
+        {/* Title */}
+        <VStack className="gap-2 mb-6">
+          {isEditingTitle ? (
             <HStack className="items-center gap-2">
+              <TextInput
+                value={editedTitle}
+                onChangeText={setEditedTitle}
+                className="flex-1 border border-gray-300 rounded p-2"
+              />
+              <PrimaryButton
+                size="xs"
+                className="h-8 px-3 rounded-md"
+                onPress={async () => {
+                  await handleSave("title", editedTitle);
+                  setIsEditingTitle(false);
+                }}
+              >
+                Save
+              </PrimaryButton>
+            </HStack>
+          ) : (
+            <HStack className="items-center gap-2">
+              <Text className="text-2xl font-inter-bold text-gray-900">
+                {offer.title}
+              </Text>
+              <Pressable
+                onPress={() => {
+                  setEditedTitle(offer.title);
+                  setIsEditingTitle(true);
+                }}
+              >
+                <Icon as={Edit} size="sm" className="text-gray-600" />
+              </Pressable>
+            </HStack>
+          )}
+
+          {/* Price */}
+          {isEditingPrice ? (
+            <HStack className="items-center gap-2">
+              <TextInput
+                value={editedPrice}
+                onChangeText={setEditedPrice}
+                keyboardType="numeric"
+                className="flex-1 border border-gray-300 rounded p-2"
+              />
+              <PrimaryButton
+                size="xs"
+                className="h-8 px-3 rounded-md"
+                onPress={async () => {
+                  await handleSave("price", Number(editedPrice));
+                  setIsEditingPrice(false);
+                }}
+              >
+                <ButtonText>Save</ButtonText>
+              </PrimaryButton>
+            </HStack>
+          ) : (
+            <HStack className="items-center gap-2">
+              <Text className="text-xl font-inter-semibold text-brand-500">
+                {formatNaira(offer.price)}
+              </Text>
+              <Pressable
+                onPress={() => {
+                  setEditedPrice(String(offer.price));
+                  setIsEditingPrice(true);
+                }}
+              >
+                <Icon as={Edit} size="sm" className="text-gray-600" />
+              </Pressable>
+            </HStack>
+          )}
+        </VStack>
+
+        {/* Provider */}
+        <HStack className="items-center gap-2 mb-4">
+          <Icon as={MapPin} className="text-gray-500" size="sm" />
+
+          <Text className="text-base text-gray-700">
+            Provided by{" "}
+            <Text className="font-inter-semibold">{offer.provider}</Text>
+          </Text>
+        </HStack>
+
+        {/* Duration */}
+        <HStack className="items-center gap-2 mb-4">
+          <Icon as={Clock} className="text-gray-500" size="sm" />
+          {isEditingDuration ? (
+            <HStack className="items-center gap-2 flex-1">
+              <TextInput
+                value={editedDuration}
+                onChangeText={setEditedDuration}
+                keyboardType="numeric"
+                className="flex-1 border border-gray-300 rounded p-2"
+              />
+              <PrimaryButton
+                size="xs"
+                className="h-8 px-3 rounded-md"
+                onPress={async () => {
+                  await handleSave("duration", Number(editedDuration));
+                  setIsEditingDuration(false);
+                }}
+              >
+                <ButtonText>Save</ButtonText>
+              </PrimaryButton>
+            </HStack>
+          ) : (
+            <HStack className="items-center gap-2">
+              <Text className="text-base text-gray-700">
+                Estimated duration: {offer.duration} hour
+                {offer.duration !== 1 ? "s" : ""}
+              </Text>
+              <Pressable
+                onPress={() => {
+                  setEditedDuration(String(offer.duration));
+                  setIsEditingDuration(true);
+                }}
+              >
+                <Icon as={Edit} size="sm" className="text-gray-600" />
+              </Pressable>
+            </HStack>
+          )}
+        </HStack>
+
+        {/* Category */}
+        {isEditingCategory ? (
+          <HStack className="items-center gap-2 mb-4">
+            <TextInput
+              value={editedCategory}
+              onChangeText={setEditedCategory}
+              className="flex-1 border border-gray-300 rounded p-2"
+            />
+            <PrimaryButton
+              size="xs"
+              className="h-8 px-3 rounded-md"
+              onPress={async () => {
+                await handleSave("category", editedCategory);
+                setIsEditingCategory(false);
+              }}
+            >
+              <ButtonText>Save</ButtonText>
+            </PrimaryButton>
+          </HStack>
+        ) : (
+          offer.category && (
+            <HStack className="items-center gap-2 mb-4">
               <Box className="bg-brand-100 px-3 py-1 rounded-full">
                 <Text className="text-brand-700 text-sm font-medium capitalize">
                   {offer.category.replace("-", " ")}
                 </Text>
               </Box>
+              <Pressable
+                onPress={() => {
+                  setEditedCategory(offer.category);
+                  setIsEditingCategory(true);
+                }}
+              >
+                <Icon as={Edit} size="sm" className="text-gray-600" />
+              </Pressable>
             </HStack>
-          )}
-        </VStack>
+          )
+        )}
 
         {/* Description */}
         <VStack className="gap-2 mb-6">
           <Text className="text-lg font-inter-semibold text-gray-900">
             Description
           </Text>
-          <Text className="text-base text-gray-700 leading-6">
-            {offer.description}
-          </Text>
+          {isEditingDescription ? (
+            <VStack className="gap-2">
+              <TextInput
+                value={editedDescription}
+                onChangeText={setEditedDescription}
+                multiline
+                className="border border-gray-300 rounded p-2 h-24"
+              />
+              <PrimaryButton
+                size="xs"
+                className="h-8 px-3 rounded-md"
+                onPress={async () => {
+                  await handleSave("description", editedDescription);
+                  setIsEditingDescription(false);
+                }}
+              >
+                <ButtonText>Save</ButtonText>
+              </PrimaryButton>
+            </VStack>
+          ) : (
+            <HStack className="items-center gap-2">
+              <Text className="text-base text-gray-700 leading-6 flex-1">
+                {offer.description}
+              </Text>
+              <Pressable
+                onPress={() => {
+                  setEditedDescription(offer.description);
+                  setIsEditingDescription(true);
+                }}
+              >
+                <Icon as={Edit} size="sm" className="text-gray-600" />
+              </Pressable>
+            </HStack>
+          )}
         </VStack>
 
         {/* What's Included */}
@@ -320,6 +479,6 @@ export default function OfferDetailsScreen() {
           </VStack>
         )}
       </Box>
-    </FootedScrollableScreen>
+    </FixedScreen>
   );
 }
