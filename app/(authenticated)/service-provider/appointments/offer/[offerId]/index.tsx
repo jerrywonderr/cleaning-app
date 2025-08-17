@@ -185,7 +185,7 @@ export default function OfferAppointmentsScreen() {
               data={appointments}
               keyExtractor={(item: Appointment) => item.id}
               renderItem={({ item }: { item: Appointment }) => (
-                <Box className="mx-6 mb-4">
+                <Box className="mx-2 mb-4">
                   <Box className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
                     {/* Header with Status */}
                     <Box className="flex-row items-center justify-between mb-3">
