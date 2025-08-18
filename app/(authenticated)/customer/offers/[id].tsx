@@ -18,11 +18,13 @@ import {
 } from "@/lib/utils/providerContact";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Clock, MapPin, MessageCircle, Phone, Star } from "lucide-react-native";
-import { Image } from "react-native";
+import { Dimensions, Image } from "react-native";
 
 type URLParams = {
   id: string;
 };
+
+const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 export default function CustomerOfferDetailsScreen() {
   const router = useRouter();
@@ -64,6 +66,7 @@ export default function CustomerOfferDetailsScreen() {
     <FootedScrollableScreen
       addTopInset={false}
       addBottomInset={true}
+      contentContainerClassName="px-0"
       footer={
         <VStack className="gap-3">
           <PrimaryButton
@@ -106,20 +109,21 @@ export default function CustomerOfferDetailsScreen() {
         </VStack>
       }
     >
-      <Box className="mb-6 mt-3">
+      <Box>
         {/* Offer Image */}
         <Image
           source={{ uri: offer.image }}
           style={{
             width: "100%",
-            height: 250,
-            borderRadius: 16,
+            height: SCREEN_HEIGHT * 0.3,
+            // borderRadius: 16,
             backgroundColor: "#f0f0f0",
           }}
         />
-
+      </Box>
+      <VStack className="gap-4 my-4">
         {/* Offer Info */}
-        <VStack className="gap-4 mt-6 bg-white p-4 rounded-2xl shadow-sm">
+        <VStack className="gap-4 bg-white p-4 rounded-2xl shadow-sm mx-4">
           <VStack className="flex-1">
             <Text className="text-2xl font-inter-bold text-gray-900 mb-1">
               {offer.title}
@@ -179,7 +183,7 @@ export default function CustomerOfferDetailsScreen() {
         </VStack>
 
         {/* Description */}
-        <VStack className="gap-2 mt-6 bg-white p-4 rounded-2xl shadow-sm">
+        <VStack className="gap-2 bg-white p-4 rounded-2xl shadow-sm mx-4">
           <Text className="text-xl font-inter-semibold text-gray-900">
             About This Service
           </Text>
@@ -190,7 +194,7 @@ export default function CustomerOfferDetailsScreen() {
 
         {/* What's Included */}
         {offer.whatIncluded && offer.whatIncluded.length > 0 && (
-          <VStack className="gap-2 mt-6 bg-white p-4 rounded-2xl shadow-sm">
+          <VStack className="gap-2 bg-white p-4 rounded-2xl shadow-sm mx-4">
             <Text className="text-xl font-inter-semibold text-gray-900">
               What&apos;s Included
             </Text>
@@ -207,7 +211,7 @@ export default function CustomerOfferDetailsScreen() {
 
         {/* Requirements */}
         {offer.requirements && offer.requirements.length > 0 && (
-          <VStack className="gap-2 mt-6 bg-white p-4 rounded-2xl shadow-sm">
+          <VStack className="gap-2 bg-white p-4 rounded-2xl shadow-sm mx-4">
             <Text className="text-xl font-inter-semibold text-gray-900">
               What You Need to Prepare
             </Text>
@@ -221,7 +225,7 @@ export default function CustomerOfferDetailsScreen() {
             </VStack>
           </VStack>
         )}
-      </Box>
+      </VStack>
     </FootedScrollableScreen>
   );
 }

@@ -164,176 +164,171 @@ export default function CustomerAppointmentDetailScreen() {
   }
 
   return (
-    <>
-      <FootedScrollableScreen
-        addTopInset={false}
-        addBottomInset={true}
-        footer={
-          <VStack className="gap-3">
-            {/* Status-specific actions */}
-            {canMarkCompleted && (
-              <PrimaryButton
-                onPress={() => setShowCompletionModal(true)}
-                icon={CheckCircle}
-              >
-                Mark as Completed
-              </PrimaryButton>
-            )}
+    <FootedScrollableScreen
+      addTopInset={false}
+      addBottomInset={true}
+      contentContainerClassName="px-0"
+      footer={
+        <VStack className="gap-3">
+          {/* Status-specific actions */}
+          {canMarkCompleted && (
+            <PrimaryButton
+              onPress={() => setShowCompletionModal(true)}
+              icon={CheckCircle}
+            >
+              Mark as Completed
+            </PrimaryButton>
+          )}
 
-            {canCancel && (
-              <DangerOutlineButton
-                onPress={() => handleStatusUpdate("cancelled")}
-                icon={XCircle}
-              >
-                Cancel Appointment
-              </DangerOutlineButton>
-            )}
+          {canCancel && (
+            <DangerOutlineButton
+              onPress={() => handleStatusUpdate("cancelled")}
+              icon={XCircle}
+            >
+              Cancel Appointment
+            </DangerOutlineButton>
+          )}
 
-            {/* Contact provider */}
-            <HStack className="gap-3">
-              <Box className="flex-1">
-                <PrimaryOutlineButton
-                  onPress={() => {
-                    handleCallProvider(
-                      providerProfile?.phone ?? "",
-                      providerProfile?.firstName
-                    );
-                  }}
-                  icon={Phone}
-                >
-                  Call
-                </PrimaryOutlineButton>
-              </Box>
-              <Box className="flex-1">
-                <PrimaryOutlineButton
-                  onPress={() =>
-                    handleMessageProvider(
-                      providerProfile?.phone ?? "",
-                      providerProfile?.firstName
-                    )
-                  }
-                  icon={MessageCircle}
-                >
-                  Message
-                </PrimaryOutlineButton>
-              </Box>
-            </HStack>
-          </VStack>
-        }
+          {/* Contact provider */}
+          <HStack className="gap-3">
+            <Box className="flex-1">
+              <PrimaryOutlineButton
+                onPress={() => {
+                  handleCallProvider(
+                    providerProfile?.phone ?? "",
+                    providerProfile?.firstName
+                  );
+                }}
+                icon={Phone}
+              >
+                Call
+              </PrimaryOutlineButton>
+            </Box>
+            <Box className="flex-1">
+              <PrimaryOutlineButton
+                onPress={() =>
+                  handleMessageProvider(
+                    providerProfile?.phone ?? "",
+                    providerProfile?.firstName
+                  )
+                }
+                icon={MessageCircle}
+              >
+                Message
+              </PrimaryOutlineButton>
+            </Box>
+          </HStack>
+        </VStack>
+      }
+    >
+      <ScrollView
+        className="flex-1 py-4"
+        showsVerticalScrollIndicator={false}
+        contentContainerClassName="gap-6"
       >
-        <ScrollView
-          className="flex-1"
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ padding: 0, gap: 20 }}
-        >
-          {/* Header */}
-          <VStack className="gap-2">
-            <HStack className="items-center justify-between">
-              <Text className="text-2xl font-inter-bold text-gray-900">
-                {appointment.serviceType
-                  .replace("-", " ")
-                  .replace(/\b\w/g, (l) => l.toUpperCase())}
-              </Text>
-              <Box
-                className={`px-3 py-1 rounded-full ${getStatusColor(
-                  appointment.status
-                )}`}
-              >
-                <Text className="text-sm font-medium">
-                  {getStatusText(appointment.status)}
-                </Text>
-              </Box>
-            </HStack>
-            <Text className="text-xl font-inter-semibold text-brand-500">
-              {formatNaira(appointment.price)}
+        {/* Header */}
+        <VStack className="gap-2 px-4">
+          <HStack className="items-center justify-between">
+            <Text className="text-2xl font-inter-bold text-gray-900">
+              {appointment.serviceType
+                .replace("-", " ")
+                .replace(/\b\w/g, (l) => l.toUpperCase())}
             </Text>
-          </VStack>
+            <Box
+              className={`px-3 py-1 rounded-full ${getStatusColor(
+                appointment.status
+              )}`}
+            >
+              <Text className="text-sm font-medium">
+                {getStatusText(appointment.status)}
+              </Text>
+            </Box>
+          </HStack>
+          <Text className="text-xl font-inter-semibold text-brand-500">
+            {formatNaira(appointment.price)}
+          </Text>
+        </VStack>
 
-          {/* Section: Service Details */}
-          <Section title="Service Details">
-            <InfoRow
-              icon={Calendar}
-              text={format(appointment.scheduledDate, "EEEE, MMMM d, yyyy")}
-            />
-            <InfoRow
-              icon={Clock}
-              text={format(appointment.scheduledTime, "h:mm a")}
-            />
-            <InfoRow
-              icon={ClockIcon}
-              text={`Duration: ${appointment.duration} hour${
-                appointment.duration !== 1 ? "s" : ""
+        {/* Section: Service Details */}
+        <Section title="Service Details">
+          <InfoRow
+            icon={Calendar}
+            text={format(appointment.scheduledDate, "EEEE, MMMM d, yyyy")}
+          />
+          <InfoRow
+            icon={Clock}
+            text={format(appointment.scheduledTime, "h:mm a")}
+          />
+          <InfoRow
+            icon={ClockIcon}
+            text={`Duration: ${appointment.duration} hour${
+              appointment.duration !== 1 ? "s" : ""
+            }`}
+          />
+          <InfoRow icon={MapPin} text={appointment.address} />
+        </Section>
+
+        {/* Section: Customer */}
+        <Section title="Customer Details">
+          <InfoRow
+            icon={User}
+            text={
+              providerProfile
+                ? `${providerProfile.firstName} ${providerProfile.lastName}`
+                : "Service Provider"
+            }
+          />
+          {providerProfile?.phone && (
+            <InfoRow icon={Phone} text={providerProfile.phone} />
+          )}
+        </Section>
+
+        {/* Section: Payment */}
+        <Section title="Payment">
+          <HStack className="items-center justify-between">
+            <InfoRow icon={CreditCard} text="Payment Status" />
+            <Box
+              className={`px-3 py-1 rounded-full ${
+                appointment.isPaid
+                  ? "text-green-600 bg-green-100"
+                  : "text-yellow-600 bg-yellow-100"
               }`}
-            />
-            <InfoRow icon={MapPin} text={appointment.address} />
-          </Section>
+            >
+              <Text className="text-sm font-medium">
+                {appointment.isPaid ? "Paid" : "Pending"}
+              </Text>
+            </Box>
+          </HStack>
+          <InfoRow
+            icon={FileText}
+            text={`Amount: ${formatNaira(appointment.price)}`}
+          />
+        </Section>
 
-          {/* Section: Customer */}
-          <Section title="Customer Details">
-            <InfoRow
-              icon={User}
-              text={
-                providerProfile
-                  ? `${providerProfile.firstName} ${providerProfile.lastName}`
-                  : "Service Provider"
-              }
-            />
-            {providerProfile?.phone && (
-              <InfoRow icon={Phone} text={providerProfile.phone} />
+        {/* Notes */}
+        {appointment.notes && (
+          <Section title="Special Instructions">
+            <Text className="text-base text-gray-700">{appointment.notes}</Text>
+          </Section>
+        )}
+
+        {/* Customer Review */}
+        {appointment.customerRating && (
+          <Section title="Customer Review">
+            <HStack className="items-center gap-2">
+              <Icon as={Star} className="text-yellow-400" size="sm" />
+              <Text className="text-base text-gray-700">
+                {appointment.customerRating}/5 stars
+              </Text>
+            </HStack>
+            {appointment.customerReview && (
+              <Text className="text-base text-gray-700 italic">
+                “{appointment.customerReview}”
+              </Text>
             )}
           </Section>
-
-          {/* Section: Payment */}
-          <Section title="Payment">
-            <HStack className="items-center justify-between">
-              <InfoRow icon={CreditCard} text="Payment Status" />
-              <Box
-                className={`px-3 py-1 rounded-full ${
-                  appointment.isPaid
-                    ? "text-green-600 bg-green-100"
-                    : "text-yellow-600 bg-yellow-100"
-                }`}
-              >
-                <Text className="text-sm font-medium">
-                  {appointment.isPaid ? "Paid" : "Pending"}
-                </Text>
-              </Box>
-            </HStack>
-            <InfoRow
-              icon={FileText}
-              text={`Amount: ${formatNaira(appointment.price)}`}
-            />
-          </Section>
-
-          {/* Notes */}
-          {appointment.notes && (
-            <Section title="Special Instructions">
-              <Text className="text-base text-gray-700">
-                {appointment.notes}
-              </Text>
-            </Section>
-          )}
-
-          {/* Customer Review */}
-          {appointment.customerRating && (
-            <Section title="Customer Review">
-              <HStack className="items-center gap-2">
-                <Icon as={Star} className="text-yellow-400" size="sm" />
-                <Text className="text-base text-gray-700">
-                  {appointment.customerRating}/5 stars
-                </Text>
-              </HStack>
-              {appointment.customerReview && (
-                <Text className="text-base text-gray-700 italic">
-                  “{appointment.customerReview}”
-                </Text>
-              )}
-            </Section>
-          )}
-        </ScrollView>
-      </FootedScrollableScreen>
-
-      {/* Completion Modal */}
+        )}
+      </ScrollView>
       <Modal
         visible={showCompletionModal}
         animationType="slide"
@@ -410,7 +405,7 @@ export default function CustomerAppointmentDetailScreen() {
           </VStack>
         </Box>
       </Modal>
-    </>
+    </FootedScrollableScreen>
   );
 }
 
@@ -423,7 +418,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <VStack className="gap-3 bg-white p-4 rounded-xl shadow-sm">
+    <VStack className="gap-3 bg-white p-4 rounded-xl shadow-sm mx-4">
       <Text className="text-lg font-inter-semibold text-gray-900">{title}</Text>
       <VStack className="gap-3">{children}</VStack>
     </VStack>
