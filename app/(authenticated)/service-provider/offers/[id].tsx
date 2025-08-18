@@ -22,9 +22,7 @@ import {
   Edit,
   MapPin,
   MoreVertical,
-  Star,
   Trash2,
-  User,
 } from "lucide-react-native";
 import { useState } from "react";
 import { Alert, Image, Pressable, TextInput } from "react-native";
@@ -56,13 +54,13 @@ export default function OfferDetailsScreen() {
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [editedDescription, setEditedDescription] = useState("");
 
-  const handleEditOffer = () => {
-    if (!offer) return;
-    router.push({
-      pathname: "/service-provider/offers/edit/[id]",
-      params: { id: offerId },
-    });
-  };
+  // const handleEditOffer = () => {
+  //   if (!offer) return;
+  //   router.push({
+  //     pathname: "/service-provider/offers/edit/[id]",
+  //     params: { id: offerId },
+  //   });
+  // };
 
   const handleDeleteOffer = () => {
     if (!offer) return;
@@ -88,23 +86,23 @@ export default function OfferDetailsScreen() {
     );
   };
 
-  const handleViewCustomerInfo = () => {
-    if (!offer) return;
-    Alert.alert(
-      "Customer Info",
-      `Provider: ${offer.provider}\nThis feature will be implemented soon.`,
-      [{ text: "OK" }]
-    );
-  };
+  // const handleViewCustomerInfo = () => {
+  //   if (!offer) return;
+  //   Alert.alert(
+  //     "Customer Info",
+  //     `Provider: ${offer.provider}\nThis feature will be implemented soon.`,
+  //     [{ text: "OK" }]
+  //   );
+  // };
 
-  const handleAddReview = () => {
-    if (!offer) return;
-    Alert.alert(
-      "Add Review",
-      `Add a review for: ${offer.title}\nThis feature will be implemented soon.`,
-      [{ text: "OK" }]
-    );
-  };
+  // const handleAddReview = () => {
+  //   if (!offer) return;
+  //   Alert.alert(
+  //     "Add Review",
+  //     `Add a review for: ${offer.title}\nThis feature will be implemented soon.`,
+  //     [{ text: "OK" }]
+  //   );
+  // };
 
   const handleSave = async (field: string, value: string | number) => {
     try {
@@ -141,7 +139,7 @@ export default function OfferDetailsScreen() {
   }
 
   return (
-    <FixedScreen addTopInset={false} addBottomInset={true}>
+    <ScrollableScreen addTopInset={false} addBottomInset={true}>
       <Stack.Screen
         options={{
           title: "Offer Details",
@@ -167,14 +165,14 @@ export default function OfferDetailsScreen() {
                   )}
                   placement="bottom left"
                 >
-                  <MenuItem
+                  {/* <MenuItem
                     key="Edit"
                     textValue="Edit"
                     onPress={handleEditOffer}
                   >
                     <Icon as={Edit} size="sm" className="mr-2 text-gray-600" />
                     <MenuItemLabel>Edit</MenuItemLabel>
-                  </MenuItem>
+                  </MenuItem> */}
 
                   <MenuItem
                     key="ViewAppointments"
@@ -192,7 +190,7 @@ export default function OfferDetailsScreen() {
                     />
                     <MenuItemLabel>View Appointments</MenuItemLabel>
                   </MenuItem>
-
+                  {/* 
                   <MenuItem
                     key="ViewCustomerrInfo"
                     textValue="View Customer Info"
@@ -200,16 +198,16 @@ export default function OfferDetailsScreen() {
                   >
                     <Icon as={User} size="sm" className="mr-2 text-gray-600" />
                     <MenuItemLabel>View Customer Profile</MenuItemLabel>
-                  </MenuItem>
+                  </MenuItem> */}
 
-                  <MenuItem
+                  {/* <MenuItem
                     key="AddReview"
                     textValue="Add Review"
                     onPress={handleAddReview}
                   >
                     <Icon as={Star} size="sm" className="mr-2 text-gray-600" />
                     <MenuItemLabel>Add Review</MenuItemLabel>
-                  </MenuItem>
+                  </MenuItem> */}
 
                   <MenuItem
                     key="Delete"
@@ -479,6 +477,6 @@ export default function OfferDetailsScreen() {
           </VStack>
         )}
       </Box>
-    </FixedScreen>
+    </ScrollableScreen>
   );
 }
