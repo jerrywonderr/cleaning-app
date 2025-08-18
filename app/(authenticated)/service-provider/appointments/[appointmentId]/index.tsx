@@ -3,11 +3,14 @@ import {
   PrimaryButton,
   PrimaryOutlineButton,
 } from "@/lib/components/custom-buttons";
+import ScreenHeader from "@/lib/components/ScreenHeader";
 import FixedScreen from "@/lib/components/screens/FixedScreen";
 import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
+import { Button } from "@/lib/components/ui/button";
 import { HStack } from "@/lib/components/ui/hstack";
 import { Icon } from "@/lib/components/ui/icon";
+import { Menu, MenuItem, MenuItemLabel } from "@/lib/components/ui/menu";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import {
@@ -21,7 +24,7 @@ import {
   handleMessageProvider,
 } from "@/lib/utils/providerContact";
 import { format } from "date-fns";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import {
   AlertCircle,
   Calendar,
@@ -32,6 +35,7 @@ import {
   FileText,
   MapPin,
   MessageCircle,
+  MoreVertical,
   Phone,
   Star,
   User,
@@ -104,6 +108,15 @@ export default function ProviderAppointmentDetailScreen() {
     }
   };
 
+  const handleViewCustomerInfo = () => {
+    if (!customerProfile) return;
+    Alert.alert(
+      "Provider Info",
+      `Provider: ${customerProfile.firstName} ${customerProfile.lastName}\nThis feature will be implemented soon.`,
+      [{ text: "OK" }]
+    );
+  };
+
   const canConfirm = appointment?.status === "pending";
   const canStart = appointment?.status === "confirmed";
   const canMarkNoShow = ["pending", "confirmed"].includes(
@@ -160,46 +173,89 @@ export default function ProviderAppointmentDetailScreen() {
             </PrimaryButton>
           )}
 
-          {canMarkNoShow && (
-            <DangerOutlineButton
-              onPress={() => handleStatusUpdate("no-show")}
-              icon={AlertCircle}
-            >
-              Mark as No Show
-            </DangerOutlineButton>
-          )}
-
           <HStack className="gap-3">
+            <PrimaryOutlineButton
+              onPress={() =>
+                handleCallProvider(
+                  customerProfile?.phone ?? "",
+                  customerProfile?.firstName
+                )
+              }
+              icon={Phone}
+            />
+
             <Box className="flex-1">
-              <PrimaryOutlineButton
-                onPress={() =>
-                  handleCallProvider(
-                    customerProfile?.phone ?? "",
-                    customerProfile?.firstName
-                  )
-                }
-                icon={Phone}
-              >
-                Call
-              </PrimaryOutlineButton>
+              {canMarkNoShow && (
+                <DangerOutlineButton
+                  onPress={() => handleStatusUpdate("no-show")}
+                  icon={AlertCircle}
+                >
+                  Mark as No Show
+                </DangerOutlineButton>
+              )}
             </Box>
-            <Box className="flex-1">
-              <PrimaryOutlineButton
-                onPress={() =>
-                  handleMessageProvider(
-                    customerProfile?.phone ?? "",
-                    customerProfile?.firstName
-                  )
-                }
-                icon={MessageCircle}
-              >
-                Message
-              </PrimaryOutlineButton>
-            </Box>
+
+            <PrimaryOutlineButton
+              onPress={() =>
+                handleMessageProvider(
+                  customerProfile?.phone ?? "",
+                  customerProfile?.firstName
+                )
+              }
+              icon={MessageCircle}
+            />
           </HStack>
         </VStack>
       }
     >
+      <Stack.Screen
+        options={{
+          title: "Appointment Details",
+          header: ({ navigation }) => (
+            <ScreenHeader
+              navigation={navigation}
+              title="Appointment Details"
+              rightContent={
+                <Menu
+                  trigger={({ ...triggerProps }) => (
+                    <Button
+                      {...triggerProps}
+                      variant="outline"
+                      size="sm"
+                      className="bg-gray-100 border-gray-300 p-2 rounded-full"
+                    >
+                      <Icon
+                        as={MoreVertical}
+                        className="text-gray-700"
+                        size="xl"
+                      />
+                    </Button>
+                  )}
+                  placement="bottom left"
+                >
+                  <MenuItem
+                    key="ViewCustomerrInfo"
+                    textValue="View Customer Info"
+                    onPress={handleViewCustomerInfo}
+                  >
+                    <Icon as={User} size="sm" className="mr-2 text-gray-600" />
+                    <MenuItemLabel>Customer Profile</MenuItemLabel>
+                  </MenuItem>
+
+                  {/* <MenuItem
+                    key="AddReview"
+                    textValue="Add Review"
+                    // onPress={handleAddReview}
+                  >
+                    <Icon as={Star} size="sm" className="mr-2 text-gray-600" />
+                    <MenuItemLabel>Add Review</MenuItemLabel>
+                  </MenuItem> */}
+                </Menu>
+              }
+            />
+          ),
+        }}
+      />
       <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}

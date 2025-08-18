@@ -269,8 +269,8 @@ export default function CustomerAppointmentDetailScreen() {
                   placement="bottom left"
                 >
                   <MenuItem
-                    key="ViewCustomerrInfo"
-                    textValue="View Customer Info"
+                    key="ViewProviderInfo"
+                    textValue="View Provider Info"
                     onPress={handleViewProviderInfo}
                   >
                     <Icon as={User} size="sm" className="mr-2 text-gray-600" />
