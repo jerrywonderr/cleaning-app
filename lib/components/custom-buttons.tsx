@@ -8,7 +8,7 @@ import {
 } from "./ui/button";
 
 interface CustomButtonProps extends React.ComponentProps<typeof Button> {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   isLoading?: boolean;
   icon?: LucideIcon;
   rightIcon?: LucideIcon;
@@ -48,11 +48,14 @@ export function PrimaryOutlineButton({
   rightIconProps,
   ...props
 }: CustomButtonProps) {
+  const isIconOnly = !children && icon && !rightIcon;
   return (
     <ButtonGroup isDisabled={props.disabled ?? undefined}>
       <Button
         size={props.size ?? "lg"}
-        className="h-14 rounded-lg border-brand-500"
+        className={`h-14 rounded-lg border-brand-500 ${
+          isIconOnly ? "w-14 justify-center" : ""
+        }`}
         variant="outline"
         {...props}
       >
