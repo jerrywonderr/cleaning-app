@@ -68,45 +68,37 @@ export default function CustomerOfferDetailsScreen() {
       addBottomInset={true}
       contentContainerClassName="px-0"
       footer={
-        <VStack className="gap-3">
-          <PrimaryButton
+        <HStack className="gap-3">
+          <Box className="flex-1">
+            <PrimaryButton
+              onPress={() =>
+                router.push(`/customer/appointments/offer/${offerId}/new`)
+              }
+            >
+              Book This Service
+            </PrimaryButton>
+          </Box>
+
+          <PrimaryOutlineButton
             onPress={() =>
-              router.push(`/customer/appointments/offer/${offerId}/new`)
+              handleCallProvider(
+                providerProfile?.phone ?? "",
+                providerProfile?.firstName
+              )
             }
-          >
-            Book This Service
-          </PrimaryButton>
+            icon={Phone}
+          />
 
-          <HStack className="gap-3">
-            <Box className="flex-1">
-              <PrimaryOutlineButton
-                onPress={() =>
-                  handleCallProvider(
-                    providerProfile?.phone ?? "",
-                    providerProfile?.firstName
-                  )
-                }
-                icon={Phone}
-              >
-                Call
-              </PrimaryOutlineButton>
-            </Box>
-
-            <Box className="flex-1">
-              <PrimaryOutlineButton
-                onPress={() =>
-                  handleMessageProvider(
-                    providerProfile?.phone ?? "",
-                    providerProfile?.firstName
-                  )
-                }
-                icon={MessageCircle}
-              >
-                Message
-              </PrimaryOutlineButton>
-            </Box>
-          </HStack>
-        </VStack>
+          <PrimaryOutlineButton
+            onPress={() =>
+              handleMessageProvider(
+                providerProfile?.phone ?? "",
+                providerProfile?.firstName
+              )
+            }
+            icon={MessageCircle}
+          />
+        </HStack>
       }
     >
       <Box>
