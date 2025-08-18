@@ -224,7 +224,7 @@ export default function CustomerAppointmentDetailScreen() {
         <ScrollView
           className="flex-1"
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ padding: 16, gap: 20 }}
+          contentContainerStyle={{ padding: 0, gap: 20 }}
         >
           {/* Header */}
           <VStack className="gap-2">
