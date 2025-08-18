@@ -158,6 +158,7 @@ export default function OffersScreen() {
             onPress={() => handleViewOffer(offer.id)}
           />
         )}
+        showsVerticalScrollIndicator={false}
         contentContainerClassName="gap-3 my-4"
         ItemSeparatorComponent={() => <Box className="h-[0.5] my-2" />}
         estimatedItemSize={109}
