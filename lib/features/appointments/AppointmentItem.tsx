@@ -105,12 +105,12 @@ export default function AppointmentItem({
         {/* Left side - Client & Service */}
         <Box className="flex-1 mr-4">
           <Box className="flex-row items-center mb-1">
-            <Icon as={User} size="sm" className="text-gray-400 mr-2" />
-            <Text className="text-base font-semibold text-gray-900 capitalize">
+            <Icon as={User} size="sm" className="text-gray-700 mr-2" />
+            <Text className="text-base font-inter-semibold text-gray-900 capitalize">
               {client}
             </Text>
           </Box>
-          <Text className="text-sm text-gray-600 ml-6 capitalize">
+          <Text className="text-sm font-inter-medium text-gray-600 ml-6 capitalize">
             {service.replace("-", " ")}
           </Text>
 
@@ -118,7 +118,7 @@ export default function AppointmentItem({
           <Box className="flex-row items-center mt-2 ml-6">
             {getStatusIcon(status)}
             <Text
-              className={`text-xs font-medium px-2 py-1 rounded-full ml-2 ${getStatusColor(
+              className={`text-xs font-inter-medium px-2 py-1 rounded-full ml-2 ${getStatusColor(
                 status
               )}`}
             >
@@ -131,11 +131,15 @@ export default function AppointmentItem({
         <Box className="items-col items-end justify-between">
           <Box className="flex-row justify-end items-center gap-2 mb-1">
             <Icon as={Calendar} size="sm" className="text-gray-400 mr-1" />
-            <Text className="text-sm font-medium text-gray-900">{date}</Text>
+            <Text className="text-sm font-inter-medium text-gray-700">
+              {date}
+            </Text>
           </Box>
           <Box className="flex-row justify-end items-center gap-2">
             <Icon as={Clock} size="sm" className="text-gray-400 mr-1" />
-            <Text className="text-sm text-gray-600">{time}</Text>
+            <Text className="text-sm font-inter-medium text-gray-700">
+              {time}
+            </Text>
           </Box>
           <Icon as={ChevronRight} size="sm" className="text-gray-300" />
         </Box>
