@@ -286,7 +286,7 @@ export default function CustomerOfferDetailsScreen() {
             <VStack className="gap-2">
               {offer.requirements.map((item, index) => (
                 <HStack key={index} className="items-center gap-2">
-                  <Box className="w-2 h-2 bg-gray-400 rounded-full" />
+                  <Box className="w-2 h-2 bg-brand-500 rounded-full" />
                   <Text className="text-base text-gray-700">{item}</Text>
                 </HStack>
               ))}
