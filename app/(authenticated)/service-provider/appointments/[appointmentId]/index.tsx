@@ -139,6 +139,7 @@ export default function ProviderAppointmentDetailScreen() {
     <FootedScrollableScreen
       addTopInset={false}
       addBottomInset={true}
+      contentContainerClassName="px-0"
       footer={
         <VStack className="gap-3">
           {canConfirm && (
@@ -202,7 +203,7 @@ export default function ProviderAppointmentDetailScreen() {
       <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ padding: 16, gap: 20 }}
+        contentContainerClassName="gap-4 mx-4 py-6"
       >
         {/* Header */}
         <VStack className="gap-2">

@@ -269,7 +269,7 @@ export default function CustomerAppointmentDetailScreen() {
         </Section>
 
         {/* Section: Customer */}
-        <Section title="Customer Details">
+        <Section title="Provider Details">
           <InfoRow
             icon={User}
             text={

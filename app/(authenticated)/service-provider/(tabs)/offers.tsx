@@ -98,7 +98,7 @@ export default function OffersScreen() {
       contentContainerClassName="px-4"
     >
       {/* Header with Create Button */}
-      <HStack className="justify-between items-center mb-6">
+      <HStack className="justify-between items-center">
         <VStack>
           <Text className="text-2xl font-inter-bold text-gray-900">
             My Services
@@ -142,9 +142,10 @@ export default function OffersScreen() {
             onPress={() => handleViewOffer(offer.id)}
           />
         )}
-        contentContainerClassName="gap-3 my-4"
+        contentContainerClassName="gap-3 py-8"
         ItemSeparatorComponent={() => <Box className="h-[0.5] my-2" />}
         estimatedItemSize={109}
+        showsVerticalScrollIndicator={false}
       />
     </FixedScreen>
   );
