@@ -2,12 +2,14 @@ import {
   PrimaryButton,
   PrimaryOutlineButton,
 } from "@/lib/components/custom-buttons";
+import ScreenHeader from "@/lib/components/ScreenHeader";
 import FixedScreen from "@/lib/components/screens/FixedScreen";
 import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
 import { Button, ButtonText } from "@/lib/components/ui/button";
 import { HStack } from "@/lib/components/ui/hstack";
 import { Icon } from "@/lib/components/ui/icon";
+import { Menu, MenuItem, MenuItemLabel } from "@/lib/components/ui/menu";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import { useOffer, useUserProfile } from "@/lib/hooks/useOffers";
@@ -16,9 +18,17 @@ import {
   handleCallProvider,
   handleMessageProvider,
 } from "@/lib/utils/providerContact";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { Clock, MapPin, MessageCircle, Phone, Star } from "lucide-react-native";
-import { Dimensions, Image } from "react-native";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import {
+  Clock,
+  MapPin,
+  MessageCircle,
+  MoreVertical,
+  Phone,
+  Star,
+  User,
+} from "lucide-react-native";
+import { Alert, Dimensions, Image } from "react-native";
 
 type URLParams = {
   id: string;
@@ -62,6 +72,24 @@ export default function CustomerOfferDetailsScreen() {
     );
   }
 
+  const handleViewProviderInfo = () => {
+    if (!offer) return;
+    Alert.alert(
+      "Provider Info",
+      `Provider: ${offer.provider}\nThis feature will be implemented soon.`,
+      [{ text: "OK" }]
+    );
+  };
+
+  const handleAddReview = () => {
+    if (!offer) return;
+    Alert.alert(
+      "Add Review",
+      `Add a review for: ${offer.title}\nThis feature will be implemented soon.`,
+      [{ text: "OK" }]
+    );
+  };
+
   return (
     <FootedScrollableScreen
       addTopInset={false}
@@ -101,6 +129,54 @@ export default function CustomerOfferDetailsScreen() {
         </HStack>
       }
     >
+      <Stack.Screen
+        options={{
+          title: "Offer Details",
+          header: ({ navigation }) => (
+            <ScreenHeader
+              navigation={navigation}
+              title="Service Details"
+              rightContent={
+                <Menu
+                  trigger={({ ...triggerProps }) => (
+                    <Button
+                      {...triggerProps}
+                      variant="outline"
+                      size="sm"
+                      className="bg-gray-100 border-gray-300 p-2 rounded-full"
+                    >
+                      <Icon
+                        as={MoreVertical}
+                        className="text-gray-700"
+                        size="xl"
+                      />
+                    </Button>
+                  )}
+                  placement="bottom left"
+                >
+                  <MenuItem
+                    key="ViewCustomerrInfo"
+                    textValue="View Customer Info"
+                    onPress={handleViewProviderInfo}
+                  >
+                    <Icon as={User} size="sm" className="mr-2 text-gray-600" />
+                    <MenuItemLabel>Provider Profile</MenuItemLabel>
+                  </MenuItem>
+
+                  <MenuItem
+                    key="AddReview"
+                    textValue="Add Review"
+                    onPress={handleAddReview}
+                  >
+                    <Icon as={Star} size="sm" className="mr-2 text-gray-600" />
+                    <MenuItemLabel>Add Review</MenuItemLabel>
+                  </MenuItem>
+                </Menu>
+              }
+            />
+          ),
+        }}
+      />
       <Box>
         {/* Offer Image */}
         <Image
