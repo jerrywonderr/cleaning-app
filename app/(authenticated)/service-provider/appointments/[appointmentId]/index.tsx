@@ -1,5 +1,4 @@
 import {
-  DangerOutlineButton,
   PrimaryButton,
   PrimaryOutlineButton,
 } from "@/lib/components/custom-buttons";
@@ -26,7 +25,6 @@ import {
 import { format } from "date-fns";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import {
-  AlertCircle,
   Calendar,
   CheckCircle,
   Clock,
@@ -117,6 +115,7 @@ export default function ProviderAppointmentDetailScreen() {
     );
   };
 
+  const canMarkCompleted = appointment?.status === "in-progress";
   const canConfirm = appointment?.status === "pending";
   const canStart = appointment?.status === "confirmed";
   const canMarkNoShow = ["pending", "confirmed"].includes(
@@ -154,58 +153,53 @@ export default function ProviderAppointmentDetailScreen() {
       addBottomInset={true}
       contentContainerClassName="px-0"
       footer={
-        <VStack className="gap-3">
-          {canConfirm && (
-            <PrimaryButton
-              onPress={() => handleStatusUpdate("confirmed")}
-              icon={CheckCircle}
-            >
-              Confirm Appointment
-            </PrimaryButton>
-          )}
+        <HStack className="gap-3">
+          <Box className="flex-1">
+            {canConfirm && (
+              <PrimaryButton
+                onPress={() => handleStatusUpdate("confirmed")}
+                icon={CheckCircle}
+              >
+                Confirm Appointment
+              </PrimaryButton>
+            )}
 
-          {canStart && (
-            <PrimaryButton
-              onPress={() => handleStatusUpdate("in-progress")}
-              icon={ClockIcon}
-            >
-              Start Service
-            </PrimaryButton>
-          )}
+            {canStart && (
+              <PrimaryButton
+                onPress={() => handleStatusUpdate("in-progress")}
+                icon={ClockIcon}
+              >
+                Start Service
+              </PrimaryButton>
+            )}
 
-          <HStack className="gap-3">
-            <PrimaryOutlineButton
-              onPress={() =>
-                handleCallProvider(
-                  customerProfile?.phone ?? "",
-                  customerProfile?.firstName
-                )
-              }
-              icon={Phone}
-            />
+            {canMarkCompleted && (
+              <PrimaryButton disabled icon={ClockIcon}>
+                Service in Progress
+              </PrimaryButton>
+            )}
+          </Box>
 
-            <Box className="flex-1">
-              {canMarkNoShow && (
-                <DangerOutlineButton
-                  onPress={() => handleStatusUpdate("no-show")}
-                  icon={AlertCircle}
-                >
-                  Mark as No Show
-                </DangerOutlineButton>
-              )}
-            </Box>
+          <PrimaryOutlineButton
+            onPress={() =>
+              handleCallProvider(
+                customerProfile?.phone ?? "",
+                customerProfile?.firstName
+              )
+            }
+            icon={Phone}
+          />
 
-            <PrimaryOutlineButton
-              onPress={() =>
-                handleMessageProvider(
-                  customerProfile?.phone ?? "",
-                  customerProfile?.firstName
-                )
-              }
-              icon={MessageCircle}
-            />
-          </HStack>
-        </VStack>
+          <PrimaryOutlineButton
+            onPress={() =>
+              handleMessageProvider(
+                customerProfile?.phone ?? "",
+                customerProfile?.firstName
+              )
+            }
+            icon={MessageCircle}
+          />
+        </HStack>
       }
     >
       <Stack.Screen
@@ -241,6 +235,21 @@ export default function ProviderAppointmentDetailScreen() {
                     <Icon as={User} size="sm" className="mr-2 text-gray-600" />
                     <MenuItemLabel>Customer Profile</MenuItemLabel>
                   </MenuItem>
+
+                  {canMarkNoShow && (
+                    <MenuItem
+                      key="MarkNoShow"
+                      textValue="Mark as no show"
+                      onPress={() => handleStatusUpdate("no-show")}
+                    >
+                      <Icon
+                        as={User}
+                        size="sm"
+                        className="mr-2 text-gray-600"
+                      />
+                      <MenuItemLabel>Mark as No Show</MenuItemLabel>
+                    </MenuItem>
+                  )}
 
                   {/* <MenuItem
                     key="AddReview"
