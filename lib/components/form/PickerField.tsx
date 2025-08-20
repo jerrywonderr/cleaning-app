@@ -1,7 +1,13 @@
 import { Picker } from "@react-native-picker/picker";
 import { useState } from "react";
 import { useController, useFormContext } from "react-hook-form";
-import { Modal, TouchableOpacity, View, ViewStyle } from "react-native";
+import {
+  Modal,
+  Platform,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from "react-native";
 import {
   FormControl,
   FormControlError,
@@ -139,7 +145,11 @@ export function PickerField({
                 onValueChange={handleValueChange}
                 onBlur={field.onBlur}
                 enabled={enabled}
-                mode={mode}
+                mode={
+                  mode
+                    ? Platform.select({ ios: "dialog", android: "dropdown" })
+                    : mode
+                }
                 prompt={prompt}
                 style={{
                   height: 200,
