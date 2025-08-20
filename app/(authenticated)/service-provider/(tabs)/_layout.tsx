@@ -41,9 +41,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="offers"
+        name="proposals"
         options={() => ({
-          title: "Services",
+          title: "Proposals",
           showBackButton: false,
           tabBarIcon: ({ color }) => (
             <Icon as={Gift} size="xl" height={36} width={36} color={color} />

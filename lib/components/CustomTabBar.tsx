@@ -1,6 +1,12 @@
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import * as Haptics from "expo-haptics";
-import { Calendar, Gift, HelpCircle, Home, UserRound } from "lucide-react-native";
+import {
+  Calendar,
+  Gift,
+  HelpCircle,
+  Home,
+  UserRound,
+} from "lucide-react-native";
 import React from "react";
 import { Pressable, View } from "react-native";
 import { Icon } from "./ui/icon";
@@ -8,6 +14,7 @@ import { Icon } from "./ui/icon";
 const tabIcons = {
   index: Home,
   offers: Gift,
+  proposals: Gift,
   appointments: Calendar,
   support: HelpCircle,
   "account-home": UserRound,

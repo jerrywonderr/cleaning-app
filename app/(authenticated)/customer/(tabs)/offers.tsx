@@ -8,7 +8,7 @@ import { Input, InputField } from "@/lib/components/ui/input";
 import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
-import OfferCard from "@/lib/features/offers/OfferCard";
+import ProposalCard from "@/lib/features/proposals/ProposalCard";
 import { useActiveOffers, useSearchOffers } from "@/lib/hooks/useOffers";
 import { FlashList } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
@@ -148,13 +148,14 @@ export default function OffersScreen() {
       <FlashList
         data={offers}
         renderItem={({ item: offer }) => (
-          <OfferCard
+          <ProposalCard
             key={offer.id}
             title={offer.title}
             price={offer.price}
-            provider={offer.provider}
+            client={offer.provider}
             description={offer.description}
             image={offer.image}
+            status="pending"
             onPress={() => handleViewOffer(offer.id)}
           />
         )}
