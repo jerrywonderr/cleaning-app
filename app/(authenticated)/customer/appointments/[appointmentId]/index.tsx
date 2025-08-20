@@ -191,56 +191,47 @@ export default function CustomerAppointmentDetailScreen() {
       addBottomInset={true}
       contentContainerClassName="px-0"
       footer={
-        <VStack className="gap-3">
-          {/* Status-specific actions */}
-          {canMarkCompleted && (
-            <PrimaryButton
-              onPress={() => setShowCompletionModal(true)}
-              icon={CheckCircle}
-            >
-              Mark as Completed
-            </PrimaryButton>
-          )}
-
-          {canCancel && (
-            <DangerOutlineButton
-              onPress={() => handleStatusUpdate("cancelled")}
-              icon={XCircle}
-            >
-              Cancel Appointment
-            </DangerOutlineButton>
-          )}
-
-          {/* Contact provider */}
-          <HStack className="gap-3">
-            <Box className="flex-1">
-              <PrimaryOutlineButton
-                onPress={() => {
-                  handleCallProvider(
-                    providerProfile?.phone ?? "",
-                    providerProfile?.firstName
-                  );
-                }}
-                icon={Phone}
+        <HStack className="gap-3">
+          <Box className="flex-1">
+            {canMarkCompleted && (
+              <PrimaryButton
+                onPress={() => setShowCompletionModal(true)}
+                icon={CheckCircle}
               >
-                Call
-              </PrimaryOutlineButton>
-            </Box>
-            <Box className="flex-1">
-              <PrimaryOutlineButton
-                onPress={() =>
-                  handleMessageProvider(
-                    providerProfile?.phone ?? "",
-                    providerProfile?.firstName
-                  )
-                }
-                icon={MessageCircle}
+                Mark as Completed
+              </PrimaryButton>
+            )}
+
+            {canCancel && (
+              <DangerOutlineButton
+                onPress={() => handleStatusUpdate("cancelled")}
+                icon={XCircle}
               >
-                Message
-              </PrimaryOutlineButton>
-            </Box>
-          </HStack>
-        </VStack>
+                Cancel Appointment
+              </DangerOutlineButton>
+            )}
+          </Box>
+
+          <PrimaryOutlineButton
+            onPress={() => {
+              handleCallProvider(
+                providerProfile?.phone ?? "",
+                providerProfile?.firstName
+              );
+            }}
+            icon={Phone}
+          />
+
+          <PrimaryOutlineButton
+            onPress={() =>
+              handleMessageProvider(
+                providerProfile?.phone ?? "",
+                providerProfile?.firstName
+              )
+            }
+            icon={MessageCircle}
+          />
+        </HStack>
       }
     >
       <Stack.Screen

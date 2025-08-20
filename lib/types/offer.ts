@@ -25,14 +25,9 @@ export interface Offer {
 }
 
 export type OfferCategory =
+  | "classic-cleaning"
   | "deep-cleaning"
-  | "regular-cleaning"
-  | "move-in-cleaning"
-  | "move-out-cleaning"
-  | "post-construction"
-  | "carpet-cleaning"
-  | "window-cleaning"
-  | "other";
+  | "end-of-tenancy";
 
 export interface CreateOfferData {
   title: string;
