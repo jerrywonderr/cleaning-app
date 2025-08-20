@@ -1,4 +1,3 @@
-import { PrimaryButton } from "@/lib/components/custom-buttons";
 import ScreenHeader from "@/lib/components/ScreenHeader";
 import FixedScreen from "@/lib/components/screens/FixedScreen";
 import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
@@ -7,6 +6,7 @@ import { Button, ButtonText } from "@/lib/components/ui/button";
 import { HStack } from "@/lib/components/ui/hstack";
 import { Icon } from "@/lib/components/ui/icon";
 import { Menu, MenuItem, MenuItemLabel } from "@/lib/components/ui/menu";
+import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import {
@@ -14,20 +14,24 @@ import {
   useOffer,
   useUpdateOffer,
 } from "@/lib/hooks/useOffers";
+import { capitalizeFirstLetter } from "@/lib/utils/capitalizeFirstLetter";
 import { formatNaira } from "@/lib/utils/formatNaira";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import {
   Calendar,
   Clock,
-  Edit,
   MapPin,
   MoreVertical,
+  Pencil,
+  Star,
   Trash2,
 } from "lucide-react-native";
-import { useState } from "react";
-import { Alert, Image, Pressable, TextInput } from "react-native";
+import { useEffect, useMemo, useState } from "react";
+import { Alert, Dimensions, Image, TextInput } from "react-native";
 
 type URLParams = { id: string };
+
+const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 export default function OfferDetailsScreen() {
   const router = useRouter();
@@ -38,29 +42,81 @@ export default function OfferDetailsScreen() {
   const deleteOfferMutation = useDeleteOffer();
   const updateOfferMutation = useUpdateOffer();
 
-  // State for editing fields
+  const [form, setForm] = useState({
+    title: "",
+    price: "",
+    description: "",
+  });
+
+  // Per-field edit toggles
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [editedTitle, setEditedTitle] = useState("");
-
   const [isEditingPrice, setIsEditingPrice] = useState(false);
-  const [editedPrice, setEditedPrice] = useState("");
-
-  const [isEditingDuration, setIsEditingDuration] = useState(false);
-  const [editedDuration, setEditedDuration] = useState("");
-
-  const [isEditingCategory, setIsEditingCategory] = useState(false);
-  const [editedCategory, setEditedCategory] = useState("");
-
   const [isEditingDescription, setIsEditingDescription] = useState(false);
-  const [editedDescription, setEditedDescription] = useState("");
 
-  // const handleEditOffer = () => {
-  //   if (!offer) return;
-  //   router.push({
-  //     pathname: "/service-provider/offers/edit/[id]",
-  //     params: { id: offerId },
-  //   });
-  // };
+  // Initialize form from offer
+  useEffect(() => {
+    if (offer) {
+      setForm({
+        title: offer.title || "",
+        price: String(offer.price ?? ""),
+        description: offer.description || "",
+      });
+    }
+  }, [offer]);
+
+  const handleChange = (field: keyof typeof form, value: string) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const hasChanged = useMemo(() => {
+    if (!offer) return { title: false, price: false, description: false };
+    return {
+      title: form.title !== (offer.title || ""),
+      price: String(form.price) !== String(offer.price ?? ""),
+      description: form.description !== (offer.description || ""),
+    };
+  }, [form, offer]);
+
+  const saveField = async (field: keyof typeof form) => {
+    try {
+      const value =
+        field === "price" ? Number(form.price) : (form[field] as string);
+
+      await updateOfferMutation.mutateAsync({
+        offerId,
+        data: { [field]: value },
+      });
+
+      Alert.alert(
+        "Success",
+        `${capitalizeFirstLetter(field)} updated successfully`
+      );
+      if (field === "title") setIsEditingTitle(false);
+      if (field === "price") setIsEditingPrice(false);
+      if (field === "description") setIsEditingDescription(false);
+    } catch {
+      Alert.alert(
+        "Error",
+        `Failed to update ${capitalizeFirstLetter(field)}. Please try again.`
+      );
+    }
+  };
+
+  const cancelField = (field: keyof typeof form) => {
+    if (!offer) return;
+
+    setForm((prev) => ({
+      ...prev,
+      [field]:
+        field === "price"
+          ? String(offer.price ?? "")
+          : (offer[field] as string) || "",
+    }));
+
+    if (field === "title") setIsEditingTitle(false);
+    if (field === "price") setIsEditingPrice(false);
+    if (field === "description") setIsEditingDescription(false);
+  };
 
   const handleDeleteOffer = () => {
     if (!offer) return;
@@ -84,35 +140,6 @@ export default function OfferDetailsScreen() {
         },
       ]
     );
-  };
-
-  // const handleViewCustomerInfo = () => {
-  //   if (!offer) return;
-  //   Alert.alert(
-  //     "Customer Info",
-  //     `Provider: ${offer.provider}\nThis feature will be implemented soon.`,
-  //     [{ text: "OK" }]
-  //   );
-  // };
-
-  // const handleAddReview = () => {
-  //   if (!offer) return;
-  //   Alert.alert(
-  //     "Add Review",
-  //     `Add a review for: ${offer.title}\nThis feature will be implemented soon.`,
-  //     [{ text: "OK" }]
-  //   );
-  // };
-
-  const handleSave = async (field: string, value: string | number) => {
-    try {
-      await updateOfferMutation.mutateAsync({
-        offerId,
-        data: { [field]: value },
-      });
-    } catch {
-      Alert.alert("Error", `Failed to update ${field}. Please try again.`);
-    }
   };
 
   if (isLoading) {
@@ -139,14 +166,18 @@ export default function OfferDetailsScreen() {
   }
 
   return (
-    <ScrollableScreen addTopInset={false} addBottomInset={true}>
+    <ScrollableScreen
+      addTopInset={false}
+      addBottomInset={true}
+      contentContainerClassName="px-0"
+    >
       <Stack.Screen
         options={{
-          title: "Offer Details",
+          title: "Service Details",
           header: ({ navigation }) => (
             <ScreenHeader
               navigation={navigation}
-              title="Offer Details"
+              title="Service Details"
               rightContent={
                 <Menu
                   trigger={({ ...triggerProps }) => (
@@ -165,15 +196,6 @@ export default function OfferDetailsScreen() {
                   )}
                   placement="bottom left"
                 >
-                  {/* <MenuItem
-                    key="Edit"
-                    textValue="Edit"
-                    onPress={handleEditOffer}
-                  >
-                    <Icon as={Edit} size="sm" className="mr-2 text-gray-600" />
-                    <MenuItemLabel>Edit</MenuItemLabel>
-                  </MenuItem> */}
-
                   <MenuItem
                     key="ViewAppointments"
                     textValue="View Appointments"
@@ -190,24 +212,6 @@ export default function OfferDetailsScreen() {
                     />
                     <MenuItemLabel>View Appointments</MenuItemLabel>
                   </MenuItem>
-                  {/* 
-                  <MenuItem
-                    key="ViewCustomerrInfo"
-                    textValue="View Customer Info"
-                    onPress={handleViewCustomerInfo}
-                  >
-                    <Icon as={User} size="sm" className="mr-2 text-gray-600" />
-                    <MenuItemLabel>View Customer Profile</MenuItemLabel>
-                  </MenuItem> */}
-
-                  {/* <MenuItem
-                    key="AddReview"
-                    textValue="Add Review"
-                    onPress={handleAddReview}
-                  >
-                    <Icon as={Star} size="sm" className="mr-2 text-gray-600" />
-                    <MenuItemLabel>Add Review</MenuItemLabel>
-                  </MenuItem> */}
 
                   <MenuItem
                     key="Delete"
@@ -226,230 +230,211 @@ export default function OfferDetailsScreen() {
         }}
       />
 
-      <Box className="mb-3 mt-3">
-        {/* Offer Image */}
-        <Box className="mb-6">
-          <Image
-            source={{ uri: offer.image }}
-            style={{
-              width: "100%",
-              height: 250,
-              borderRadius: 16,
-              backgroundColor: "#f0f0f0",
-            }}
-          />
-        </Box>
+      <Box>
+        <Image
+          source={{ uri: offer.image }}
+          style={{
+            width: "100%",
+            height: SCREEN_HEIGHT * 0.3,
+            backgroundColor: "#f0f0f0",
+          }}
+        />
+      </Box>
 
-        {/* Title */}
-        <VStack className="gap-2 mb-6">
-          {isEditingTitle ? (
-            <HStack className="items-center gap-2">
-              <TextInput
-                value={editedTitle}
-                onChangeText={setEditedTitle}
-                className="flex-1 border border-gray-300 rounded p-2"
-              />
-              <PrimaryButton
-                size="xs"
-                className="h-8 px-3 rounded-md"
-                onPress={async () => {
-                  await handleSave("title", editedTitle);
-                  setIsEditingTitle(false);
-                }}
-              >
-                Save
-              </PrimaryButton>
-            </HStack>
-          ) : (
-            <HStack className="items-center gap-2">
-              <Text className="text-2xl font-inter-bold text-gray-900">
-                {offer.title}
-              </Text>
-              <Pressable
-                onPress={() => {
-                  setEditedTitle(offer.title);
-                  setIsEditingTitle(true);
-                }}
-              >
-                <Icon as={Edit} size="sm" className="text-gray-600" />
-              </Pressable>
-            </HStack>
-          )}
-
-          {/* Price */}
-          {isEditingPrice ? (
-            <HStack className="items-center gap-2">
-              <TextInput
-                value={editedPrice}
-                onChangeText={setEditedPrice}
-                keyboardType="numeric"
-                className="flex-1 border border-gray-300 rounded p-2"
-              />
-              <PrimaryButton
-                size="xs"
-                className="h-8 px-3 rounded-md"
-                onPress={async () => {
-                  await handleSave("price", Number(editedPrice));
-                  setIsEditingPrice(false);
-                }}
-              >
-                <ButtonText>Save</ButtonText>
-              </PrimaryButton>
-            </HStack>
-          ) : (
-            <HStack className="items-center gap-2">
-              <Text className="text-xl font-inter-semibold text-brand-500">
-                {formatNaira(offer.price)}
-              </Text>
-              <Pressable
-                onPress={() => {
-                  setEditedPrice(String(offer.price));
-                  setIsEditingPrice(true);
-                }}
-              >
-                <Icon as={Edit} size="sm" className="text-gray-600" />
-              </Pressable>
-            </HStack>
-          )}
-        </VStack>
-
-        {/* Provider */}
-        <HStack className="items-center gap-2 mb-4">
-          <Icon as={MapPin} className="text-gray-500" size="sm" />
-
-          <Text className="text-base text-gray-700">
-            Provided by{" "}
-            <Text className="font-inter-semibold">{offer.provider}</Text>
-          </Text>
-        </HStack>
-
-        {/* Duration */}
-        <HStack className="items-center gap-2 mb-4">
-          <Icon as={Clock} className="text-gray-500" size="sm" />
-          {isEditingDuration ? (
-            <HStack className="items-center gap-2 flex-1">
-              <TextInput
-                value={editedDuration}
-                onChangeText={setEditedDuration}
-                keyboardType="numeric"
-                className="flex-1 border border-gray-300 rounded p-2"
-              />
-              <PrimaryButton
-                size="xs"
-                className="h-8 px-3 rounded-md"
-                onPress={async () => {
-                  await handleSave("duration", Number(editedDuration));
-                  setIsEditingDuration(false);
-                }}
-              >
-                <ButtonText>Save</ButtonText>
-              </PrimaryButton>
-            </HStack>
-          ) : (
-            <HStack className="items-center gap-2">
-              <Text className="text-base text-gray-700">
-                Estimated duration: {offer.duration} hour
-                {offer.duration !== 1 ? "s" : ""}
-              </Text>
-              <Pressable
-                onPress={() => {
-                  setEditedDuration(String(offer.duration));
-                  setIsEditingDuration(true);
-                }}
-              >
-                <Icon as={Edit} size="sm" className="text-gray-600" />
-              </Pressable>
-            </HStack>
-          )}
-        </HStack>
-
-        {/* Category */}
-        {isEditingCategory ? (
-          <HStack className="items-center gap-2 mb-4">
-            <TextInput
-              value={editedCategory}
-              onChangeText={setEditedCategory}
-              className="flex-1 border border-gray-300 rounded p-2"
-            />
-            <PrimaryButton
-              size="xs"
-              className="h-8 px-3 rounded-md"
-              onPress={async () => {
-                await handleSave("category", editedCategory);
-                setIsEditingCategory(false);
-              }}
-            >
-              <ButtonText>Save</ButtonText>
-            </PrimaryButton>
-          </HStack>
-        ) : (
-          offer.category && (
-            <HStack className="items-center gap-2 mb-4">
-              <Box className="bg-brand-100 px-3 py-1 rounded-full">
-                <Text className="text-brand-700 text-sm font-medium capitalize">
-                  {offer.category.replace("-", " ")}
+      <VStack className="gap-4 my-4">
+        {/* Offer Info */}
+        <VStack className="gap-4 bg-white p-4 rounded-2xl shadow-sm mx-4">
+          <VStack className="flex-1">
+            {/* Title */}
+            {isEditingTitle ? (
+              <VStack className="mb-2">
+                <TextInput
+                  value={form.title}
+                  onChangeText={(t) => handleChange("title", t)}
+                  className="text-2xl font-inter-bold text-gray-900  border-b border-gray-400  p-1"
+                  placeholder="Enter your service title"
+                />
+                <HStack className="gap-2 mt-3">
+                  <Pressable
+                    onPress={() => cancelField("title")}
+                    className="px-4 py-2 bg-gray-200 rounded-xl"
+                    disabled={updateOfferMutation.isPending}
+                  >
+                    <Text className="text-gray-800">Cancel</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => saveField("title")}
+                    className="px-4 py-2 bg-brand-500 rounded-xl"
+                    disabled={
+                      updateOfferMutation.isPending || !hasChanged.title
+                    }
+                  >
+                    <Text className="text-white">
+                      {updateOfferMutation.isPending ? "Saving..." : "Save"}
+                    </Text>
+                  </Pressable>
+                </HStack>
+              </VStack>
+            ) : (
+              <HStack className="gap-2">
+                <Text className="text-2xl font-inter-bold text-gray-900 mb-1">
+                  {offer.title}
                 </Text>
-              </Box>
-              <Pressable
-                onPress={() => {
-                  setEditedCategory(offer.category);
-                  setIsEditingCategory(true);
-                }}
-              >
-                <Icon as={Edit} size="sm" className="text-gray-600" />
-              </Pressable>
-            </HStack>
-          )
-        )}
+                <Pressable
+                  onPress={() => setIsEditingTitle(true)}
+                  className="p-2"
+                >
+                  <Icon as={Pencil} size="sm" className="text-gray-600" />
+                </Pressable>
+              </HStack>
+            )}
+
+            {/* Price */}
+            {isEditingPrice ? (
+              <VStack className="mb-2">
+                <TextInput
+                  value={form.price}
+                  onChangeText={(t) => handleChange("price", t)}
+                  className="text-xl font-inter-semibold text-brand-600 border-b border-gray-400 p-1"
+                  placeholder="Enter price"
+                  keyboardType="numeric"
+                />
+                <HStack className="gap-2 mt-3">
+                  <Pressable
+                    onPress={() => cancelField("price")}
+                    className="px-4 py-2 bg-gray-200 rounded-xl"
+                    disabled={updateOfferMutation.isPending}
+                  >
+                    <Text className="text-gray-800">Cancel</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => saveField("price")}
+                    className="px-4 py-2 bg-brand-500 rounded-xl"
+                    disabled={
+                      updateOfferMutation.isPending ||
+                      !hasChanged.price ||
+                      isNaN(Number(form.price))
+                    }
+                  >
+                    <Text className="text-white">
+                      {updateOfferMutation.isPending ? "Saving..." : "Save"}
+                    </Text>
+                  </Pressable>
+                </HStack>
+              </VStack>
+            ) : (
+              <HStack className="gap-2">
+                <Text className="text-xl font-inter-semibold text-brand-600">
+                  {formatNaira(offer.price)}
+                </Text>
+                <Pressable
+                  onPress={() => setIsEditingPrice(true)}
+                  className="p-2"
+                >
+                  <Icon as={Pencil} size="sm" className="text-gray-600" />
+                </Pressable>
+              </HStack>
+            )}
+          </VStack>
+
+          {/* Provider Info */}
+          <HStack className="items-center gap-2">
+            <Icon as={MapPin} className="text-gray-500" size="sm" />
+            <Text className="text-base text-gray-700">
+              Provided by{" "}
+              <Text className="font-inter-semibold">{offer.provider}</Text>
+            </Text>
+          </HStack>
+
+          {/* Duration */}
+          <HStack className="items-center gap-2">
+            <Icon as={Clock} className="text-gray-500" size="sm" />
+            <Text className="text-base text-gray-700">
+              {offer.duration} hour{offer.duration !== 1 ? "s" : ""}
+            </Text>
+          </HStack>
+
+          {/* Category */}
+          {offer.category && (
+            <Box className="self-start bg-brand-100 px-3 py-1 rounded-full">
+              <Text className="text-brand-700 text-sm font-medium capitalize">
+                {offer.category.replace("-", " ")}
+              </Text>
+            </Box>
+          )}
+
+          {/* Rating */}
+          <HStack className="items-center gap-2">
+            <Icon as={Star} className="text-yellow-400" size="sm" />
+            <Text className="text-base text-gray-700">
+              4.8 (24 reviews) • Professional cleaner
+            </Text>
+          </HStack>
+        </VStack>
 
         {/* Description */}
-        <VStack className="gap-2 mb-6">
-          <Text className="text-lg font-inter-semibold text-gray-900">
-            Description
-          </Text>
-          {isEditingDescription ? (
-            <VStack className="gap-2">
-              <TextInput
-                value={editedDescription}
-                onChangeText={setEditedDescription}
-                multiline
-                className="border border-gray-300 rounded p-2 h-24"
-              />
-              <PrimaryButton
-                size="xs"
-                className="h-8 px-3 rounded-md"
-                onPress={async () => {
-                  await handleSave("description", editedDescription);
-                  setIsEditingDescription(false);
-                }}
-              >
-                <ButtonText>Save</ButtonText>
-              </PrimaryButton>
-            </VStack>
-          ) : (
-            <HStack className="items-center gap-2">
-              <Text className="text-base text-gray-700 leading-6 flex-1">
-                {offer.description}
-              </Text>
+        {isEditingDescription ? (
+          <VStack className="gap-2 bg-white p-4 rounded-2xl shadow-sm mx-4">
+            <Text className="text-xl font-inter-semibold text-gray-900">
+              About This Service
+            </Text>
+
+            <TextInput
+              value={form.description}
+              onChangeText={(t) => handleChange("description", t)}
+              className="text-base text-gray-600 leading-6 border-b border-gray-400 rounded-xl p-3"
+              placeholder="Enter service description"
+              multiline
+            />
+
+            <HStack className="gap-2 mt-2">
               <Pressable
-                onPress={() => {
-                  setEditedDescription(offer.description);
-                  setIsEditingDescription(true);
-                }}
+                onPress={() => cancelField("description")}
+                className="px-4 py-2 bg-gray-200 rounded-xl"
+                disabled={updateOfferMutation.isPending}
               >
-                <Icon as={Edit} size="sm" className="text-gray-600" />
+                <Text className="text-gray-800">Cancel</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => saveField("description")}
+                className="px-4 py-2 bg-brand-500 rounded-xl"
+                disabled={
+                  updateOfferMutation.isPending || !hasChanged.description
+                }
+              >
+                <Text className="text-white">
+                  {updateOfferMutation.isPending ? "Saving..." : "Save"}
+                </Text>
               </Pressable>
             </HStack>
-          )}
-        </VStack>
+          </VStack>
+        ) : (
+          <VStack className="gap-2 bg-white p-4 rounded-2xl shadow-sm mx-4">
+            <HStack className="gap-2">
+              <Text className="text-xl font-inter-semibold text-gray-900">
+                About This Service
+              </Text>
+              <Pressable
+                onPress={() => setIsEditingDescription(true)}
+                className="p-2"
+              >
+                <Icon as={Pencil} size="sm" className="text-gray-600" />
+              </Pressable>
+            </HStack>
+
+            <Text className="text-base text-gray-600 leading-6">
+              {offer.description}
+            </Text>
+          </VStack>
+        )}
 
         {/* What's Included */}
         {offer.whatIncluded && offer.whatIncluded.length > 0 && (
-          <VStack className="gap-2 mb-6">
-            <Text className="text-lg font-inter-semibold text-gray-900">
+          <VStack className="gap-2 bg-white p-4 rounded-2xl shadow-sm mx-4">
+            <Text className="text-xl font-inter-semibold text-gray-900">
               What&apos;s Included
             </Text>
-            <VStack className="gap-1">
+            <VStack className="gap-2">
               {offer.whatIncluded.map((item, index) => (
                 <HStack key={index} className="items-center gap-2">
                   <Box className="w-2 h-2 bg-brand-500 rounded-full" />
@@ -462,21 +447,21 @@ export default function OfferDetailsScreen() {
 
         {/* Requirements */}
         {offer.requirements && offer.requirements.length > 0 && (
-          <VStack className="gap-2 mb-6">
-            <Text className="text-lg font-inter-semibold text-gray-900">
-              Requirements
+          <VStack className="gap-2 bg-white p-4 rounded-2xl shadow-sm mx-4">
+            <Text className="text-xl font-inter-semibold text-gray-900">
+              What You Need to Prepare
             </Text>
-            <VStack className="gap-1">
+            <VStack className="gap-2">
               {offer.requirements.map((item, index) => (
                 <HStack key={index} className="items-center gap-2">
-                  <Box className="w-2 h-2 bg-gray-400 rounded-full" />
+                  <Box className="w-2 h-2 bg-brand-500 rounded-full" />
                   <Text className="text-base text-gray-700">{item}</Text>
                 </HStack>
               ))}
             </VStack>
           </VStack>
         )}
-      </Box>
+      </VStack>
     </ScrollableScreen>
   );
 }
