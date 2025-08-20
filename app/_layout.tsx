@@ -26,6 +26,7 @@ import { AuthGuard } from "../lib/components/AuthGuard";
 import { useAuthSync } from "../lib/hooks/useAuth";
 
 import { useColorScheme } from "@/lib/hooks/useColorScheme";
+import { LoaderProvider } from "@/lib/components/ui/loader";
 
 /**
  * Main App Content Component
@@ -101,7 +102,9 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AppContent />
+      <LoaderProvider>
+        <AppContent />
+      </LoaderProvider>
     </QueryClientProvider>
   );
 }
