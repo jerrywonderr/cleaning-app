@@ -5,6 +5,7 @@ import {
 import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
 import StepIndicator from "@/lib/components/StepIndicator";
 import { Box } from "@/lib/components/ui/box";
+import { useLoader } from "@/lib/components/ui/loader";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import serviceCategoryOptions from "@/lib/constants/service-category";
@@ -12,7 +13,7 @@ import { useCurrentUser } from "@/lib/hooks/useAuth";
 import { useCreateOffer, useUpdateOffer } from "@/lib/hooks/useOffers";
 import { StorageService } from "@/lib/services/storageService";
 import { router } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+
 import { useFormContext } from "react-hook-form";
 import { Alert, Image } from "react-native";
 
@@ -34,20 +35,8 @@ export default function ReviewStep() {
   const formData = watch();
   const createOfferMutation = useCreateOffer();
   const updateOfferMutation = useUpdateOffer();
-  const [isUploading, setIsUploading] = useState(false);
+  const { showLoader, hideLoader } = useLoader();
   const { data: currentUser } = useCurrentUser();
-
-  // Create AbortController for cancelling operations
-  const abortControllerRef = useRef<AbortController | null>(null);
-
-  // Cleanup effect to abort operations when component unmounts
-  useEffect(() => {
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
-  }, []);
 
   const getCategoryLabel = (value: string) => {
     return (
@@ -63,16 +52,7 @@ export default function ReviewStep() {
 
   const onSubmit = async (data: any) => {
     try {
-      setIsUploading(true);
-
-      // Create new AbortController for this operation
-      abortControllerRef.current = new AbortController();
-
-      // Test storage connection first
-      const isStorageConnected = await StorageService.testStorageConnection();
-      if (!isStorageConnected) {
-        throw new Error("Firebase Storage is not accessible");
-      }
+      showLoader("Creating offer...");
 
       // Create the offer first to get the real offer ID
       const offerData = {
@@ -111,13 +91,18 @@ export default function ReviewStep() {
         }
       }
 
-      Alert.alert("Success", "Offer created successfully!");
-      router.back();
+      Alert.alert("Success", "Offer created successfully!", [
+        {
+          text: "OK",
+          onPress: () => router.replace("/service-provider/offers"),
+        },
+      ]);
     } catch (error) {
       console.error("Offer creation failed:", error);
       Alert.alert("Error", "Failed to create offer. Please try again.");
     } finally {
-      setIsUploading(false);
+      console.log("🔄 HideLoader called");
+      hideLoader();
     }
   };
 
@@ -128,23 +113,17 @@ export default function ReviewStep() {
         <VStack className="gap-3">
           <PrimaryButton
             onPress={handleSubmit(onSubmit)}
-            disabled={createOfferMutation.isPending || isUploading}
+            disabled={
+              createOfferMutation.isPending || updateOfferMutation.isPending
+            }
           >
-            {isUploading
-              ? "Uploading Image..."
-              : createOfferMutation.isPending
-              ? "Creating..."
-              : "Create Offer"}
+            Create Offer
           </PrimaryButton>
           <PrimaryOutlineButton
-            onPress={() => {
-              // Abort any ongoing operations
-              if (abortControllerRef.current) {
-                abortControllerRef.current.abort();
-                abortControllerRef.current = null;
-              }
-              router.back();
-            }}
+            onPress={() => router.back()}
+            disabled={
+              createOfferMutation.isPending || updateOfferMutation.isPending
+            }
           >
             Back
           </PrimaryOutlineButton>
