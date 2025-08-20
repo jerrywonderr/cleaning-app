@@ -6,6 +6,7 @@ import {
   initializeAuth,
 } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 import { firebaseConfig, validateEnvironment } from "../config/env";
 
 // Validate environment variables
@@ -22,5 +23,8 @@ const auth = initializeAuth(app, {
 // Initialize Firestore
 const db = getFirestore(app);
 
-export { auth, db };
+// Initialize Firebase Storage
+const storage = getStorage(app);
+
+export { auth, db, storage };
 export default app;

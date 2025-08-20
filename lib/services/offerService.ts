@@ -44,26 +44,31 @@ export class OfferService {
     providerName: string,
     data: CreateOfferData
   ): Promise<Offer> {
-    const offerData = {
-      ...data,
-      providerId,
-      provider: providerName,
-      isActive: true,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    };
+    try {
+      const offerData = {
+        ...data,
+        providerId,
+        provider: providerName,
+        isActive: true,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      };
 
-    const docRef = await addDoc(
-      collection(db, this.OFFERS_COLLECTION),
-      offerData
-    );
+      const docRef = await addDoc(
+        collection(db, this.OFFERS_COLLECTION),
+        offerData
+      );
 
-    const createdOffer = await this.getOfferById(docRef.id);
-    if (!createdOffer) {
-      throw new Error("Failed to create offer");
+      const createdOffer = await this.getOfferById(docRef.id);
+      if (!createdOffer) {
+        throw new Error("Failed to create offer");
+      }
+
+      return createdOffer;
+    } catch (error) {
+      console.error("Error creating offer:", error);
+      throw error;
     }
-
-    return createdOffer;
   }
 
   /**
