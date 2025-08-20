@@ -1,7 +1,7 @@
+import { PrimaryButton } from "@/lib/components/custom-buttons";
 import { TimeField } from "@/lib/components/form/TimeField";
-import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
+import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
-import { Button, ButtonIcon, ButtonText } from "@/lib/components/ui/button";
 import { Icon } from "@/lib/components/ui/icon";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
@@ -51,7 +51,18 @@ export default function WorkingHoursScreen() {
   };
 
   return (
-    <ScrollableScreen addTopInset={false}>
+    <FootedScrollableScreen
+      addTopInset={false}
+      footer={
+        <PrimaryButton
+          onPress={methods.handleSubmit(handleSubmit)}
+          disabled={!methods.formState.isValid}
+          icon={Save}
+        >
+          Save Working Hours
+        </PrimaryButton>
+      }
+    >
       <Box className="flex-1">
         <FormProvider {...methods}>
           <VStack className="gap-6">
@@ -102,24 +113,12 @@ export default function WorkingHoursScreen() {
               </VStack>
             </Box>
 
-            <VStack className="gap-3">
-              <Button
-                onPress={methods.handleSubmit(handleSubmit)}
-                size="lg"
-                className="w-full"
-                disabled={!methods.formState.isValid}
-              >
-                <ButtonIcon as={Save} />
-                <ButtonText>Save Working Hours</ButtonText>
-              </Button>
-
-              <Text className="text-xs text-gray-500 text-center">
-                Your working hours will be visible to customers
-              </Text>
-            </VStack>
+            <Text className="text-xs text-gray-500 text-center">
+              Your working hours will be visible to customers
+            </Text>
           </VStack>
         </FormProvider>
       </Box>
-    </ScrollableScreen>
+    </FootedScrollableScreen>
   );
 }

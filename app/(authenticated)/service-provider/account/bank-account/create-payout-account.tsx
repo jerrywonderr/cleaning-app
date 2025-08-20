@@ -1,7 +1,7 @@
+import { PrimaryButton } from "@/lib/components/custom-buttons";
 import { PickerField, TextField } from "@/lib/components/form";
-import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
+import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
-import { Button, ButtonIcon, ButtonText } from "@/lib/components/ui/button";
 import { Icon } from "@/lib/components/ui/icon";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
@@ -74,7 +74,18 @@ export default function CreatePayoutAccountScreen() {
   };
 
   return (
-    <ScrollableScreen addTopInset={false}>
+    <FootedScrollableScreen
+      addTopInset={false}
+      footer={
+        <PrimaryButton
+          onPress={methods.handleSubmit(handleSubmit)}
+          disabled={!methods.formState.isValid || isCreatingPayoutAccount}
+          icon={Wallet}
+        >
+          {isCreatingPayoutAccount ? "Creating..." : "Create Payout Account"}
+        </PrimaryButton>
+      }
+    >
       <Box className="flex-1">
         <FormProvider {...methods}>
           <VStack className="gap-6">
@@ -119,20 +130,6 @@ export default function CreatePayoutAccountScreen() {
             </VStack>
 
             <VStack className="gap-3">
-              <Button
-                onPress={methods.handleSubmit(handleSubmit)}
-                size="lg"
-                className="w-full"
-                disabled={!methods.formState.isValid || isCreatingPayoutAccount}
-              >
-                <ButtonIcon as={Wallet} />
-                <ButtonText>
-                  {isCreatingPayoutAccount
-                    ? "Creating..."
-                    : "Create Payout Account"}
-                </ButtonText>
-              </Button>
-
               <Text className="text-xs text-gray-500 text-center">
                 This account will receive your service payments
               </Text>
@@ -140,6 +137,6 @@ export default function CreatePayoutAccountScreen() {
           </VStack>
         </FormProvider>
       </Box>
-    </ScrollableScreen>
+    </FootedScrollableScreen>
   );
 }

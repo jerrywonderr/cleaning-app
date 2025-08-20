@@ -1,6 +1,11 @@
+import {
+  DangerOutlineButton,
+  PrimaryButton,
+  PrimaryOutlineButton,
+} from "@/lib/components/custom-buttons";
+import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
 import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
-import { Button, ButtonIcon, ButtonText } from "@/lib/components/ui/button";
 import { HStack } from "@/lib/components/ui/hstack";
 import { Icon } from "@/lib/components/ui/icon";
 import { Text } from "@/lib/components/ui/text";
@@ -68,18 +73,16 @@ export default function PayoutAccountScreen() {
               </Text>
             </Box>
 
-            <Button
+            <PrimaryButton
               onPress={() =>
                 router.push(
                   "/service-provider/account/bank-account/create-payout-account"
                 )
               }
-              size="lg"
-              className="w-full"
+              icon={CreditCard}
             >
-              <ButtonIcon as={CreditCard} />
-              <ButtonText>Create Payout Account</ButtonText>
-            </Button>
+              Create Payout Account
+            </PrimaryButton>
           </VStack>
         </Box>
       </ScrollableScreen>
@@ -87,7 +90,20 @@ export default function PayoutAccountScreen() {
   }
 
   return (
-    <ScrollableScreen addTopInset={false}>
+    <FootedScrollableScreen
+      addTopInset={false}
+      footer={
+        <VStack className="gap-3">
+          <PrimaryOutlineButton onPress={handleEditAccount} icon={Edit}>
+            Edit Account
+          </PrimaryOutlineButton>
+
+          <DangerOutlineButton onPress={handleDeleteAccount} icon={Trash2}>
+            Delete Account
+          </DangerOutlineButton>
+        </VStack>
+      }
+    >
       <Box className="flex-1">
         <VStack className="gap-6">
           <Box className="bg-blue-50 rounded-lg p-4 border border-blue-200">
@@ -140,29 +156,6 @@ export default function PayoutAccountScreen() {
             </Box>
           </VStack>
 
-          <VStack className="gap-3">
-            <Button
-              onPress={handleEditAccount}
-              variant="outline"
-              size="lg"
-              className="w-full"
-            >
-              <ButtonIcon as={Edit} />
-              <ButtonText>Edit Account</ButtonText>
-            </Button>
-
-            <Button
-              onPress={handleDeleteAccount}
-              variant="outline"
-              action="negative"
-              size="lg"
-              className="w-full"
-            >
-              <ButtonIcon as={Trash2} />
-              <ButtonText>Delete Account</ButtonText>
-            </Button>
-          </VStack>
-
           <VStack className="gap-3 mt-4">
             <Text className="text-sm text-gray-500 text-center">
               Your earnings will be transferred to this account
@@ -170,6 +163,6 @@ export default function PayoutAccountScreen() {
           </VStack>
         </VStack>
       </Box>
-    </ScrollableScreen>
+    </FootedScrollableScreen>
   );
 }

@@ -21,25 +21,25 @@ export default function BankAccountLayout() {
       <Stack.Screen
         name="provision-account"
         options={{
-          title: "Provision Bank Account",
+          title: "",
         }}
       />
       <Stack.Screen
         name="create-payout-account"
         options={{
-          title: "Create Payout Account",
+          title: "",
         }}
       />
       <Stack.Screen
         name="payout-account"
         options={{
-          title: "Payout Account",
+          title: "",
         }}
       />
       <Stack.Screen
         name="create-transaction-pin"
         options={{
-          title: "Create Transaction PIN",
+          title: "",
         }}
       />
       <Stack.Screen

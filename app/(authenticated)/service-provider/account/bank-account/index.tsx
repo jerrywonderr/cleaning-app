@@ -1,6 +1,6 @@
+import { PrimaryButton } from "@/lib/components/custom-buttons";
 import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
-import { Button, ButtonIcon, ButtonText } from "@/lib/components/ui/button";
 import { HStack } from "@/lib/components/ui/hstack";
 import { Icon } from "@/lib/components/ui/icon";
 import { Pressable } from "@/lib/components/ui/pressable";
@@ -88,14 +88,9 @@ export default function BankAccountScreen() {
               </Text>
             </Box>
 
-            <Button
-              onPress={handleProvisionAccount}
-              size="lg"
-              className="w-full"
-            >
-              <ButtonIcon as={Plus} />
-              <ButtonText>Provision Bank Account</ButtonText>
-            </Button>
+            <PrimaryButton onPress={handleProvisionAccount} icon={Plus}>
+              Provision Bank Account
+            </PrimaryButton>
           </VStack>
         </Box>
       </ScrollableScreen>

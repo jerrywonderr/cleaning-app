@@ -1,7 +1,7 @@
+import { PrimaryButton } from "@/lib/components/custom-buttons";
 import { PasswordField } from "@/lib/components/form";
-import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
+import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
-import { Button, ButtonIcon, ButtonText } from "@/lib/components/ui/button";
 import { Icon } from "@/lib/components/ui/icon";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
@@ -64,7 +64,18 @@ export default function CreateTransactionPinScreen() {
   };
 
   return (
-    <ScrollableScreen addTopInset={false}>
+    <FootedScrollableScreen
+      addTopInset={false}
+      footer={
+        <PrimaryButton
+          onPress={methods.handleSubmit(handleSubmit)}
+          disabled={!methods.formState.isValid || isCreatingTransactionPin}
+          icon={Shield}
+        >
+          {isCreatingTransactionPin ? "Creating..." : "Create PIN"}
+        </PrimaryButton>
+      }
+    >
       <Box className="flex-1">
         <FormProvider {...methods}>
           <VStack className="gap-6">
@@ -117,29 +128,12 @@ export default function CreateTransactionPinScreen() {
                 </Text>
               </VStack>
             </Box>
-
-            <VStack className="gap-3">
-              <Button
-                onPress={methods.handleSubmit(handleSubmit)}
-                size="lg"
-                className="w-full"
-                disabled={
-                  !methods.formState.isValid || isCreatingTransactionPin
-                }
-              >
-                <ButtonIcon as={Shield} />
-                <ButtonText>
-                  {isCreatingTransactionPin ? "Creating..." : "Create PIN"}
-                </ButtonText>
-              </Button>
-
-              <Text className="text-xs text-gray-500 text-center">
-                Your PIN will be securely stored and encrypted
-              </Text>
-            </VStack>
+            <Text className="text-xs text-gray-500 text-center">
+              Your PIN will be securely stored and encrypted
+            </Text>
           </VStack>
         </FormProvider>
       </Box>
-    </ScrollableScreen>
+    </FootedScrollableScreen>
   );
 }

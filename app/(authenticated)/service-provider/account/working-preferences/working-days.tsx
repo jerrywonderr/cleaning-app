@@ -1,6 +1,6 @@
-import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
+import { PrimaryButton } from "@/lib/components/custom-buttons";
+import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
-import { Button, ButtonIcon, ButtonText } from "@/lib/components/ui/button";
 import { HStack } from "@/lib/components/ui/hstack";
 import { Icon } from "@/lib/components/ui/icon";
 import { Pressable } from "@/lib/components/ui/pressable";
@@ -61,9 +61,20 @@ export default function WorkingDaysScreen() {
   };
 
   return (
-    <ScrollableScreen addTopInset={false}>
+    <FootedScrollableScreen
+      addTopInset={false}
+      footer={
+        <PrimaryButton
+          onPress={handleSubmit}
+          disabled={selectedDays.length === 0}
+          icon={Save}
+        >
+          Save Working Days ({selectedDays.length} selected)
+        </PrimaryButton>
+      }
+    >
       <Box className="flex-1">
-        <VStack className="gap-6">
+        <VStack className="gap-6 mb-4">
           <Box className="items-center gap-4">
             <Box className="w-20 h-20 bg-green-100 rounded-full items-center justify-center">
               <Icon as={Calendar} size="xl" className="text-green-600" />
@@ -126,25 +137,11 @@ export default function WorkingDaysScreen() {
             </VStack>
           </Box>
 
-          <VStack className="gap-3">
-            <Button
-              onPress={handleSubmit}
-              size="lg"
-              className="w-full"
-              disabled={selectedDays.length === 0}
-            >
-              <ButtonIcon as={Save} />
-              <ButtonText>
-                Save Working Days ({selectedDays.length} selected)
-              </ButtonText>
-            </Button>
-
-            <Text className="text-xs text-gray-500 text-center">
-              Your working days will be visible to customers
-            </Text>
-          </VStack>
+          <Text className="text-xs text-gray-500 text-center">
+            Your working days will be visible to customers
+          </Text>
         </VStack>
       </Box>
-    </ScrollableScreen>
+    </FootedScrollableScreen>
   );
 }

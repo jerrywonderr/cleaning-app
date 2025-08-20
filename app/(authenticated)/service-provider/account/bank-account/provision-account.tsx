@@ -1,6 +1,6 @@
+import { PrimaryButton } from "@/lib/components/custom-buttons";
 import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
-import { Button, ButtonIcon, ButtonText } from "@/lib/components/ui/button";
 import { Icon } from "@/lib/components/ui/icon";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
@@ -96,19 +96,15 @@ export default function ProvisionAccountScreen() {
           </Box>
 
           <VStack className="gap-3">
-            <Button
+            <PrimaryButton
               onPress={handleProvisionAccount}
-              size="lg"
-              className="w-full"
               disabled={isCreatingBankAccount}
+              icon={Banknote}
             >
-              <ButtonIcon as={Banknote} />
-              <ButtonText>
-                {isCreatingBankAccount
-                  ? "Setting up account..."
-                  : "Set Up Internal Account"}
-              </ButtonText>
-            </Button>
+              {isCreatingBankAccount
+                ? "Setting up account..."
+                : "Set Up Internal Account"}
+            </PrimaryButton>
 
             <Text className="text-xs text-gray-500 text-center">
               This is an internal account managed by our system

@@ -1,7 +1,7 @@
+import { PrimaryButton } from "@/lib/components/custom-buttons";
 import { PasswordField } from "@/lib/components/form";
 import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
-import { Button, ButtonIcon, ButtonText } from "@/lib/components/ui/button";
 import { Icon } from "@/lib/components/ui/icon";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
@@ -135,19 +135,15 @@ export default function UpdateTransactionPinScreen() {
             </Box>
 
             <VStack className="gap-3">
-              <Button
+              <PrimaryButton
                 onPress={methods.handleSubmit(handleSubmit)}
-                size="lg"
-                className="w-full"
                 disabled={
                   !methods.formState.isValid || isUpdatingTransactionPin
                 }
+                icon={Shield}
               >
-                <ButtonIcon as={Shield} />
-                <ButtonText>
-                  {isUpdatingTransactionPin ? "Updating..." : "Update PIN"}
-                </ButtonText>
-              </Button>
+                {isUpdatingTransactionPin ? "Updating..." : "Update PIN"}
+              </PrimaryButton>
 
               <Text className="text-xs text-gray-500 text-center">
                 Your new PIN will be securely stored and encrypted

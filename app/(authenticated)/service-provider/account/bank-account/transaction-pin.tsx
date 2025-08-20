@@ -1,3 +1,4 @@
+import { PrimaryButton } from "@/lib/components/custom-buttons";
 import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
 import { Button, ButtonIcon, ButtonText } from "@/lib/components/ui/button";
@@ -68,18 +69,16 @@ export default function TransactionPinScreen() {
               </Text>
             </Box>
 
-            <Button
+            <PrimaryButton
               onPress={() =>
                 router.push(
                   "/service-provider/account/bank-account/create-transaction-pin"
                 )
               }
-              size="lg"
-              className="w-full"
+              icon={Shield}
             >
-              <ButtonIcon as={Shield} />
-              <ButtonText>Create Transaction PIN</ButtonText>
-            </Button>
+              Create Transaction PIN
+            </PrimaryButton>
           </VStack>
         </Box>
       </ScrollableScreen>

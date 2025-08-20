@@ -15,25 +15,25 @@ export default function WorkingPreferencesLayout() {
       <Stack.Screen
         name="index"
         options={{
-          title: "Working Preferences",
+          title: "",
         }}
       />
       <Stack.Screen
         name="working-hours"
         options={{
-          title: "Working Hours",
+          title: "",
         }}
       />
       <Stack.Screen
         name="working-days"
         options={{
-          title: "Working Days",
+          title: "",
         }}
       />
       <Stack.Screen
         name="service-area"
         options={{
-          title: "Service Area",
+          title: "",
         }}
       />
     </Stack>

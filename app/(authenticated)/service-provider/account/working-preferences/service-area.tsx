@@ -1,7 +1,7 @@
+import { PrimaryButton } from "@/lib/components/custom-buttons";
 import { TextField } from "@/lib/components/form";
-import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
+import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
-import { Button, ButtonIcon, ButtonText } from "@/lib/components/ui/button";
 import { HStack } from "@/lib/components/ui/hstack";
 import { Icon } from "@/lib/components/ui/icon";
 import { Pressable } from "@/lib/components/ui/pressable";
@@ -80,10 +80,21 @@ export default function ServiceAreaScreen() {
   };
 
   return (
-    <ScrollableScreen addTopInset={false}>
+    <FootedScrollableScreen
+      addTopInset={false}
+      footer={
+        <PrimaryButton
+          onPress={methods.handleSubmit(handleSubmit)}
+          disabled={!methods.formState.isValid}
+          icon={Save}
+        >
+          Save Service Area
+        </PrimaryButton>
+      }
+    >
       <Box className="flex-1">
         <FormProvider {...methods}>
-          <VStack className="gap-6">
+          <VStack className="gap-6 mb-4">
             <Box className="items-center gap-4">
               <Box className="w-20 h-20 bg-purple-100 rounded-full items-center justify-center">
                 <Icon as={MapPin} size="xl" className="text-purple-600" />
@@ -202,24 +213,12 @@ export default function ServiceAreaScreen() {
               </VStack>
             </Box>
 
-            <VStack className="gap-3">
-              <Button
-                onPress={methods.handleSubmit(handleSubmit)}
-                size="lg"
-                className="w-full"
-                disabled={!methods.formState.isValid}
-              >
-                <ButtonIcon as={Save} />
-                <ButtonText>Save Service Area</ButtonText>
-              </Button>
-
-              <Text className="text-xs text-gray-500 text-center">
-                Your service area will be visible to customers
-              </Text>
-            </VStack>
+            <Text className="text-xs text-gray-500 text-center">
+              Your service area will be visible to customers
+            </Text>
           </VStack>
         </FormProvider>
       </Box>
-    </ScrollableScreen>
+    </FootedScrollableScreen>
   );
 }
