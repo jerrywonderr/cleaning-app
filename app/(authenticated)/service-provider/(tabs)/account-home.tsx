@@ -1,6 +1,6 @@
 import { DangerButton } from "@/lib/components/custom-buttons";
 import ScreenHeader from "@/lib/components/ScreenHeader";
-import FixedScreen from "@/lib/components/screens/FixedScreen";
+import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
 import { Avatar, AvatarImage } from "@/lib/components/ui/avatar";
 import { Box } from "@/lib/components/ui/box";
 import { Button, ButtonIcon } from "@/lib/components/ui/button";
@@ -16,6 +16,7 @@ import { Href, router, useNavigation } from "expo-router";
 import {
   ChevronRight,
   CircleX,
+  Clock,
   CreditCard,
   FileText,
   LogOutIcon,
@@ -42,7 +43,12 @@ const menuItems: { icon: any; label: string; route: Href }[] = [
   {
     icon: Wallet,
     label: "Bank Account",
-    route: "/service-provider/account/bank-account" as Href,
+    route: "/service-provider/account/bank-account",
+  },
+  {
+    icon: Clock,
+    label: "Working Preferences",
+    route: "/service-provider/account/working-preferences",
   },
   {
     icon: MessageSquare,
@@ -131,7 +137,7 @@ export default function AccountScreen() {
   };
 
   return (
-    <FixedScreen addTopInset={false}>
+    <ScrollableScreen addTopInset={false}>
       <Box className="flex-1">
         <VStack className="items-center my-6 gap-3">
           <Avatar
@@ -178,6 +184,6 @@ export default function AccountScreen() {
           </Box>
         </VStack>
       </Box>
-    </FixedScreen>
+    </ScrollableScreen>
   );
 }

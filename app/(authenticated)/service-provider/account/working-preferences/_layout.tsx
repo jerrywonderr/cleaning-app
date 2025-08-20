@@ -1,7 +1,7 @@
 import ScreenHeader from "@/lib/components/ScreenHeader";
 import { Stack } from "expo-router";
 
-export default function AccountLayout() {
+export default function WorkingPreferencesLayout() {
   return (
     <Stack
       screenOptions={{
@@ -13,39 +13,27 @@ export default function AccountLayout() {
       }}
     >
       <Stack.Screen
-        name="view-profile"
+        name="index"
         options={{
-          title: "Profile",
+          title: "Working Preferences",
         }}
       />
       <Stack.Screen
-        name="edit-profile"
+        name="working-hours"
         options={{
-          title: "Edit Profile",
+          title: "Working Hours",
         }}
       />
       <Stack.Screen
-        name="support"
+        name="working-days"
         options={{
-          title: "Support",
+          title: "Working Days",
         }}
       />
       <Stack.Screen
-        name="services-settings"
+        name="service-area"
         options={{
-          title: "Services Settings",
-        }}
-      />
-      <Stack.Screen
-        name="bank-account"
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="working-preferences"
-        options={{
-          headerShown: false,
+          title: "Service Area",
         }}
       />
     </Stack>
