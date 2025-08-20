@@ -1,3 +1,4 @@
+import { Switch } from "react-native";
 import { ExtraServiceOption } from "../types/service-config";
 import { Box } from "./ui/box";
 import { HStack } from "./ui/hstack";
@@ -28,18 +29,12 @@ export default function ExtraServiceOptionCard({
             </Text>
           </VStack>
           {showToggle && onToggle && (
-            <Box
-              className={`w-12 h-6 rounded-full ${
-                option.isEnabled ? "bg-brand-500" : "bg-gray-300"
-              }`}
-              onTouchEnd={() => onToggle(option.id, !option.isEnabled)}
-            >
-              <Box
-                className={`w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${
-                  option.isEnabled ? "translate-x-6" : "translate-x-0.5"
-                }`}
-              />
-            </Box>
+            <Switch
+              value={option.isEnabled}
+              onValueChange={(enabled) => onToggle(option.id, enabled)}
+              trackColor={{ false: "#d1d5db", true: "#3b82f6" }}
+              thumbColor={option.isEnabled ? "#ffffff" : "#ffffff"}
+            />
           )}
         </HStack>
         <HStack className="justify-between items-center pt-1">

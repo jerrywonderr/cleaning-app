@@ -1,4 +1,4 @@
-import { Image } from "react-native";
+import { Image, Switch } from "react-native";
 import { ServiceConfig } from "../types/service-config";
 import { Box } from "./ui/box";
 import { HStack } from "./ui/hstack";
@@ -34,18 +34,12 @@ export default function ServiceCard({
             </Text>
           </VStack>
           {showToggle && onToggle && (
-            <Box
-              className={`w-12 h-6 rounded-full ${
-                service.isEnabled ? "bg-brand-500" : "bg-gray-300"
-              }`}
-              onTouchEnd={() => onToggle(service.id, !service.isEnabled)}
-            >
-              <Box
-                className={`w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${
-                  service.isEnabled ? "translate-x-6" : "translate-x-0.5"
-                }`}
-              />
-            </Box>
+            <Switch
+              value={service.isEnabled}
+              onValueChange={(enabled) => onToggle(service.id, enabled)}
+              trackColor={{ false: "#d1d5db", true: "#3b82f6" }}
+              thumbColor={service.isEnabled ? "#ffffff" : "#ffffff"}
+            />
           )}
         </HStack>
         <HStack className="justify-between items-center pt-2">
