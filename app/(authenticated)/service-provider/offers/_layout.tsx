@@ -13,7 +13,7 @@ export default function AccountLayout() {
       }}
     >
       <Stack.Screen name="[id]" options={{ title: "Offer Details" }} />
-      <Stack.Screen name="create" options={{ title: "Create Offer" }} />
+      <Stack.Screen name="create" options={{ headerShown: false }} />
     </Stack>
   );
 }
