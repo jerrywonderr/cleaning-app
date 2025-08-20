@@ -10,6 +10,15 @@ service cloud.firestore {
       allow read: if request.auth != null;
     }
     
+    // Service Preferences collection
+    match /servicePreferences/{userId} {
+      // All authenticated users can read any service preferences (to see what services providers offer)
+      allow read: if request.auth != null;
+      
+      // Only the owner can write/edit their own service preferences
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
     // Offers collection - offer management
     match /offers/{offerId} {
       // All authenticated users can read any offer

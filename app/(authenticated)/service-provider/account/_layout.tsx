@@ -30,6 +30,12 @@ export default function AccountLayout() {
           title: "Support",
         }}
       />
+      <Stack.Screen
+        name="services-settings"
+        options={{
+          title: "Services Settings",
+        }}
+      />
     </Stack>
   );
 }

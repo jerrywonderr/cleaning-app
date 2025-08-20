@@ -9,6 +9,11 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
+import {
+  CreateUserServicePreferencesData,
+  UpdateUserServicePreferencesData,
+  UserServicePreferences,
+} from "../types/service-config";
 import { db } from "./config";
 
 export interface UserProfile {
@@ -44,6 +49,7 @@ export interface UpdateUserProfileData {
 
 export class FirebaseFirestoreService {
   private static readonly USERS_COLLECTION = "users";
+  private static readonly SERVICE_PREFERENCES_COLLECTION = "servicePreferences";
 
   // Create a new user profile
   static async createUserProfile(
@@ -221,6 +227,97 @@ export class FirebaseFirestoreService {
       return users;
     } catch (error: any) {
       throw new Error(`Failed to search users: ${error.message}`);
+    }
+  }
+
+  // Create or update user service preferences
+  static async setUserServicePreferences(
+    userId: string,
+    data: CreateUserServicePreferencesData
+  ): Promise<UserServicePreferences> {
+    try {
+      const prefRef = doc(
+        collection(db, this.SERVICE_PREFERENCES_COLLECTION),
+        userId
+      );
+
+      const servicePreferences: UserServicePreferences = {
+        userId,
+        services: data.services,
+        extraOptions: data.extraOptions || {},
+        updatedAt: new Date(),
+      };
+
+      await setDoc(prefRef, servicePreferences);
+      return servicePreferences;
+    } catch (error: any) {
+      throw new Error(
+        `Failed to set user service preferences: ${error.message}`
+      );
+    }
+  }
+
+  // Get user service preferences
+  static async getUserServicePreferences(
+    userId: string
+  ): Promise<UserServicePreferences | null> {
+    try {
+      const prefRef = doc(
+        collection(db, this.SERVICE_PREFERENCES_COLLECTION),
+        userId
+      );
+      const prefSnap = await getDoc(prefRef);
+
+      if (prefSnap.exists()) {
+        const data = prefSnap.data();
+        return {
+          ...data,
+          updatedAt: data.updatedAt?.toDate() || new Date(),
+        } as UserServicePreferences;
+      }
+
+      return null;
+    } catch (error: any) {
+      throw new Error(
+        `Failed to get user service preferences: ${error.message}`
+      );
+    }
+  }
+
+  // Update user service preferences
+  static async updateUserServicePreferences(
+    userId: string,
+    data: UpdateUserServicePreferencesData
+  ): Promise<void> {
+    try {
+      const prefRef = doc(
+        collection(db, this.SERVICE_PREFERENCES_COLLECTION),
+        userId
+      );
+
+      await updateDoc(prefRef, {
+        ...data,
+        updatedAt: new Date(),
+      });
+    } catch (error: any) {
+      throw new Error(
+        `Failed to update user service preferences: ${error.message}`
+      );
+    }
+  }
+
+  // Delete user service preferences
+  static async deleteUserServicePreferences(userId: string): Promise<void> {
+    try {
+      const prefRef = doc(
+        collection(db, this.SERVICE_PREFERENCES_COLLECTION),
+        userId
+      );
+      await deleteDoc(prefRef);
+    } catch (error: any) {
+      throw new Error(
+        `Failed to delete user service preferences: ${error.message}`
+      );
     }
   }
 }

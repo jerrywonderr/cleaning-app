@@ -20,6 +20,7 @@ import {
   FileText,
   LogOutIcon,
   MessageSquare,
+  Settings,
   Shield,
   User,
 } from "lucide-react-native";
@@ -31,6 +32,11 @@ const menuItems: { icon: any; label: string; route: Href }[] = [
     icon: User,
     label: "Profile",
     route: "/service-provider/account/view-profile",
+  },
+  {
+    icon: Settings,
+    label: "Services Settings",
+    route: "/service-provider/account/services-settings",
   },
   {
     icon: MessageSquare,
