@@ -34,7 +34,7 @@ export const Loader = ({ visible, description }: LoaderProps) => {
 
   return (
     <Animated.View
-      className="absolute inset-0 z-50 flex items-center justify-center h-full w-full"
+      className="absolute inset-0 z-[9999] flex items-center justify-center h-full w-full"
       style={{ opacity: containerOpacity }}
     >
       <BlurView
