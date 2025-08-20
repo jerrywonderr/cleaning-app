@@ -10,6 +10,15 @@ import {
   where,
 } from "firebase/firestore";
 import {
+  BankAccount,
+  CreateBankAccountData,
+  CreatePayoutAccountData,
+  CreateTransactionPinData,
+  PayoutAccount,
+  TransactionPin,
+  UpdateTransactionPinData,
+} from "../types/bank-account";
+import {
   CreateUserServicePreferencesData,
   UpdateUserServicePreferencesData,
   UserServicePreferences,
@@ -50,6 +59,9 @@ export interface UpdateUserProfileData {
 export class FirebaseFirestoreService {
   private static readonly USERS_COLLECTION = "users";
   private static readonly SERVICE_PREFERENCES_COLLECTION = "servicePreferences";
+  private static readonly BANK_ACCOUNTS_COLLECTION = "bankAccounts";
+  private static readonly PAYOUT_ACCOUNTS_COLLECTION = "payoutAccounts";
+  private static readonly TRANSACTION_PINS_COLLECTION = "transactionPins";
 
   // Create a new user profile
   static async createUserProfile(
@@ -318,6 +330,201 @@ export class FirebaseFirestoreService {
       throw new Error(
         `Failed to delete user service preferences: ${error.message}`
       );
+    }
+  }
+
+  // Bank Account methods
+  static async createBankAccount(
+    userId: string,
+    data: CreateBankAccountData
+  ): Promise<BankAccount> {
+    try {
+      const accountRef = doc(
+        collection(db, this.BANK_ACCOUNTS_COLLECTION),
+        userId
+      );
+
+      const bankAccount: BankAccount = {
+        id: userId,
+        userId,
+        accountNumber: data.accountNumber,
+        bankName: data.bankName,
+        accountName: data.accountName,
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      await setDoc(accountRef, bankAccount);
+      return bankAccount;
+    } catch (error: any) {
+      throw new Error(`Failed to create bank account: ${error.message}`);
+    }
+  }
+
+  static async getBankAccount(userId: string): Promise<BankAccount | null> {
+    try {
+      const accountRef = doc(
+        collection(db, this.BANK_ACCOUNTS_COLLECTION),
+        userId
+      );
+      const accountSnap = await getDoc(accountRef);
+
+      if (accountSnap.exists()) {
+        const data = accountSnap.data();
+        return {
+          ...data,
+          createdAt: data.createdAt?.toDate() || new Date(),
+          updatedAt: data.updatedAt?.toDate() || new Date(),
+        } as BankAccount;
+      }
+
+      return null;
+    } catch (error: any) {
+      throw new Error(`Failed to get bank account: ${error.message}`);
+    }
+  }
+
+  // Payout Account methods
+  static async createPayoutAccount(
+    userId: string,
+    data: CreatePayoutAccountData
+  ): Promise<PayoutAccount> {
+    try {
+      const accountRef = doc(
+        collection(db, this.PAYOUT_ACCOUNTS_COLLECTION),
+        userId
+      );
+
+      const payoutAccount: PayoutAccount = {
+        id: userId,
+        userId,
+        accountNumber: data.accountNumber,
+        bankName: data.bankName,
+        accountName: data.accountName,
+        accountType: data.accountType,
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      await setDoc(accountRef, payoutAccount);
+      return payoutAccount;
+    } catch (error: any) {
+      throw new Error(`Failed to create payout account: ${error.message}`);
+    }
+  }
+
+  static async getPayoutAccount(userId: string): Promise<PayoutAccount | null> {
+    try {
+      const accountRef = doc(
+        collection(db, this.PAYOUT_ACCOUNTS_COLLECTION),
+        userId
+      );
+      const accountSnap = await getDoc(accountRef);
+
+      if (accountSnap.exists()) {
+        const data = accountSnap.data();
+        return {
+          ...data,
+          createdAt: data.createdAt?.toDate() || new Date(),
+          updatedAt: data.updatedAt?.toDate() || new Date(),
+        } as PayoutAccount;
+      }
+
+      return null;
+    } catch (error: any) {
+      throw new Error(`Failed to get payout account: ${error.message}`);
+    }
+  }
+
+  static async updatePayoutAccount(
+    userId: string,
+    data: Partial<CreatePayoutAccountData>
+  ): Promise<void> {
+    try {
+      const accountRef = doc(
+        collection(db, this.PAYOUT_ACCOUNTS_COLLECTION),
+        userId
+      );
+
+      await updateDoc(accountRef, {
+        ...data,
+        updatedAt: new Date(),
+      });
+    } catch (error: any) {
+      throw new Error(`Failed to update payout account: ${error.message}`);
+    }
+  }
+
+  // Transaction Pin methods
+  static async createTransactionPin(
+    userId: string,
+    data: CreateTransactionPinData
+  ): Promise<TransactionPin> {
+    try {
+      const pinRef = doc(
+        collection(db, this.TRANSACTION_PINS_COLLECTION),
+        userId
+      );
+
+      const transactionPin: TransactionPin = {
+        id: userId,
+        userId,
+        pinHash: data.pin, // In production, this should be hashed
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      await setDoc(pinRef, transactionPin);
+      return transactionPin;
+    } catch (error: any) {
+      throw new Error(`Failed to create transaction pin: ${error.message}`);
+    }
+  }
+
+  static async getTransactionPin(
+    userId: string
+  ): Promise<TransactionPin | null> {
+    try {
+      const pinRef = doc(
+        collection(db, this.TRANSACTION_PINS_COLLECTION),
+        userId
+      );
+      const pinSnap = await getDoc(pinRef);
+
+      if (pinSnap.exists()) {
+        const data = pinSnap.data();
+        return {
+          ...data,
+          createdAt: data.createdAt?.toDate() || new Date(),
+          updatedAt: data.updatedAt?.toDate() || new Date(),
+        } as TransactionPin;
+      }
+
+      return null;
+    } catch (error: any) {
+      throw new Error(`Failed to get transaction pin: ${error.message}`);
+    }
+  }
+
+  static async updateTransactionPin(
+    userId: string,
+    data: UpdateTransactionPinData
+  ): Promise<void> {
+    try {
+      const pinRef = doc(
+        collection(db, this.TRANSACTION_PINS_COLLECTION),
+        userId
+      );
+
+      await updateDoc(pinRef, {
+        pinHash: data.newPin, // In production, this should be hashed
+        updatedAt: new Date(),
+      });
+    } catch (error: any) {
+      throw new Error(`Failed to update transaction pin: ${error.message}`);
     }
   }
 }

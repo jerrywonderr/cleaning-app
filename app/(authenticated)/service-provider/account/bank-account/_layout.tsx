@@ -1,7 +1,7 @@
 import ScreenHeader from "@/lib/components/ScreenHeader";
 import { Stack } from "expo-router";
 
-export default function AccountLayout() {
+export default function BankAccountLayout() {
   return (
     <Stack
       screenOptions={{
@@ -13,33 +13,45 @@ export default function AccountLayout() {
       }}
     >
       <Stack.Screen
-        name="view-profile"
+        name="index"
         options={{
-          title: "Profile",
+          title: "Bank Account",
         }}
       />
       <Stack.Screen
-        name="edit-profile"
+        name="provision-account"
         options={{
-          title: "Edit Profile",
+          title: "Provision Bank Account",
         }}
       />
       <Stack.Screen
-        name="support"
+        name="create-payout-account"
         options={{
-          title: "Support",
+          title: "Create Payout Account",
         }}
       />
       <Stack.Screen
-        name="services-settings"
+        name="payout-account"
         options={{
-          title: "Services Settings",
+          title: "Payout Account",
         }}
       />
       <Stack.Screen
-        name="bank-account"
+        name="create-transaction-pin"
         options={{
-          headerShown: false,
+          title: "Create Transaction PIN",
+        }}
+      />
+      <Stack.Screen
+        name="transaction-pin"
+        options={{
+          title: "Transaction PIN",
+        }}
+      />
+      <Stack.Screen
+        name="update-transaction-pin"
+        options={{
+          title: "Update Transaction PIN",
         }}
       />
     </Stack>

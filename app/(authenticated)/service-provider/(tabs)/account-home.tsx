@@ -23,6 +23,7 @@ import {
   Settings,
   Shield,
   User,
+  Wallet,
 } from "lucide-react-native";
 import { useCallback, useEffect } from "react";
 import { Alert } from "react-native";
@@ -37,6 +38,11 @@ const menuItems: { icon: any; label: string; route: Href }[] = [
     icon: Settings,
     label: "Services Settings",
     route: "/service-provider/account/services-settings",
+  },
+  {
+    icon: Wallet,
+    label: "Bank Account",
+    route: "/service-provider/account/bank-account" as Href,
   },
   {
     icon: MessageSquare,
