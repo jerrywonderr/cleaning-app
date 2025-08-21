@@ -1,5 +1,5 @@
-import { Switch } from "react-native";
 import { ExtraServiceOption } from "../types/service-config";
+import FormSwitch from "./form/FormSwitch";
 import { Box } from "./ui/box";
 import { HStack } from "./ui/hstack";
 import { Text } from "./ui/text";
@@ -29,11 +29,9 @@ export default function ExtraServiceOptionCard({
             </Text>
           </VStack>
           {showToggle && onToggle && (
-            <Switch
+            <FormSwitch
               value={option.isEnabled}
               onValueChange={(enabled) => onToggle(option.id, enabled)}
-              trackColor={{ false: "#d1d5db", true: "#3b82f6" }}
-              thumbColor={option.isEnabled ? "#ffffff" : "#ffffff"}
             />
           )}
         </HStack>
