@@ -17,7 +17,6 @@ import {
   ChevronRight,
   CircleX,
   Clock,
-  CreditCard,
   FileText,
   LogOutIcon,
   MessageSquare,
@@ -54,11 +53,6 @@ const menuItems: { icon: any; label: string; route: Href }[] = [
     icon: MessageSquare,
     label: "Customer Support",
     route: "/service-provider/account/support",
-  },
-  {
-    icon: CreditCard,
-    label: "Payment method",
-    route: "/service-provider/account/payment",
   },
   {
     icon: Shield,
