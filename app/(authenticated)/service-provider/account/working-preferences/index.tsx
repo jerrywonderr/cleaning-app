@@ -82,11 +82,13 @@ export default function WorkingPreferencesScreen() {
                         : "Set your daily working hours"}
                     </Text>
                   </VStack>
-                  {workingPreferences.workingHours.isSet && (
-                    <Icon as={CheckCircle} className="text-green-500" />
-                  )}
+                  <HStack className="gap-2">
+                    {workingPreferences.workingHours.isSet && (
+                      <Icon as={CheckCircle} className="text-green-500" />
+                    )}
+                    <Icon as={ChevronRight} className="text-gray-400" />
+                  </HStack>
                 </HStack>
-                <Icon as={ChevronRight} className="text-gray-400" />
               </HStack>
             </Pressable>
 
@@ -106,11 +108,13 @@ export default function WorkingPreferencesScreen() {
                         : "Choose which days you work"}
                     </Text>
                   </VStack>
-                  {workingPreferences.workingDays.isSet && (
-                    <Icon as={CheckCircle} className="text-green-500" />
-                  )}
+                  <HStack className="gap-2">
+                    {workingPreferences.workingDays.isSet && (
+                      <Icon as={CheckCircle} className="text-green-500" />
+                    )}
+                    <Icon as={ChevronRight} className="text-gray-400" />
+                  </HStack>
                 </HStack>
-                <Icon as={ChevronRight} className="text-gray-400" />
               </HStack>
             </Pressable>
 
@@ -130,11 +134,13 @@ export default function WorkingPreferencesScreen() {
                         : "Set your service area and radius"}
                     </Text>
                   </VStack>
-                  {workingPreferences.serviceArea.isSet && (
-                    <Icon as={CheckCircle} className="text-green-500" />
-                  )}
+                  <HStack className="gap-2">
+                    {workingPreferences.serviceArea.isSet && (
+                      <Icon as={CheckCircle} className="text-green-500" />
+                    )}
+                    <Icon as={ChevronRight} className="text-gray-400" />
+                  </HStack>
                 </HStack>
-                <Icon as={ChevronRight} className="text-gray-400" />
               </HStack>
             </Pressable>
           </VStack>
