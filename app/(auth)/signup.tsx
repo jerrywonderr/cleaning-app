@@ -1,5 +1,6 @@
 import { PrimaryButton } from "@/lib/components/custom-buttons";
 import { DateField, PasswordField, TextField } from "@/lib/components/form";
+import FormSwitch from "@/lib/components/form/FormSwitch";
 import { PhoneField } from "@/lib/components/form/PhoneField";
 import Link from "@/lib/components/Link";
 import FixedScreen from "@/lib/components/screens/FixedScreen";
@@ -12,7 +13,7 @@ import { getAuthErrorMessage } from "@/lib/utils/errorHandling";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { ScrollView, Switch } from "react-native";
+import { ScrollView } from "react-native";
 import * as yup from "yup";
 
 const schema = yup.object().shape({
@@ -158,14 +159,9 @@ const Signup = () => {
               <Text className="text-base font-medium text-gray-900">
                 I&apos;m a service provider
               </Text>
-              <Switch
+              <FormSwitch
                 value={methods.watch("isServiceProvider")}
-                onValueChange={(val) =>
-                  methods.setValue("isServiceProvider", val)
-                }
-                trackColor={{ false: "#A5AEE1", true: "#454EB0" }}
-                thumbColor={"#f9fafb"}
-                ios_backgroundColor="#A5AEE1"
+                onChange={(val) => methods.setValue("isServiceProvider", val)}
               />
             </HStack>
           </VStack>

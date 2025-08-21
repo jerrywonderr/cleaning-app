@@ -10,7 +10,7 @@ import { useBankAccount } from "@/lib/hooks/useBankAccount";
 import { useUserStore } from "@/lib/store/useUserStore";
 import { useRouter } from "expo-router";
 import {
-  ArrowRight,
+  ChevronRight,
   CreditCard,
   Lock,
   Plus,
@@ -141,7 +141,7 @@ export default function BankAccountScreen() {
                     </Text>
                   </VStack>
                 </HStack>
-                <Icon as={ArrowRight} className="text-gray-400" />
+                <Icon as={ChevronRight} className="text-gray-400" />
               </HStack>
             </Pressable>
 
@@ -162,7 +162,7 @@ export default function BankAccountScreen() {
                     </Text>
                   </VStack>
                 </HStack>
-                <Icon as={ArrowRight} className="text-gray-400" />
+                <Icon as={ChevronRight} className="text-gray-400" />
               </HStack>
             </Pressable>
           </VStack>

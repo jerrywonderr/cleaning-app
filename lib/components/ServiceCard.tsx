@@ -1,5 +1,6 @@
-import { Image, Switch } from "react-native";
+import { Image } from "react-native";
 import { ServiceConfig } from "../types/service-config";
+import FormSwitch from "./form/FormSwitch";
 import { Box } from "./ui/box";
 import { HStack } from "./ui/hstack";
 import { Text } from "./ui/text";
@@ -34,11 +35,9 @@ export default function ServiceCard({
             </Text>
           </VStack>
           {showToggle && onToggle && (
-            <Switch
+            <FormSwitch
               value={service.isEnabled}
               onValueChange={(enabled) => onToggle(service.id, enabled)}
-              trackColor={{ false: "#d1d5db", true: "#3b82f6" }}
-              thumbColor={service.isEnabled ? "#ffffff" : "#ffffff"}
             />
           )}
         </HStack>
