@@ -12,6 +12,7 @@ import {
   Inter_800ExtraBold,
   Inter_900Black,
 } from "@expo-google-fonts/inter";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import {
   DarkTheme,
   DefaultTheme,
@@ -21,12 +22,13 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "react-native-reanimated";
 import { AuthGuard } from "../lib/components/AuthGuard";
 import { useAuthSync } from "../lib/hooks/useAuth";
 
-import { useColorScheme } from "@/lib/hooks/useColorScheme";
 import { LoaderProvider } from "@/lib/components/ui/loader";
+import { useColorScheme } from "@/lib/hooks/useColorScheme";
 
 /**
  * Main App Content Component
@@ -101,10 +103,14 @@ export default function RootLayout() {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <LoaderProvider>
-        <AppContent />
-      </LoaderProvider>
-    </QueryClientProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <QueryClientProvider client={queryClient}>
+        <LoaderProvider>
+          <BottomSheetModalProvider>
+            <AppContent />
+          </BottomSheetModalProvider>
+        </LoaderProvider>
+      </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }
