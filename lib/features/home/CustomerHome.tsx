@@ -11,14 +11,12 @@ import { useUserStore } from "@/lib/store/useUserStore";
 import { useRouter } from "expo-router";
 import { Bell, Calendar, ChevronRight, Info, Send } from "lucide-react-native";
 import React from "react";
-import { Dimensions, Image as RNImage, ScrollView } from "react-native";
-import Carousel from "react-native-reanimated-carousel";
+import { Image as RNImage, ScrollView } from "react-native";
 
 export default function CustomerHome() {
   const { profile } = useUserStore();
   const router = useRouter();
   const hasNotification = true;
-  const [currentIndex, setCurrentIndex] = React.useState(0);
 
   // Fetch upcoming and ongoing appointments
   const { data: upcomingAppointments = [] } = useAppointmentsByStatus(
@@ -75,8 +73,42 @@ export default function CustomerHome() {
           </HStack>
         </Box>
 
+        {/* Hero Section */}
+        <Box className="mb-6 rounded-xl overflow-hidden relative">
+          <RNImage
+            source={{
+              uri: "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=800&h=400&q=80",
+            }}
+            style={{ width: "100%", height: 180 }}
+            resizeMode="cover"
+          />
+
+          {/* Overlay */}
+          <Box
+            className="absolute inset-0"
+            style={{ backgroundColor: "rgba(0,0,0,0.3)" }}
+          />
+
+          {/* Content */}
+          <VStack className="absolute inset-0 items-center justify-center px-4">
+            <Text className="text-white text-xl font-inter-bold mb-3 text-center">
+              What do you want to get done today?
+            </Text>
+            <Pressable
+              onPress={
+                () => router.push("/(authenticated)/customer/(tabs)/proposals") //Temporarily until create proposal flow
+              }
+              className="bg-white px-5 py-2 rounded-full"
+            >
+              <Text className="text-brand-500 font-inter-medium">
+                Book a Service
+              </Text>
+            </Pressable>
+          </VStack>
+        </Box>
+
         {/* Offers */}
-        <Text className="font-inter-medium text-lg mb-2 text-gray-800">
+        {/* <Text className="font-inter-medium text-lg mb-2 text-gray-800">
           What do you want to get done today?
         </Text>
         <Box className="mb-6">
@@ -124,7 +156,7 @@ export default function CustomerHome() {
               </Box>
             )}
           />
-        </Box>
+        </Box> */}
 
         {/* Appointments Section */}
         <HStack className="flex-row justify-between items-center mb-3">
