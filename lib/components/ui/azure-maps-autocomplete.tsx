@@ -103,7 +103,6 @@ export const AzureMapsAutocomplete: React.FC<AzureMapsAutocompleteProps> = ({
       {results.length > 0 && (
         <View className="flex-1 bg-white rounded-xl border border-gray-200 overflow-hidden">
           <FlashList
-            style={{ flex: 1 }}
             showsVerticalScrollIndicator={false}
             data={results}
             keyExtractor={(_, index) => index.toString()}

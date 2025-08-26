@@ -146,6 +146,7 @@ const AddressField = forwardRef<AddressFieldRef, AddressFieldProps>(
 
     const handleLocationSelect = useCallback(
       (data: LocationData) => {
+        console.log("data", data);
         field.onChange(data);
         field.onBlur();
         onLocationChange?.(data);
@@ -189,6 +190,8 @@ const AddressField = forwardRef<AddressFieldRef, AddressFieldProps>(
     const handleOpenSheet = useCallback(() => {
       present();
     }, [present]);
+
+    console.log("error", error);
 
     return (
       <FormControl isInvalid={!!error}>

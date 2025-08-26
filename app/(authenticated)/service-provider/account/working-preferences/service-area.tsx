@@ -1,5 +1,5 @@
 import { PrimaryButton } from "@/lib/components/custom-buttons";
-import { TextField } from "@/lib/components/form";
+import { AddressField } from "@/lib/components/form";
 import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
 import { HStack } from "@/lib/components/ui/hstack";
@@ -25,18 +25,25 @@ const radiusOptions = [
 ];
 
 const schema = yup.object().shape({
-  address: yup.string().trim().required("Address is required"),
-  city: yup.string().trim().required("City is required"),
-  state: yup.string().trim().required("State is required"),
-  zipCode: yup.string().trim().required("ZIP code is required"),
+  address: yup
+    .object()
+    .shape({
+      fullAddress: yup.string().required("Address is required"),
+      latitude: yup.number().required("Valid address is required"),
+      longitude: yup.number().required("Valid address is required"),
+      country: yup.string().required("Valid address is required"),
+    })
+    .required("Address is required"),
   radius: yup.number().required("Service radius is required"),
 });
 
 type FormData = {
-  address: string;
-  city: string;
-  state: string;
-  zipCode: string;
+  address: {
+    fullAddress: string;
+    latitude: number;
+    longitude: number;
+    country: string;
+  };
   radius: number;
 };
 
@@ -47,10 +54,7 @@ export default function ServiceAreaScreen() {
     mode: "all",
     resolver: yupResolver(schema),
     defaultValues: {
-      address: "",
-      city: "",
-      state: "",
-      zipCode: "",
+      address: null as any,
       radius: 25,
     },
   });
@@ -72,11 +76,11 @@ export default function ServiceAreaScreen() {
   };
 
   const getFullAddress = () => {
-    const values = methods.getValues();
-    if (values.address && values.city && values.state && values.zipCode) {
-      return `${values.address}, ${values.city}, ${values.state} ${values.zipCode}`;
+    const address = methods.watch("address");
+    if (address?.fullAddress) {
+      return address.fullAddress;
     }
-    return "Enter your address details";
+    return "Select your service area address";
   };
 
   return (
@@ -112,33 +116,11 @@ export default function ServiceAreaScreen() {
                 Service Location
               </Text>
 
-              <TextField
+              <AddressField
                 name="address"
-                label="Street Address"
-                placeholder="123 Main Street"
-              />
-
-              <HStack className="gap-3">
-                <TextField
-                  name="city"
-                  label="City"
-                  placeholder="City"
-                  className="flex-1"
-                />
-                <TextField
-                  name="state"
-                  label="State"
-                  placeholder="State"
-                  className="flex-1"
-                />
-              </HStack>
-
-              <TextField
-                name="zipCode"
-                label="ZIP Code"
-                placeholder="12345"
-                keyboardType="numeric"
-                maxLength={10}
+                label="Service Area Address"
+                placeholder="Enter your service area address"
+                helperText="This will be the center point of your service area"
               />
 
               <Box className="bg-gray-50 rounded-lg p-4 border border-gray-200">
