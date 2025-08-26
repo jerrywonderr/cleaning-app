@@ -5,6 +5,8 @@ import { Icon } from "@/lib/components/ui/icon";
 import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
+import { useServicePreferences } from "@/lib/hooks/useServicePreferences";
+import { truncateText } from "@/lib/utils/truncate-text";
 import { useRouter } from "expo-router";
 import {
   Calendar,
@@ -21,28 +23,46 @@ type WorkingPreferencesRoute =
 
 export default function WorkingPreferencesScreen() {
   const router = useRouter();
+  const { servicePreferences, isLoading } = useServicePreferences();
 
-  // TODO: Replace with actual data from your store/hook
+  // Get working preferences from Firebase data
   const workingPreferences = {
     workingHours: {
-      start: "09:00",
-      end: "17:00",
-      isSet: true,
+      start: servicePreferences?.workingPreferences?.workingHours?.start || "",
+      end: servicePreferences?.workingPreferences?.workingHours?.end || "",
+      isSet: !!(
+        servicePreferences?.workingPreferences?.workingHours?.start &&
+        servicePreferences?.workingPreferences?.workingHours?.end
+      ),
     },
     workingDays: {
-      days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-      isSet: true,
+      days: servicePreferences?.workingPreferences?.workingDays || [],
+      isSet: !!(
+        servicePreferences?.workingPreferences?.workingDays &&
+        servicePreferences.workingPreferences.workingDays.length > 0
+      ),
     },
     serviceArea: {
-      address: "123 Main St, City",
-      radius: 25,
-      isSet: true,
+      address:
+        servicePreferences?.workingPreferences?.serviceArea?.fullAddress || "",
+      radius: servicePreferences?.workingPreferences?.serviceArea?.radius || 0,
+      isSet: !!servicePreferences?.workingPreferences?.serviceArea?.fullAddress,
     },
   };
 
   const handleNavigate = (route: WorkingPreferencesRoute) => {
     router.push(`/service-provider/account/working-preferences/${route}`);
   };
+
+  if (isLoading) {
+    return (
+      <ScrollableScreen addTopInset={false}>
+        <Box className="flex-1 items-center justify-center">
+          <Text className="text-lg text-gray-600">Loading preferences...</Text>
+        </Box>
+      </ScrollableScreen>
+    );
+  }
 
   return (
     <ScrollableScreen addTopInset={false}>
@@ -130,7 +150,10 @@ export default function WorkingPreferencesScreen() {
                     </Text>
                     <Text className="text-sm text-gray-600">
                       {workingPreferences.serviceArea.isSet
-                        ? `${workingPreferences.serviceArea.address} (${workingPreferences.serviceArea.radius} miles)`
+                        ? `${truncateText(
+                            workingPreferences.serviceArea.address,
+                            25
+                          )} (${workingPreferences.serviceArea.radius} miles)`
                         : "Set your service area and radius"}
                     </Text>
                   </VStack>
