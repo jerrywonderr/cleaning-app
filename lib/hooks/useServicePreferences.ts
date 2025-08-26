@@ -3,6 +3,7 @@ import { FirebaseFirestoreService } from "../firebase/firestore";
 import { useUserStore } from "../store/useUserStore";
 import {
   CreateUserServicePreferencesData,
+  ServiceAreaData,
   UpdateUserServicePreferencesData,
 } from "../types/service-config";
 
@@ -41,6 +42,18 @@ export const useServicePreferences = () => {
     },
   });
 
+  const updateServiceAreaMutation = useMutation({
+    mutationFn: (serviceArea: ServiceAreaData) =>
+      FirebaseFirestoreService.updateUserServicePreferences(profile?.id!, {
+        workingPreferences: { serviceArea },
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["servicePreferences", profile?.id],
+      });
+    },
+  });
+
   const deletePreferencesMutation = useMutation({
     mutationFn: () =>
       FirebaseFirestoreService.deleteUserServicePreferences(profile?.id!),
@@ -57,9 +70,11 @@ export const useServicePreferences = () => {
     error,
     setPreferences: setPreferencesMutation.mutateAsync,
     updatePreferences: updatePreferencesMutation.mutateAsync,
+    updateServiceArea: updateServiceAreaMutation.mutateAsync,
     deletePreferences: deletePreferencesMutation.mutateAsync,
     isSettingPreferences: setPreferencesMutation.isPending,
     isUpdatingPreferences: updatePreferencesMutation.isPending,
+    isUpdatingServiceArea: updateServiceAreaMutation.isPending,
     isDeletingPreferences: deletePreferencesMutation.isPending,
   };
 };

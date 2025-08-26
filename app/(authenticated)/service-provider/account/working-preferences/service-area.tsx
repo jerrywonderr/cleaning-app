@@ -7,9 +7,11 @@ import { Icon } from "@/lib/components/ui/icon";
 import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
+import { useServicePreferences } from "@/lib/hooks/useServicePreferences";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useRouter } from "expo-router";
 import { MapPin, Navigation, Save } from "lucide-react-native";
+import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { Alert } from "react-native";
 import * as yup from "yup";
@@ -49,6 +51,8 @@ type FormData = {
 
 export default function ServiceAreaScreen() {
   const router = useRouter();
+  const { servicePreferences, updateServiceArea, isUpdatingServiceArea } =
+    useServicePreferences();
 
   const methods = useForm<FormData>({
     mode: "all",
@@ -59,10 +63,29 @@ export default function ServiceAreaScreen() {
     },
   });
 
+  // Load existing service area data when component mounts or data changes
+  useEffect(() => {
+    if (servicePreferences?.workingPreferences?.serviceArea) {
+      const existingData = servicePreferences.workingPreferences.serviceArea;
+      methods.setValue("address", {
+        fullAddress: existingData.fullAddress,
+        latitude: existingData.latitude,
+        longitude: existingData.longitude,
+        country: existingData.country,
+      });
+      methods.setValue("radius", existingData.radius);
+    }
+  }, [servicePreferences, methods]);
+
   const handleSubmit = async (data: FormData) => {
     try {
-      // TODO: Save service area to database
-      console.log("Service area:", data);
+      await updateServiceArea({
+        fullAddress: data.address.fullAddress,
+        latitude: data.address.latitude,
+        longitude: data.address.longitude,
+        country: data.address.country,
+        radius: data.radius,
+      });
 
       Alert.alert("Success", "Service area updated successfully!", [
         {
@@ -89,7 +112,8 @@ export default function ServiceAreaScreen() {
       footer={
         <PrimaryButton
           onPress={methods.handleSubmit(handleSubmit)}
-          disabled={!methods.formState.isValid}
+          disabled={!methods.formState.isValid || isUpdatingServiceArea}
+          isLoading={isUpdatingServiceArea}
           icon={Save}
         >
           Save Service Area
