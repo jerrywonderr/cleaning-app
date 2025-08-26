@@ -183,7 +183,13 @@ export default function ServiceAreaScreen() {
                 {radiusOptions.map((option) => (
                   <Pressable
                     key={option.value}
-                    onPress={() => methods.setValue("radius", option.value)}
+                    onPress={() => {
+                      methods.setValue("radius", option.value, {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                        shouldTouch: true,
+                      });
+                    }}
                   >
                     <HStack
                       className={`justify-between items-center p-4 rounded-lg border ${
