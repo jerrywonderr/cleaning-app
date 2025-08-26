@@ -1,3 +1,4 @@
+import { AddressField } from "@/lib/components/form";
 import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
 import { HStack } from "@/lib/components/ui/hstack";
@@ -5,6 +6,8 @@ import { Icon } from "@/lib/components/ui/icon";
 import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
+import { LocationData } from "@/lib/types";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { useRouter } from "expo-router";
 import {
   Calendar,
@@ -13,14 +16,37 @@ import {
   Clock,
   MapPin,
 } from "lucide-react-native";
+import { FormProvider, useForm } from "react-hook-form";
+import * as yup from "yup";
 
 type WorkingPreferencesRoute =
   | "working-hours"
   | "working-days"
   | "service-area";
 
+const schema = yup.object().shape({
+  serviceArea: yup.object().shape({
+    address: yup.string().required("Service area address is required"),
+    radius: yup
+      .number()
+      .min(1, "Radius must be at least 1 mile")
+      .max(100, "Radius cannot exceed 100 miles"),
+  }),
+});
+
 export default function WorkingPreferencesScreen() {
   const router = useRouter();
+
+  const methods = useForm({
+    mode: "all",
+    resolver: yupResolver(schema),
+    defaultValues: {
+      serviceArea: {
+        address: "",
+        radius: 25,
+      },
+    },
+  });
 
   // TODO: Replace with actual data from your store/hook
   const workingPreferences = {
@@ -42,6 +68,13 @@ export default function WorkingPreferencesScreen() {
 
   const handleNavigate = (route: WorkingPreferencesRoute) => {
     router.push(`/service-provider/account/working-preferences/${route}`);
+  };
+
+  const handleServiceAreaChange = (location: LocationData | null) => {
+    if (location) {
+      methods.setValue("serviceArea.address", location.fullAddress);
+      console.log("Service area updated:", location);
+    }
   };
 
   return (
@@ -143,6 +176,27 @@ export default function WorkingPreferencesScreen() {
                 </HStack>
               </HStack>
             </Pressable>
+          </VStack>
+
+          {/* Temporary Service Area Configuration */}
+          <VStack className="gap-4">
+            <Text className="text-lg font-inter-semibold text-black">
+              Quick Service Area Setup
+            </Text>
+            <Text className="text-sm text-gray-600">
+              Set your service area address to help customers find you. This is
+              a temporary feature for testing.
+            </Text>
+
+            <FormProvider {...methods}>
+              <AddressField
+                name="serviceArea.address"
+                label="Service Area Address"
+                placeholder="Enter your service area address"
+                helperText="This will be the center point of your service area"
+                onLocationChange={handleServiceAreaChange}
+              />
+            </FormProvider>
           </VStack>
 
           <Box className="bg-blue-50 rounded-lg p-4 border border-blue-200">
