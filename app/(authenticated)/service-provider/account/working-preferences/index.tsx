@@ -2,6 +2,7 @@ import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
 import { HStack } from "@/lib/components/ui/hstack";
 import { Icon } from "@/lib/components/ui/icon";
+import { useLoader } from "@/lib/components/ui/loader";
 import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
@@ -15,6 +16,7 @@ import {
   Clock,
   MapPin,
 } from "lucide-react-native";
+import { useEffect } from "react";
 
 type WorkingPreferencesRoute =
   | "working-hours"
@@ -24,6 +26,16 @@ type WorkingPreferencesRoute =
 export default function WorkingPreferencesScreen() {
   const router = useRouter();
   const { servicePreferences, isLoading } = useServicePreferences();
+  const { showLoader, hideLoader } = useLoader();
+
+  // Show/hide loader based on loading state
+  useEffect(() => {
+    if (isLoading) {
+      showLoader("Loading preferences...");
+    } else {
+      hideLoader();
+    }
+  }, [isLoading, showLoader, hideLoader]);
 
   // Get working preferences from Firebase data
   const workingPreferences = {
@@ -53,16 +65,6 @@ export default function WorkingPreferencesScreen() {
   const handleNavigate = (route: WorkingPreferencesRoute) => {
     router.push(`/service-provider/account/working-preferences/${route}`);
   };
-
-  if (isLoading) {
-    return (
-      <ScrollableScreen addTopInset={false}>
-        <Box className="flex-1 items-center justify-center">
-          <Text className="text-lg text-gray-600">Loading preferences...</Text>
-        </Box>
-      </ScrollableScreen>
-    );
-  }
 
   return (
     <ScrollableScreen addTopInset={false}>

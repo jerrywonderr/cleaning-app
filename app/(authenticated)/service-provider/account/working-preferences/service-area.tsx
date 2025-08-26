@@ -4,6 +4,7 @@ import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScr
 import { Box } from "@/lib/components/ui/box";
 import { HStack } from "@/lib/components/ui/hstack";
 import { Icon } from "@/lib/components/ui/icon";
+import { useLoader } from "@/lib/components/ui/loader";
 import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
@@ -53,6 +54,7 @@ export default function ServiceAreaScreen() {
   const router = useRouter();
   const { servicePreferences, updateServiceArea, isUpdatingServiceArea } =
     useServicePreferences();
+  const { showLoader, hideLoader } = useLoader();
 
   const methods = useForm<FormData>({
     mode: "all",
@@ -76,6 +78,15 @@ export default function ServiceAreaScreen() {
       methods.setValue("radius", existingData.radius);
     }
   }, [servicePreferences, methods]);
+
+  // Show/hide loader based on loading state
+  useEffect(() => {
+    if (isUpdatingServiceArea) {
+      showLoader("Saving service area...");
+    } else {
+      hideLoader();
+    }
+  }, [isUpdatingServiceArea, showLoader, hideLoader]);
 
   const handleSubmit = async (data: FormData) => {
     try {
