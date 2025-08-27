@@ -39,13 +39,19 @@
           "backgroundColor": "#000000"
         }
       ],
-      ["expo-web-browser", { "experimentalLauncherActivity": true }],
+      [
+        "expo-web-browser",
+        {
+          "experimentalLauncherActivity": true
+        }
+      ],
       [
         "expo-image-picker",
         {
           "photosPermission": "The app accesses your photos to create profile pictures and services display pictures."
         }
-      ]
+      ],
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true

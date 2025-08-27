@@ -1,43 +1,154 @@
 import { PrimaryButton } from "@/lib/components/custom-buttons";
-import { TimeField } from "@/lib/components/form/TimeField";
+import { WorkingDayField } from "@/lib/components/form/WorkingDayField";
 import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
 import { Icon } from "@/lib/components/ui/icon";
+import { useLoader } from "@/lib/components/ui/loader";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
+import { useServicePreferences } from "@/lib/hooks/useServicePreferences";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useRouter } from "expo-router";
 import { Clock, Save } from "lucide-react-native";
+import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { Alert } from "react-native";
 import * as yup from "yup";
 
+const daysOfWeek = [
+  { id: "monday", label: "Monday", short: "Mon" },
+  { id: "tuesday", label: "Tuesday", short: "Tue" },
+  { id: "wednesday", label: "Wednesday", short: "Wed" },
+  { id: "thursday", label: "Thursday", short: "Thu" },
+  { id: "friday", label: "Friday", short: "Fri" },
+  { id: "saturday", label: "Saturday", short: "Sat" },
+  { id: "sunday", label: "Sunday", short: "Sun" },
+];
+
 const schema = yup.object().shape({
-  startTime: yup.string().required("Start time is required"),
-  endTime: yup.string().required("End time is required"),
+  workingHours: yup
+    .object()
+    .test(
+      "active-days-have-times",
+      "Active days must have both start and end times set",
+      function (value: any) {
+        if (!value) return true;
+
+        for (const dayKey in value) {
+          const day = value[dayKey];
+          if (day && day.isActive) {
+            if (!day.startTime) {
+              return this.createError({
+                path: `workingHours.${dayKey}.startTime`,
+                message: "Start time is required for active days",
+              });
+            }
+            if (!day.endTime) {
+              return this.createError({
+                path: `workingHours.${dayKey}.endTime`,
+                message: "End time is required for active days",
+              });
+            }
+          }
+        }
+        return true;
+      }
+    ),
 });
 
+type WorkingHourDay = {
+  isActive: boolean;
+  startTime: Date | null;
+  endTime: Date | null;
+};
+
 type FormData = {
-  startTime: string;
-  endTime: string;
+  workingHours: {
+    [key: string]: WorkingHourDay;
+  };
 };
 
 export default function WorkingHoursScreen() {
   const router = useRouter();
+  const { servicePreferences, updatePreferences, isUpdatingPreferences } =
+    useServicePreferences();
+  const { showLoader, hideLoader } = useLoader();
 
   const methods = useForm<FormData>({
     mode: "all",
     resolver: yupResolver(schema),
     defaultValues: {
-      startTime: "09:00",
-      endTime: "17:00",
+      workingHours: {
+        monday: { isActive: false, startTime: null, endTime: null },
+        tuesday: { isActive: false, startTime: null, endTime: null },
+        wednesday: {
+          isActive: false,
+          startTime: null,
+          endTime: null,
+        },
+        thursday: { isActive: false, startTime: null, endTime: null },
+        friday: { isActive: false, startTime: null, endTime: null },
+        saturday: { isActive: false, startTime: null, endTime: null },
+        sunday: { isActive: false, startTime: null, endTime: null },
+      },
     },
   });
 
+  // Load existing working hours data when component mounts or data changes
+  useEffect(() => {
+    if (servicePreferences?.workingPreferences?.workingHours) {
+      const existingHours = servicePreferences.workingPreferences
+        .workingHours as Record<string, any>;
+      if (existingHours && typeof existingHours === "object") {
+        Object.keys(existingHours).forEach((day) => {
+          const dayData = existingHours[day];
+          if (dayData && typeof dayData === "object") {
+            methods.setValue(`workingHours.${day}` as any, {
+              isActive: dayData.isActive || false,
+              startTime: dayData.startTime ? new Date(dayData.startTime) : null,
+              endTime: dayData.endTime ? new Date(dayData.endTime) : null,
+            });
+          }
+        });
+      }
+    }
+  }, [servicePreferences, methods]);
+
+  // Show/hide loader based on loading state
+  useEffect(() => {
+    if (isUpdatingPreferences) {
+      showLoader("Saving working hours...");
+    } else {
+      hideLoader();
+    }
+  }, [isUpdatingPreferences, showLoader, hideLoader]);
+
   const handleSubmit = async (data: FormData) => {
     try {
-      // TODO: Save working hours to database
-      console.log("Working hours:", data);
+      // Convert Date objects to ISO strings before saving
+      const utcWorkingHours = Object.keys(data.workingHours).reduce(
+        (acc, day) => {
+          const dayData = data.workingHours[day];
+          if (dayData.isActive && dayData.startTime && dayData.endTime) {
+            acc[day] = {
+              isActive: dayData.isActive,
+              startTime: dayData.startTime.toISOString(),
+              endTime: dayData.endTime.toISOString(),
+            };
+          } else {
+            acc[day] = dayData;
+          }
+          return acc;
+        },
+        {} as any
+      );
+
+      await updatePreferences({
+        workingPreferences: {
+          ...servicePreferences?.workingPreferences,
+          workingHours: utcWorkingHours,
+        },
+      });
 
       Alert.alert("Success", "Working hours updated successfully!", [
         {
@@ -50,22 +161,30 @@ export default function WorkingHoursScreen() {
     }
   };
 
+  const getActiveDaysCount = () => {
+    const workingHours = methods.watch("workingHours");
+    return Object.values(workingHours).filter((day) => day?.isActive).length;
+  };
+
+  console.log(methods.formState.errors);
+
   return (
     <FootedScrollableScreen
       addTopInset={false}
       footer={
         <PrimaryButton
           onPress={methods.handleSubmit(handleSubmit)}
-          disabled={!methods.formState.isValid}
+          disabled={isUpdatingPreferences}
+          isLoading={isUpdatingPreferences}
           icon={Save}
         >
-          Save Working Hours
+          Save Working Hours ({getActiveDaysCount()} active days)
         </PrimaryButton>
       }
     >
       <Box className="flex-1">
         <FormProvider {...methods}>
-          <VStack className="gap-6">
+          <VStack className="gap-6 mb-4">
             <Box className="items-center gap-4">
               <Box className="w-20 h-20 bg-blue-100 rounded-full items-center justify-center">
                 <Icon as={Clock} size="xl" className="text-blue-600" />
@@ -83,17 +202,16 @@ export default function WorkingHoursScreen() {
                 Daily Schedule
               </Text>
 
-              <TimeField
-                name="startTime"
-                label="Start Time"
-                placeholder="Select start time"
-              />
-
-              <TimeField
-                name="endTime"
-                label="End Time"
-                placeholder="Select end time"
-              />
+              {daysOfWeek.map((day) => {
+                return (
+                  <WorkingDayField
+                    key={day.id}
+                    dayId={day.id}
+                    label={day.label}
+                    name={`workingHours.${day.id}`}
+                  />
+                );
+              })}
             </VStack>
 
             <Box className="bg-blue-50 rounded-lg p-4 border border-blue-200">
@@ -102,7 +220,7 @@ export default function WorkingHoursScreen() {
                   Working Hours Info
                 </Text>
                 <Text className="text-xs text-blue-700 leading-4">
-                  • These hours apply to all your working days
+                  • These hours apply to your selected working days
                 </Text>
                 <Text className="text-xs text-blue-700 leading-4">
                   • Customers will see your availability during these times
