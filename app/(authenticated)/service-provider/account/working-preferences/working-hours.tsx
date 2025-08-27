@@ -96,12 +96,12 @@ export default function WorkingHoursScreen() {
 
   // Load existing working hours data when component mounts or data changes
   useEffect(() => {
-    if (servicePreferences?.workingPreferences?.workingHours) {
-      const existingHours = servicePreferences.workingPreferences
-        .workingHours as Record<string, any>;
-      if (existingHours && typeof existingHours === "object") {
-        Object.keys(existingHours).forEach((day) => {
-          const dayData = existingHours[day];
+    if (servicePreferences?.workingPreferences?.workingSchedule) {
+      const existingSchedule = servicePreferences.workingPreferences
+        .workingSchedule as Record<string, any>;
+      if (existingSchedule && typeof existingSchedule === "object") {
+        Object.keys(existingSchedule).forEach((day) => {
+          const dayData = existingSchedule[day];
           if (dayData && typeof dayData === "object") {
             methods.setValue(`workingHours.${day}` as any, {
               isActive: dayData.isActive || false,
@@ -146,7 +146,7 @@ export default function WorkingHoursScreen() {
       await updatePreferences({
         workingPreferences: {
           ...servicePreferences?.workingPreferences,
-          workingHours: utcWorkingHours,
+          workingSchedule: utcWorkingHours,
         },
       });
 
@@ -178,7 +178,7 @@ export default function WorkingHoursScreen() {
           isLoading={isUpdatingPreferences}
           icon={Save}
         >
-          Save Working Hours ({getActiveDaysCount()} active days)
+          Save Working Schedule ({getActiveDaysCount()} active days)
         </PrimaryButton>
       }
     >
@@ -190,16 +190,20 @@ export default function WorkingHoursScreen() {
                 <Icon as={Clock} size="xl" className="text-blue-600" />
               </Box>
               <Text className="text-xl font-inter-bold text-black text-center">
-                Set Your Working Hours
+                Set Your Working Schedule
               </Text>
               <Text className="text-sm text-gray-600 text-center leading-5">
-                Choose the hours you&apos;re available to work each day.
+                Choose which days you work and set your available hours for each
+                day.
               </Text>
             </Box>
 
             <VStack className="gap-4">
               <Text className="text-lg font-inter-semibold text-black">
                 Daily Schedule
+              </Text>
+              <Text className="text-sm text-gray-600">
+                Select which days you work and set your available hours.
               </Text>
 
               {daysOfWeek.map((day) => {

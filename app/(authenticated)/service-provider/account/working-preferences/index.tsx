@@ -9,19 +9,10 @@ import { VStack } from "@/lib/components/ui/vstack";
 import { useServicePreferences } from "@/lib/hooks/useServicePreferences";
 import { truncateText } from "@/lib/utils/truncate-text";
 import { useRouter } from "expo-router";
-import {
-  Calendar,
-  CheckCircle,
-  ChevronRight,
-  Clock,
-  MapPin,
-} from "lucide-react-native";
+import { CheckCircle, ChevronRight, Clock, MapPin } from "lucide-react-native";
 import { useEffect } from "react";
 
-type WorkingPreferencesRoute =
-  | "working-hours"
-  | "working-days"
-  | "service-area";
+type WorkingPreferencesRoute = "working-hours" | "service-area";
 
 export default function WorkingPreferencesScreen() {
   const router = useRouter();
@@ -39,19 +30,23 @@ export default function WorkingPreferencesScreen() {
 
   // Get working preferences from Firebase data
   const workingPreferences = {
-    workingHours: {
-      start: servicePreferences?.workingPreferences?.workingHours?.start || "",
-      end: servicePreferences?.workingPreferences?.workingHours?.end || "",
+    workingSchedule: {
+      days: servicePreferences?.workingPreferences?.workingSchedule
+        ? Object.keys(
+            servicePreferences.workingPreferences.workingSchedule
+          ).filter(
+            (day) =>
+              servicePreferences.workingPreferences?.workingSchedule?.[day]
+                ?.isActive
+          )
+        : [],
       isSet: !!(
-        servicePreferences?.workingPreferences?.workingHours?.start &&
-        servicePreferences?.workingPreferences?.workingHours?.end
-      ),
-    },
-    workingDays: {
-      days: servicePreferences?.workingPreferences?.workingDays || [],
-      isSet: !!(
-        servicePreferences?.workingPreferences?.workingDays &&
-        servicePreferences.workingPreferences.workingDays.length > 0
+        servicePreferences?.workingPreferences?.workingSchedule &&
+        Object.keys(servicePreferences.workingPreferences.workingSchedule).some(
+          (day) =>
+            servicePreferences.workingPreferences?.workingSchedule?.[day]
+              ?.isActive
+        )
       ),
     },
     serviceArea: {
@@ -78,8 +73,8 @@ export default function WorkingPreferencesScreen() {
               Working Preferences
             </Text>
             <Text className="text-sm text-gray-600 text-center leading-5">
-              Manage your working hours, days, and service area to help
-              customers find you.
+              Manage your working schedule and service area to help customers
+              find you.
             </Text>
           </Box>
 
@@ -96,42 +91,16 @@ export default function WorkingPreferencesScreen() {
                   </Box>
                   <VStack className="flex-1">
                     <Text className="font-inter-semibold text-black">
-                      Working Hours
+                      Working Schedule
                     </Text>
                     <Text className="text-sm text-gray-600">
-                      {workingPreferences.workingHours.isSet
-                        ? `${workingPreferences.workingHours.start} - ${workingPreferences.workingHours.end}`
-                        : "Set your daily working hours"}
+                      {workingPreferences.workingSchedule.isSet
+                        ? `${workingPreferences.workingSchedule.days.length} days selected`
+                        : "Set your working days and hours"}
                     </Text>
                   </VStack>
                   <HStack className="gap-2">
-                    {workingPreferences.workingHours.isSet && (
-                      <Icon as={CheckCircle} className="text-green-500" />
-                    )}
-                    <Icon as={ChevronRight} className="text-gray-400" />
-                  </HStack>
-                </HStack>
-              </HStack>
-            </Pressable>
-
-            <Pressable onPress={() => handleNavigate("working-days")}>
-              <HStack className="bg-white rounded-lg border border-gray-200 p-4 justify-between items-center">
-                <HStack className="gap-4 items-center">
-                  <Box className="w-10 h-10 bg-green-100 rounded-lg items-center justify-center">
-                    <Icon as={Calendar} className="text-green-600" />
-                  </Box>
-                  <VStack className="flex-1">
-                    <Text className="font-inter-semibold text-black">
-                      Working Days
-                    </Text>
-                    <Text className="text-sm text-gray-600">
-                      {workingPreferences.workingDays.isSet
-                        ? `${workingPreferences.workingDays.days.length} days selected`
-                        : "Choose which days you work"}
-                    </Text>
-                  </VStack>
-                  <HStack className="gap-2">
-                    {workingPreferences.workingDays.isSet && (
+                    {workingPreferences.workingSchedule.isSet && (
                       <Icon as={CheckCircle} className="text-green-500" />
                     )}
                     <Icon as={ChevronRight} className="text-gray-400" />
