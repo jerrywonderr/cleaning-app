@@ -1,22 +1,29 @@
 import {
-  BottomSheetBackdrop,
   BottomSheetBackdropProps,
   BottomSheetBackgroundProps,
   BottomSheetModal,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
 import { ClassValue } from "clsx";
+import { BlurView } from "expo-blur";
 import React, { forwardRef, useCallback } from "react";
 import { View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-// Custom backdrop component to fix new architecture issues
+// Custom backdrop component using Expo BlurView
 const CustomBackdrop = React.memo((props: BottomSheetBackdropProps) => (
-  <BottomSheetBackdrop
-    {...props}
-    disappearsOnIndex={0}
-    appearsOnIndex={1}
-    opacity={0.5}
-    pressBehavior="close"
+  <BlurView
+    intensity={30}
+    tint="dark"
+    experimentalBlurMethod="dimezisBlurView"
+    style={{
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: "transparent",
+    }}
   />
 ));
 CustomBackdrop.displayName = "CustomBackdrop";
@@ -27,6 +34,7 @@ const CustomBackground = React.forwardRef<any, BottomSheetBackgroundProps>(
     <View
       {...props}
       ref={ref}
+      style={{ flex: 1 }}
       className="bg-white dark:bg-gray-800 rounded-t-3xl shadow-lg"
     />
   )
@@ -103,6 +111,7 @@ const BaseBottomSheet = forwardRef<BottomSheetModal, BaseBottomSheetProps>(
     ref
   ) => {
     const bottomSheetRef = React.useRef<BottomSheetModal>(null);
+    const insets = useSafeAreaInsets();
 
     React.useImperativeHandle(ref, () => bottomSheetRef.current!);
 
@@ -139,7 +148,14 @@ const BaseBottomSheet = forwardRef<BottomSheetModal, BaseBottomSheetProps>(
         animateOnMount={animateOnMount}
         containerStyle={containerStyle}
       >
-        <BottomSheetView className="flex-1 px-4 pb-4">
+        <BottomSheetView
+          style={{
+            flex: 1,
+            height: "100%",
+            paddingBottom: insets.bottom + 8,
+          }}
+          className="px-4 bg-white"
+        >
           {children}
         </BottomSheetView>
       </BottomSheetModal>

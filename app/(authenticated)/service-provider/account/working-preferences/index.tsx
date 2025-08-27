@@ -2,9 +2,12 @@ import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
 import { HStack } from "@/lib/components/ui/hstack";
 import { Icon } from "@/lib/components/ui/icon";
+import { useLoader } from "@/lib/components/ui/loader";
 import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
+import { useServicePreferences } from "@/lib/hooks/useServicePreferences";
+import { truncateText } from "@/lib/utils/truncate-text";
 import { useRouter } from "expo-router";
 import {
   Calendar,
@@ -13,6 +16,7 @@ import {
   Clock,
   MapPin,
 } from "lucide-react-native";
+import { useEffect } from "react";
 
 type WorkingPreferencesRoute =
   | "working-hours"
@@ -21,22 +25,40 @@ type WorkingPreferencesRoute =
 
 export default function WorkingPreferencesScreen() {
   const router = useRouter();
+  const { servicePreferences, isLoading } = useServicePreferences();
+  const { showLoader, hideLoader } = useLoader();
 
-  // TODO: Replace with actual data from your store/hook
+  // Show/hide loader based on loading state
+  useEffect(() => {
+    if (isLoading) {
+      showLoader("Loading preferences...");
+    } else {
+      hideLoader();
+    }
+  }, [isLoading, showLoader, hideLoader]);
+
+  // Get working preferences from Firebase data
   const workingPreferences = {
     workingHours: {
-      start: "09:00",
-      end: "17:00",
-      isSet: true,
+      start: servicePreferences?.workingPreferences?.workingHours?.start || "",
+      end: servicePreferences?.workingPreferences?.workingHours?.end || "",
+      isSet: !!(
+        servicePreferences?.workingPreferences?.workingHours?.start &&
+        servicePreferences?.workingPreferences?.workingHours?.end
+      ),
     },
     workingDays: {
-      days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-      isSet: true,
+      days: servicePreferences?.workingPreferences?.workingDays || [],
+      isSet: !!(
+        servicePreferences?.workingPreferences?.workingDays &&
+        servicePreferences.workingPreferences.workingDays.length > 0
+      ),
     },
     serviceArea: {
-      address: "123 Main St, City",
-      radius: 25,
-      isSet: true,
+      address:
+        servicePreferences?.workingPreferences?.serviceArea?.fullAddress || "",
+      radius: servicePreferences?.workingPreferences?.serviceArea?.radius || 0,
+      isSet: !!servicePreferences?.workingPreferences?.serviceArea?.fullAddress,
     },
   };
 
@@ -130,7 +152,10 @@ export default function WorkingPreferencesScreen() {
                     </Text>
                     <Text className="text-sm text-gray-600">
                       {workingPreferences.serviceArea.isSet
-                        ? `${workingPreferences.serviceArea.address} (${workingPreferences.serviceArea.radius} miles)`
+                        ? `${truncateText(
+                            workingPreferences.serviceArea.address,
+                            25
+                          )} (${workingPreferences.serviceArea.radius} miles)`
                         : "Set your service area and radius"}
                     </Text>
                   </VStack>
