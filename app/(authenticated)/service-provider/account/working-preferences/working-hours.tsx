@@ -53,6 +53,35 @@ const schema = yup.object().shape({
         }
         return true;
       }
+    )
+    .test(
+      "end-time-after-start-time",
+      "End time must be after start time",
+      function (value: any) {
+        if (!value) return true;
+
+        for (const dayKey in value) {
+          const day = value[dayKey];
+          if (day && day.isActive && day.startTime && day.endTime) {
+            const startTime =
+              day.startTime instanceof Date
+                ? day.startTime
+                : new Date(`2000-01-01T${day.startTime}`);
+            const endTime =
+              day.endTime instanceof Date
+                ? day.endTime
+                : new Date(`2000-01-01T${day.endTime}`);
+
+            if (endTime <= startTime) {
+              return this.createError({
+                path: `workingHours.${dayKey}.endTime`,
+                message: "End time must be after start time",
+              });
+            }
+          }
+        }
+        return true;
+      }
     ),
 });
 
@@ -125,6 +154,13 @@ export default function WorkingHoursScreen() {
 
   const handleSubmit = async (data: FormData) => {
     try {
+      // Trigger validation before submitting
+      const isValid = await methods.trigger();
+      if (!isValid) {
+        console.log("Form validation failed:", methods.formState.errors);
+        return;
+      }
+
       // Convert Date objects to ISO strings before saving
       const utcWorkingHours = Object.keys(data.workingHours).reduce(
         (acc, day) => {
@@ -166,6 +202,23 @@ export default function WorkingHoursScreen() {
     return Object.values(workingHours).filter((day) => day?.isActive).length;
   };
 
+  // Check if any active day is missing times
+  const hasValidationErrors = () => {
+    const workingHours = methods.watch("workingHours");
+    for (const dayKey in workingHours) {
+      const day = workingHours[dayKey];
+      if (day?.isActive && (!day.startTime || !day.endTime)) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  console.log("Form errors:", methods.formState.errors);
+  console.log("Form isValid:", methods.formState.isValid);
+  console.log("Form isDirty:", methods.formState.isDirty);
+  console.log("Has validation errors:", hasValidationErrors());
+
   console.log(methods.formState.errors);
 
   return (
@@ -174,7 +227,10 @@ export default function WorkingHoursScreen() {
       footer={
         <PrimaryButton
           onPress={methods.handleSubmit(handleSubmit)}
-          disabled={isUpdatingPreferences}
+          disabled={
+            Object.keys(methods.formState.errors).length > 0 ||
+            getActiveDaysCount() === 0
+          }
           isLoading={isUpdatingPreferences}
           icon={Save}
         >
