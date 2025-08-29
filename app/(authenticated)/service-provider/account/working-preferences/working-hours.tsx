@@ -202,25 +202,6 @@ export default function WorkingHoursScreen() {
     return Object.values(workingHours).filter((day) => day?.isActive).length;
   };
 
-  // Check if any active day is missing times
-  const hasValidationErrors = () => {
-    const workingHours = methods.watch("workingHours");
-    for (const dayKey in workingHours) {
-      const day = workingHours[dayKey];
-      if (day?.isActive && (!day.startTime || !day.endTime)) {
-        return true;
-      }
-    }
-    return false;
-  };
-
-  console.log("Form errors:", methods.formState.errors);
-  console.log("Form isValid:", methods.formState.isValid);
-  console.log("Form isDirty:", methods.formState.isDirty);
-  console.log("Has validation errors:", hasValidationErrors());
-
-  console.log(methods.formState.errors);
-
   return (
     <FootedScrollableScreen
       addTopInset={false}
