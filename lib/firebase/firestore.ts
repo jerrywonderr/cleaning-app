@@ -4,6 +4,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  orderBy,
   query,
   setDoc,
   updateDoc,
@@ -14,7 +15,9 @@ import {
   CreateBankAccountData,
   CreatePayoutAccountData,
   CreateTransactionPinData,
+  DeletePayoutAccountData,
   PayoutAccount,
+  SetDefaultPayoutAccountData,
   TransactionPin,
   UpdateTransactionPinData,
 } from "../types/bank-account";
@@ -23,6 +26,7 @@ import {
   UpdateUserServicePreferencesData,
   UserServicePreferences,
 } from "../types/service-config";
+import { createPinHash, verifyPin } from "../utils/pin-hashing";
 import { db } from "./config";
 
 export interface UserProfile {
@@ -385,75 +389,200 @@ export class FirebaseFirestoreService {
     }
   }
 
-  // Payout Account methods
+  // Payout Account operations
   static async createPayoutAccount(
-    userId: string,
     data: CreatePayoutAccountData
   ): Promise<PayoutAccount> {
     try {
-      const accountRef = doc(
-        collection(db, this.PAYOUT_ACCOUNTS_COLLECTION),
-        userId
+      const payoutAccountRef = doc(
+        collection(db, this.PAYOUT_ACCOUNTS_COLLECTION)
       );
-
       const payoutAccount: PayoutAccount = {
-        id: userId,
-        userId,
+        id: payoutAccountRef.id,
+        userId: data.userId,
         accountNumber: data.accountNumber,
         bankName: data.bankName,
         accountName: data.accountName,
         accountType: data.accountType,
         isActive: true,
+        isDefault: data.isDefault || false,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
 
-      await setDoc(accountRef, payoutAccount);
+      // If this is the first payout account or marked as default, set it as default
+      if (payoutAccount.isDefault) {
+        // Remove default from other accounts
+        const existingAccounts = await getDocs(
+          query(
+            collection(db, this.PAYOUT_ACCOUNTS_COLLECTION),
+            where("userId", "==", data.userId),
+            where("isDefault", "==", true)
+          )
+        );
+
+        existingAccounts.forEach((doc) => {
+          updateDoc(doc.ref, { isDefault: false, updatedAt: new Date() });
+        });
+      } else {
+        // Check if this is the first account
+        const existingAccounts = await getDocs(
+          query(
+            collection(db, this.PAYOUT_ACCOUNTS_COLLECTION),
+            where("userId", "==", data.userId)
+          )
+        );
+
+        if (existingAccounts.empty) {
+          payoutAccount.isDefault = true;
+        }
+      }
+
+      await setDoc(payoutAccountRef, payoutAccount);
       return payoutAccount;
-    } catch (error: any) {
-      throw new Error(`Failed to create payout account: ${error.message}`);
+    } catch (error) {
+      console.error("Error creating payout account:", error);
+      throw new Error("Failed to create payout account");
     }
   }
 
-  static async getPayoutAccount(userId: string): Promise<PayoutAccount | null> {
+  static async getPayoutAccounts(userId: string): Promise<PayoutAccount[]> {
     try {
-      const accountRef = doc(
-        collection(db, this.PAYOUT_ACCOUNTS_COLLECTION),
-        userId
+      const querySnapshot = await getDocs(
+        query(
+          collection(db, this.PAYOUT_ACCOUNTS_COLLECTION),
+          where("userId", "==", userId),
+          orderBy("isDefault", "desc"),
+          orderBy("createdAt", "desc")
+        )
       );
-      const accountSnap = await getDoc(accountRef);
 
-      if (accountSnap.exists()) {
-        const data = accountSnap.data();
+      return querySnapshot.docs.map((doc) => ({
+        ...doc.data(),
+        createdAt: doc.data().createdAt.toDate(),
+        updatedAt: doc.data().updatedAt.toDate(),
+      })) as PayoutAccount[];
+    } catch (error) {
+      console.error("Error getting payout accounts:", error);
+      throw new Error("Failed to get payout accounts");
+    }
+  }
+
+  static async getPayoutAccount(
+    userId: string,
+    payoutAccountId: string
+  ): Promise<PayoutAccount | null> {
+    try {
+      const docRef = doc(db, this.PAYOUT_ACCOUNTS_COLLECTION, payoutAccountId);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists() && docSnap.data().userId === userId) {
+        const data = docSnap.data();
         return {
           ...data,
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
+          createdAt: data.createdAt.toDate(),
+          updatedAt: data.updatedAt.toDate(),
         } as PayoutAccount;
       }
 
       return null;
-    } catch (error: any) {
-      throw new Error(`Failed to get payout account: ${error.message}`);
+    } catch (error) {
+      console.error("Error getting payout account:", error);
+      throw new Error("Failed to get payout account");
     }
   }
 
-  static async updatePayoutAccount(
-    userId: string,
-    data: Partial<CreatePayoutAccountData>
+  static async deletePayoutAccount(
+    data: DeletePayoutAccountData
   ): Promise<void> {
     try {
-      const accountRef = doc(
-        collection(db, this.PAYOUT_ACCOUNTS_COLLECTION),
-        userId
+      // First verify the PIN using the new secure method
+      const isPinValid = await this.verifyTransactionPin(data.userId, data.pin);
+
+      if (!isPinValid) {
+        throw new Error("Invalid transaction PIN");
+      }
+
+      const payoutAccountRef = doc(
+        db,
+        this.PAYOUT_ACCOUNTS_COLLECTION,
+        data.payoutAccountId
+      );
+      const payoutAccountSnap = await getDoc(payoutAccountRef);
+
+      if (!payoutAccountSnap.exists()) {
+        throw new Error("Payout account not found");
+      }
+
+      if (payoutAccountSnap.data().userId !== data.userId) {
+        throw new Error("Unauthorized to delete this payout account");
+      }
+
+      const payoutAccountData = payoutAccountSnap.data();
+
+      // If deleting the default account, set another one as default
+      if (payoutAccountData.isDefault) {
+        const otherAccounts = await getDocs(
+          query(
+            collection(db, this.PAYOUT_ACCOUNTS_COLLECTION),
+            where("userId", "==", data.userId),
+            where("id", "!=", data.payoutAccountId)
+          )
+        );
+
+        if (!otherAccounts.empty) {
+          const firstOtherAccount = otherAccounts.docs[0];
+          await updateDoc(firstOtherAccount.ref, {
+            isDefault: true,
+            updatedAt: new Date(),
+          });
+        }
+      }
+
+      await deleteDoc(payoutAccountRef);
+    } catch (error) {
+      console.error("Error deleting payout account:", error);
+      throw error;
+    }
+  }
+
+  static async setDefaultPayoutAccount(
+    data: SetDefaultPayoutAccountData
+  ): Promise<void> {
+    try {
+      // First verify the PIN using the new secure method
+      const isPinValid = await this.verifyTransactionPin(data.userId, data.pin);
+
+      if (!isPinValid) {
+        throw new Error("Invalid transaction PIN");
+      }
+
+      // Remove default from all other accounts
+      const existingAccounts = await getDocs(
+        query(
+          collection(db, this.PAYOUT_ACCOUNTS_COLLECTION),
+          where("userId", "==", data.userId),
+          where("isDefault", "==", true)
+        )
       );
 
-      await updateDoc(accountRef, {
-        ...data,
+      existingAccounts.forEach((doc) => {
+        updateDoc(doc.ref, { isDefault: false, updatedAt: new Date() });
+      });
+
+      // Set the new default account
+      const payoutAccountRef = doc(
+        db,
+        this.PAYOUT_ACCOUNTS_COLLECTION,
+        data.payoutAccountId
+      );
+      await updateDoc(payoutAccountRef, {
+        isDefault: true,
         updatedAt: new Date(),
       });
-    } catch (error: any) {
-      throw new Error(`Failed to update payout account: ${error.message}`);
+    } catch (error) {
+      console.error("Error setting default payout account:", error);
+      throw error;
     }
   }
 
@@ -468,10 +597,21 @@ export class FirebaseFirestoreService {
         userId
       );
 
+      // Generate secure hash and salt
+      console.log("🔐 Creating PIN hash for:", data.pin);
+      const { hash, salt } = await createPinHash(data.pin);
+      console.log(
+        "🔐 Generated hash:",
+        hash.substring(0, 10) + "...",
+        "salt:",
+        salt.substring(0, 10) + "..."
+      );
+
       const transactionPin: TransactionPin = {
         id: userId,
         userId,
-        pinHash: data.pin, // In production, this should be hashed
+        pinHash: hash,
+        salt,
         isActive: true,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -519,12 +659,75 @@ export class FirebaseFirestoreService {
         userId
       );
 
+      // Get current PIN to verify the current PIN
+      const currentPinDoc = await getDoc(pinRef);
+      if (!currentPinDoc.exists()) {
+        throw new Error("Transaction PIN not found");
+      }
+
+      const currentPinData = currentPinDoc.data() as TransactionPin;
+
+      // Verify current PIN before updating
+      console.log("🔐 Updating PIN - Current PIN input:", data.currentPin);
+      console.log(
+        "🔐 Stored hash:",
+        currentPinData.pinHash.substring(0, 10) + "..."
+      );
+      console.log(
+        "🔐 Stored salt:",
+        currentPinData.salt.substring(0, 10) + "..."
+      );
+
+      const isCurrentPinValid = await verifyPin(
+        data.currentPin,
+        currentPinData.pinHash,
+        currentPinData.salt
+      );
+      console.log("🔐 Current PIN verification result:", isCurrentPinValid);
+
+      if (!isCurrentPinValid) {
+        throw new Error("Current PIN is incorrect");
+      }
+
+      // Generate new hash and salt for the new PIN
+      console.log("🔐 Generating new PIN hash for:", data.newPin);
+      const { hash, salt } = await createPinHash(data.newPin);
+      console.log(
+        "🔐 New hash generated:",
+        hash.substring(0, 10) + "...",
+        "new salt:",
+        salt.substring(0, 10) + "..."
+      );
+
       await updateDoc(pinRef, {
-        pinHash: data.newPin, // In production, this should be hashed
+        pinHash: hash,
+        salt,
         updatedAt: new Date(),
       });
     } catch (error: any) {
       throw new Error(`Failed to update transaction pin: ${error.message}`);
+    }
+  }
+
+  // Helper method to verify PIN for payout account operations
+  static async verifyTransactionPin(
+    userId: string,
+    pin: string
+  ): Promise<boolean> {
+    try {
+      const pinDoc = await getDoc(
+        doc(db, this.TRANSACTION_PINS_COLLECTION, userId)
+      );
+
+      if (!pinDoc.exists()) {
+        return false;
+      }
+
+      const pinData = pinDoc.data() as TransactionPin;
+      return await verifyPin(pin, pinData.pinHash, pinData.salt);
+    } catch (error) {
+      console.error("Error verifying transaction PIN:", error);
+      return false;
     }
   }
 }
