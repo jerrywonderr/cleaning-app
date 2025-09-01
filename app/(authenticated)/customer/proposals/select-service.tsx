@@ -7,9 +7,9 @@ import { useRouter } from "expo-router";
 
 // Example services
 const services = [
-  { id: "service-1", name: "Home Cleaning" },
+  { id: "service-1", name: "Classic Cleaning" },
   { id: "service-2", name: "Deep Cleaning" },
-  { id: "service-3", name: "Carpet Cleaning" },
+  { id: "service-3", name: "Move-In Move Out" },
 ];
 
 export default function SelectServiceScreen() {
