@@ -32,7 +32,7 @@ const serviceProviders = [
   },
 ];
 
-// Generate time slots
+// Generate hourly slots
 const generateTimeSlots = (start: string, end: string) => {
   const slots: string[] = [];
   let [hour] = start.split(":").map(Number);
@@ -49,7 +49,7 @@ const generateTimeSlots = (start: string, end: string) => {
   return slots;
 };
 
-// Filter available ranges
+// Generate time ranges based on duration
 const getAvailableRanges = (
   serviceId: string,
   date: string,
@@ -59,7 +59,9 @@ const getAvailableRanges = (
   const allSlots = generateTimeSlots(providerHours.start, providerHours.end);
   const ranges: string[] = [];
   for (let i = 0; i <= allSlots.length - duration; i++) {
-    ranges.push(allSlots.slice(i, i + duration).join(" | "));
+    const startTime = allSlots[i].split("-")[0];
+    const endTime = allSlots[i + duration - 1].split("-")[1];
+    ranges.push(`${startTime}-${endTime}`);
   }
   return ranges;
 };
@@ -74,16 +76,18 @@ export default function CreateProposalPage() {
   const selectedService = serviceConfigs.find((s) => s.id === serviceId);
   const selectedProvider = serviceProviders.find((p) => p.id === providerId);
 
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [duration, setDuration] = useState(1);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [duration, setDuration] = useState(0);
   const [selectedRange, setSelectedRange] = useState<string | null>(null);
 
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const formattedDate = selectedDate.toISOString().split("T")[0];
-  const dayName = dayNames[selectedDate.getDay()];
+  const formattedDate = selectedDate?.toISOString().split("T")[0] || "";
+  const dayName = selectedDate ? dayNames[selectedDate.getDay()] : "";
 
   const availableRanges =
-    selectedProvider && selectedProvider.workingDays.includes(dayName)
+    selectedProvider &&
+    selectedDate &&
+    selectedProvider.workingDays.includes(dayName)
       ? getAvailableRanges(
           serviceId,
           formattedDate,
@@ -93,13 +97,19 @@ export default function CreateProposalPage() {
       : [];
 
   useEffect(() => {
-    setValue("proposalDetails.date", selectedDate.toISOString());
+    if (selectedDate)
+      setValue("proposalDetails.date", selectedDate.toISOString());
     setValue("proposalDetails.duration", duration);
     setValue("proposalDetails.timeRange", selectedRange);
   }, [selectedDate, duration, selectedRange]);
 
   const handleSubmit = () => {
-    if (!selectedService || !selectedProvider || !selectedRange) {
+    if (
+      !selectedService ||
+      !selectedProvider ||
+      !selectedDate ||
+      !selectedRange
+    ) {
       Alert.alert("Missing Info", "Please select all required fields.");
       return;
     }
@@ -111,7 +121,6 @@ export default function CreateProposalPage() {
       footer={<PrimaryButton onPress={handleSubmit}>Next</PrimaryButton>}
     >
       <VStack className="gap-6">
-        {/* Page Title */}
         <Text className="text-2xl font-inter-bold text-black">
           Create Your Proposal
         </Text>
@@ -149,15 +158,24 @@ export default function CreateProposalPage() {
             {[1, 2, 3, 4].map((h) => (
               <Pressable
                 key={h}
-                onPress={() => setDuration(h)}
+                onPress={() => selectedDate && setDuration(h)}
+                disabled={!selectedDate}
                 className={`px-4 py-2 rounded-lg border ${
                   duration === h
                     ? "bg-brand-500 border-brand-500"
-                    : "border-gray-300"
+                    : !selectedDate
+                    ? "border-gray-200 bg-gray-100"
+                    : "border-gray-300 bg-white"
                 }`}
               >
                 <Text
-                  className={`${duration === h ? "text-white" : "text-black"}`}
+                  className={`${
+                    duration === h
+                      ? "text-white"
+                      : !selectedDate
+                      ? "text-gray-400"
+                      : "text-black"
+                  }`}
                 >
                   {h} hr{h > 1 ? "s" : ""}
                 </Text>
@@ -172,28 +190,32 @@ export default function CreateProposalPage() {
             Select Time Range
           </Text>
           <HStack className="flex-wrap gap-2">
-            {availableRanges.length ? (
-              availableRanges.map((range) => (
-                <Pressable
-                  key={range}
-                  onPress={() => setSelectedRange(range)}
-                  className={`px-4 py-2 rounded-lg border ${
-                    selectedRange === range
-                      ? "bg-brand-500 border-brand-500"
-                      : "border-gray-300"
-                  }`}
-                >
-                  <Text
-                    className={`${
-                      selectedRange === range ? "text-white" : "text-black"
+            {selectedDate ? (
+              availableRanges.length ? (
+                availableRanges.map((range) => (
+                  <Pressable
+                    key={range}
+                    onPress={() => setSelectedRange(range)}
+                    className={`px-4 py-2 rounded-lg border ${
+                      selectedRange === range
+                        ? "bg-brand-500 border-brand-500"
+                        : "border-gray-300"
                     }`}
                   >
-                    {range}
-                  </Text>
-                </Pressable>
-              ))
+                    <Text
+                      className={`${
+                        selectedRange === range ? "text-white" : "text-black"
+                      }`}
+                    >
+                      {range}
+                    </Text>
+                  </Pressable>
+                ))
+              ) : (
+                <Text className="text-gray-500">No available ranges</Text>
+              )
             ) : (
-              <Text className="text-gray-500">No available ranges</Text>
+              <Text className="text-gray-500">Please select a date first</Text>
             )}
           </HStack>
         </VStack>
