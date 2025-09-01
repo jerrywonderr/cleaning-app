@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { Clock } from "lucide-react-native";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useController, useFormContext } from "react-hook-form";
 import { Pressable } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
@@ -25,6 +25,7 @@ interface TimeFieldProps {
   confirmText?: string;
   cancelText?: string;
   onConfirm?: (date: Date) => void;
+  showError?: boolean;
 }
 
 export const TimeField = ({
@@ -35,6 +36,7 @@ export const TimeField = ({
   confirmText,
   cancelText,
   onConfirm,
+  showError = true,
   ...props
 }: TimeFieldProps) => {
   const [isFocused, setIsFocused] = useState(false);
@@ -124,10 +126,12 @@ export const TimeField = ({
           <FormControlHelperText>{helperText}</FormControlHelperText>
         </FormControlHelper>
       )}
-      <FormControlError>
-        <FormControlErrorIcon as={AlertCircleIcon} />
-        <FormControlErrorText>{error?.message}</FormControlErrorText>
-      </FormControlError>
+      {showError && (
+        <FormControlError>
+          <FormControlErrorIcon as={AlertCircleIcon} />
+          <FormControlErrorText>{error?.message}</FormControlErrorText>
+        </FormControlError>
+      )}
     </FormControl>
   );
 };

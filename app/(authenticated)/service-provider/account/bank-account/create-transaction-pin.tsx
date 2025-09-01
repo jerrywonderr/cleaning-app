@@ -48,7 +48,6 @@ export default function CreateTransactionPinScreen() {
 
     try {
       await createTransactionPin({
-        userId,
         pin: data.pin,
       });
 

@@ -4,16 +4,19 @@ import { Box } from "@/lib/components/ui/box";
 import { Button, ButtonIcon, ButtonText } from "@/lib/components/ui/button";
 import { HStack } from "@/lib/components/ui/hstack";
 import { Icon } from "@/lib/components/ui/icon";
+import { useLoader } from "@/lib/components/ui/loader";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import { useBankAccount } from "@/lib/hooks/useBankAccount";
 import { useRouter } from "expo-router";
 import { Edit, Lock, Shield } from "lucide-react-native";
+import { useEffect } from "react";
 import { Alert } from "react-native";
 
 export default function TransactionPinScreen() {
   const router = useRouter();
   const { transactionPin, isLoadingTransactionPin } = useBankAccount();
+  const { showLoader, hideLoader } = useLoader();
 
   const handleUpdatePin = () => {
     router.push(
@@ -39,17 +42,13 @@ export default function TransactionPinScreen() {
     );
   };
 
-  if (isLoadingTransactionPin) {
-    return (
-      <ScrollableScreen addTopInset={false}>
-        <Box className="flex-1 p-4">
-          <VStack className="gap-4">
-            <Text className="text-center text-gray-500">Loading...</Text>
-          </VStack>
-        </Box>
-      </ScrollableScreen>
-    );
-  }
+  useEffect(() => {
+    if (isLoadingTransactionPin) {
+      showLoader();
+    } else {
+      hideLoader();
+    }
+  }, [isLoadingTransactionPin, showLoader, hideLoader]);
 
   if (!transactionPin) {
     return (
@@ -71,7 +70,7 @@ export default function TransactionPinScreen() {
 
             <PrimaryButton
               onPress={() =>
-                router.push(
+                router.replace(
                   "/service-provider/account/bank-account/create-transaction-pin"
                 )
               }

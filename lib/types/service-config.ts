@@ -27,11 +27,13 @@ export interface ServiceAreaData {
 
 export interface WorkingPreferences {
   serviceArea?: ServiceAreaData;
-  workingHours?: {
-    start: string;
-    end: string;
+  workingSchedule?: {
+    [day: string]: {
+      isActive: boolean;
+      startTime: string | null; // ISO string from database
+      endTime: string | null; // ISO string from database
+    };
   };
-  workingDays?: string[];
 }
 
 export interface UserServicePreferences {

@@ -5,71 +5,65 @@ service cloud.firestore {
     match /users/{userId} {
       // Users can read/write their own profile
       allow read, write: if request.auth != null && request.auth.uid == userId;
-      
-      // All authenticated users can read any user profile (for matching/searching)
-      allow read: if request.auth != null;
     }
-    
+
     // Service Preferences collection
     match /servicePreferences/{userId} {
       // All authenticated users can read any service preferences (to see what services providers offer)
       allow read: if request.auth != null;
-      
+
       // Only the owner can write/edit their own service preferences
       allow write: if request.auth != null && request.auth.uid == userId;
     }
-    
+
     // Bank Accounts collection
     match /bankAccounts/{userId} {
       // Users can read/write their own bank account
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
-    
-    // Payout Accounts collection
-    match /payoutAccounts/{userId} {
-      // Users can read/write their own payout account
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+    // Payout Accounts collection - now supports multiple accounts per user
+    match /payoutAccounts/{payoutAccountId} {
+      // Users can read/write their own payout accounts
+      allow read, write: if request.auth != null && 
+        resource.data.userId == request.auth.uid;
+      
+      // Users can create new payout accounts
+      allow create: if request.auth != null && 
+        request.resource.data.userId == request.auth.uid;
     }
-    
+
     // Transaction Pins collection
     match /transactionPins/{userId} {
       // Users can read/write their own transaction pin
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
-    
-    // Offers collection - offer management
+
+    // Offers collection
     match /offers/{offerId} {
-      // All authenticated users can read any offer
+      // All authenticated users can read offers
       allow read: if request.auth != null;
-      
-      // Only authenticated service providers can create offers
-      allow create: if request.auth != null && 
-        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isServiceProvider == true;
-      
-      // Only the creator of the offer can update or delete it
-      allow update, delete: if request.auth != null && 
-        resource.data.providerId == request.auth.uid;
+
+      // Only the creator can create/edit/delete their offers
+      allow create, update, delete: if request.auth != null && 
+        request.auth.uid == resource.data.serviceProviderId;
     }
-    
-    // Appointments collection - appointment management
+
+    // Appointments collection
     match /appointments/{appointmentId} {
-      // All authenticated users can read any appointment
-      allow read: if request.auth != null;
-      
-      // Only authenticated regular users (customers) can create appointments
+      // Users can read appointments they're involved in
+      allow read: if request.auth != null && 
+        (request.auth.uid == resource.data.customerId || 
+         request.auth.uid == resource.data.serviceProviderId);
+
+      // Customers can create appointments
       allow create: if request.auth != null && 
-        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isServiceProvider == false;
-      
-      // Only the customer who created the appointment can delete it
-      allow delete: if request.auth != null && 
-        resource.data.customerId == request.auth.uid;
-      
-      // Both the customer and service provider can update the appointment
+        request.auth.uid == request.resource.data.customerId;
+
+      // Both parties can update appointments they're involved in
       allow update: if request.auth != null && 
-        (resource.data.customerId == request.auth.uid || 
-         resource.data.serviceProviderId == request.auth.uid);
+        (request.auth.uid == resource.data.customerId || 
+         request.auth.uid == resource.data.serviceProviderId);
     }
   }
 }
