@@ -95,8 +95,10 @@ export default function CustomerHome() {
               What do you want to get done today?
             </Text>
             <Pressable
-              onPress={
-                () => router.push("/(authenticated)/customer/(tabs)/proposals") //Temporarily until create proposal flow
+              onPress={() =>
+                router.push(
+                  "/(authenticated)/customer/proposals/select-service"
+                )
               }
               className="bg-white px-5 py-2 rounded-full"
             >
