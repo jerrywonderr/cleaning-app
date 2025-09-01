@@ -28,8 +28,10 @@ export default function ProposalsLayout() {
 
   return (
     <FormProvider {...methods}>
-      <VStack className="flex-1 pt-4 px-6 bg-white">
-        <StepIndicator steps={6} currentStep={getStep()} />
+      <VStack className="flex-1 pt-4 bg-white">
+        <VStack className="px-6">
+          <StepIndicator steps={6} currentStep={getStep()} />
+        </VStack>
         <Slot />
       </VStack>
     </FormProvider>
