@@ -22,9 +22,8 @@ import {
   UpdateTransactionPinData,
 } from "../types/bank-account";
 import {
-  CreateUserServicePreferencesData,
-  UpdateUserServicePreferencesData,
-  UserServicePreferences,
+  ServiceProviderProfile,
+  UpdateServiceProviderProfileData,
 } from "../types/service-config";
 import { createPinHash, verifyPin } from "../utils/pin-hashing";
 import { db } from "./config";
@@ -62,7 +61,7 @@ export interface UpdateUserProfileData {
 
 export class FirebaseFirestoreService {
   private static readonly USERS_COLLECTION = "users";
-  private static readonly SERVICE_PREFERENCES_COLLECTION = "servicePreferences";
+  private static readonly SERVICE_PROVIDERS_COLLECTION = "serviceProviders";
   private static readonly BANK_ACCOUNTS_COLLECTION = "bankAccounts";
   private static readonly PAYOUT_ACCOUNTS_COLLECTION = "payoutAccounts";
   private static readonly TRANSACTION_PINS_COLLECTION = "transactionPins";
@@ -243,97 +242,6 @@ export class FirebaseFirestoreService {
       return users;
     } catch (error: any) {
       throw new Error(`Failed to search users: ${error.message}`);
-    }
-  }
-
-  // Create or update user service preferences
-  static async setUserServicePreferences(
-    userId: string,
-    data: CreateUserServicePreferencesData
-  ): Promise<UserServicePreferences> {
-    try {
-      const prefRef = doc(
-        collection(db, this.SERVICE_PREFERENCES_COLLECTION),
-        userId
-      );
-
-      const servicePreferences: UserServicePreferences = {
-        userId,
-        services: data.services,
-        extraOptions: data.extraOptions || {},
-        updatedAt: new Date(),
-      };
-
-      await setDoc(prefRef, servicePreferences);
-      return servicePreferences;
-    } catch (error: any) {
-      throw new Error(
-        `Failed to set user service preferences: ${error.message}`
-      );
-    }
-  }
-
-  // Get user service preferences
-  static async getUserServicePreferences(
-    userId: string
-  ): Promise<UserServicePreferences | null> {
-    try {
-      const prefRef = doc(
-        collection(db, this.SERVICE_PREFERENCES_COLLECTION),
-        userId
-      );
-      const prefSnap = await getDoc(prefRef);
-
-      if (prefSnap.exists()) {
-        const data = prefSnap.data();
-        return {
-          ...data,
-          updatedAt: data.updatedAt?.toDate() || new Date(),
-        } as UserServicePreferences;
-      }
-
-      return null;
-    } catch (error: any) {
-      throw new Error(
-        `Failed to get user service preferences: ${error.message}`
-      );
-    }
-  }
-
-  // Update user service preferences
-  static async updateUserServicePreferences(
-    userId: string,
-    data: UpdateUserServicePreferencesData
-  ): Promise<void> {
-    try {
-      const prefRef = doc(
-        collection(db, this.SERVICE_PREFERENCES_COLLECTION),
-        userId
-      );
-
-      await updateDoc(prefRef, {
-        ...data,
-        updatedAt: new Date(),
-      });
-    } catch (error: any) {
-      throw new Error(
-        `Failed to update user service preferences: ${error.message}`
-      );
-    }
-  }
-
-  // Delete user service preferences
-  static async deleteUserServicePreferences(userId: string): Promise<void> {
-    try {
-      const prefRef = doc(
-        collection(db, this.SERVICE_PREFERENCES_COLLECTION),
-        userId
-      );
-      await deleteDoc(prefRef);
-    } catch (error: any) {
-      throw new Error(
-        `Failed to delete user service preferences: ${error.message}`
-      );
     }
   }
 
@@ -728,6 +636,89 @@ export class FirebaseFirestoreService {
     } catch (error) {
       console.error("Error verifying transaction PIN:", error);
       return false;
+    }
+  }
+
+  // Service Provider Profile Methods
+
+  // Get service provider profile
+  static async getServiceProviderProfile(
+    userId: string
+  ): Promise<ServiceProviderProfile | null> {
+    try {
+      const profileRef = doc(
+        collection(db, this.SERVICE_PROVIDERS_COLLECTION),
+        userId
+      );
+      const profileSnap = await getDoc(profileRef);
+
+      if (profileSnap.exists()) {
+        const data = profileSnap.data();
+        return {
+          ...data,
+          createdAt: data.createdAt?.toDate() || new Date(),
+          updatedAt: data.updatedAt?.toDate() || new Date(),
+        } as ServiceProviderProfile;
+      }
+
+      return null;
+    } catch (error: any) {
+      throw new Error(
+        `Failed to get service provider profile: ${error.message}`
+      );
+    }
+  }
+
+  // Update service provider profile
+  static async updateServiceProviderProfile(
+    userId: string,
+    data: UpdateServiceProviderProfileData
+  ): Promise<void> {
+    try {
+      const profileRef = doc(
+        collection(db, this.SERVICE_PROVIDERS_COLLECTION),
+        userId
+      );
+
+      await updateDoc(profileRef, {
+        ...data,
+        updatedAt: new Date(),
+      });
+    } catch (error: any) {
+      throw new Error(
+        `Failed to update service provider profile: ${error.message}`
+      );
+    }
+  }
+
+  // Get all active service provider profiles (for discovery)
+  static async getActiveServiceProviderProfiles(): Promise<
+    ServiceProviderProfile[]
+  > {
+    try {
+      const serviceProvidersRef = collection(
+        db,
+        this.SERVICE_PROVIDERS_COLLECTION
+      );
+      const serviceProvidersQuery = query(
+        serviceProvidersRef,
+        where("isActive", "==", true)
+      );
+      const serviceProvidersSnap = await getDocs(serviceProvidersQuery);
+
+      const serviceProviders: ServiceProviderProfile[] = [];
+      serviceProvidersSnap.forEach((doc) => {
+        const data = doc.data();
+        serviceProviders.push({
+          ...data,
+          createdAt: data.createdAt?.toDate() || new Date(),
+          updatedAt: data.updatedAt?.toDate() || new Date(),
+        } as ServiceProviderProfile);
+      });
+
+      return serviceProviders;
+    } catch (error: any) {
+      throw new Error(`Failed to get service providers: ${error.message}`);
     }
   }
 }

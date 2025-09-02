@@ -9,7 +9,7 @@ import {
   extraServiceOptions,
   serviceConfigs,
 } from "@/lib/constants/service-config";
-import { useServicePreferences } from "@/lib/hooks/useServicePreferences";
+import { useServiceProvider } from "@/lib/hooks/useServiceProvider";
 import { useUserStore } from "@/lib/store/useUserStore";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -18,8 +18,8 @@ import { Alert } from "react-native";
 export default function ServicesSettingsScreen() {
   const router = useRouter();
   const userId = useUserStore((state) => state.profile?.id);
-  const { servicePreferences, updatePreferences, setPreferences, isLoading } =
-    useServicePreferences();
+  const { serviceProviderProfile, updateProfile, isLoading } =
+    useServiceProvider();
 
   const [localServiceConfigs, setLocalServiceConfigs] =
     useState(serviceConfigs);
@@ -27,49 +27,39 @@ export default function ServicesSettingsScreen() {
     useState(extraServiceOptions);
 
   useEffect(() => {
-    if (servicePreferences?.services) {
+    if (serviceProviderProfile?.services) {
       setLocalServiceConfigs((prev) =>
         prev.map((service) => ({
           ...service,
-          isEnabled: servicePreferences.services[service.id] || false,
+          isEnabled: serviceProviderProfile.services[service.id] || false,
         }))
       );
     }
-    if (servicePreferences?.extraOptions) {
+    if (serviceProviderProfile?.extraOptions) {
       setLocalExtraOptions((prev) =>
         prev.map((option) => ({
           ...option,
-          isEnabled: servicePreferences.extraOptions[option.id] || false,
+          isEnabled: serviceProviderProfile.extraOptions[option.id] || false,
         }))
       );
     }
-  }, [servicePreferences]);
+  }, [serviceProviderProfile]);
 
   const handleServiceToggle = async (serviceId: string, enabled: boolean) => {
     if (!userId) return;
 
     try {
       const updatedServices: Record<string, boolean> = {
-        ...servicePreferences?.services,
+        ...serviceProviderProfile?.services,
         [serviceId]: enabled,
       };
 
-      if (servicePreferences) {
-        await updatePreferences({
-          services: updatedServices as Record<
-            "classic-cleaning" | "deep-cleaning" | "end-of-tenancy",
-            boolean
-          >,
-        });
-      } else {
-        await setPreferences({
-          userId,
-          services: updatedServices as Record<
-            "classic-cleaning" | "deep-cleaning" | "end-of-tenancy",
-            boolean
-          >,
-        });
-      }
+      await updateProfile({
+        services: updatedServices as Record<
+          "classic-cleaning" | "deep-cleaning" | "end-of-tenancy",
+          boolean
+        >,
+      });
 
       setLocalServiceConfigs((prev) =>
         prev.map((service) =>
@@ -92,25 +82,13 @@ export default function ServicesSettingsScreen() {
 
     try {
       const updatedExtraOptions: Record<string, boolean> = {
-        ...servicePreferences?.extraOptions,
+        ...serviceProviderProfile?.extraOptions,
         [optionId]: enabled,
       };
 
-      if (servicePreferences) {
-        await updatePreferences({
-          extraOptions: updatedExtraOptions,
-        });
-      } else {
-        await setPreferences({
-          userId,
-          services: {
-            "classic-cleaning": false,
-            "deep-cleaning": false,
-            "end-of-tenancy": false,
-          },
-          extraOptions: updatedExtraOptions,
-        });
-      }
+      await updateProfile({
+        extraOptions: updatedExtraOptions,
+      });
 
       setLocalExtraOptions((prev) =>
         prev.map((option) =>

@@ -6,7 +6,7 @@ import { useLoader } from "@/lib/components/ui/loader";
 import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
-import { useServicePreferences } from "@/lib/hooks/useServicePreferences";
+import { useServiceProvider } from "@/lib/hooks/useServiceProvider";
 import { truncateText } from "@/lib/utils/truncate-text";
 import { useRouter } from "expo-router";
 import { CheckCircle, ChevronRight, Clock, MapPin } from "lucide-react-native";
@@ -16,7 +16,7 @@ type WorkingPreferencesRoute = "working-hours" | "service-area";
 
 export default function WorkingPreferencesScreen() {
   const router = useRouter();
-  const { servicePreferences, isLoading } = useServicePreferences();
+  const { serviceProviderProfile, isLoading } = useServiceProvider();
   const { showLoader, hideLoader } = useLoader();
 
   // Show/hide loader based on loading state
@@ -31,29 +31,34 @@ export default function WorkingPreferencesScreen() {
   // Get working preferences from Firebase data
   const workingPreferences = {
     workingSchedule: {
-      days: servicePreferences?.workingPreferences?.workingSchedule
+      days: serviceProviderProfile?.workingPreferences?.workingSchedule
         ? Object.keys(
-            servicePreferences.workingPreferences.workingSchedule
+            serviceProviderProfile.workingPreferences.workingSchedule
           ).filter(
             (day) =>
-              servicePreferences.workingPreferences?.workingSchedule?.[day]
+              serviceProviderProfile.workingPreferences?.workingSchedule?.[day]
                 ?.isActive
           )
         : [],
       isSet: !!(
-        servicePreferences?.workingPreferences?.workingSchedule &&
-        Object.keys(servicePreferences.workingPreferences.workingSchedule).some(
+        serviceProviderProfile?.workingPreferences?.workingSchedule &&
+        Object.keys(
+          serviceProviderProfile.workingPreferences.workingSchedule
+        ).some(
           (day) =>
-            servicePreferences.workingPreferences?.workingSchedule?.[day]
+            serviceProviderProfile.workingPreferences?.workingSchedule?.[day]
               ?.isActive
         )
       ),
     },
     serviceArea: {
       address:
-        servicePreferences?.workingPreferences?.serviceArea?.fullAddress || "",
-      radius: servicePreferences?.workingPreferences?.serviceArea?.radius || 0,
-      isSet: !!servicePreferences?.workingPreferences?.serviceArea?.fullAddress,
+        serviceProviderProfile?.workingPreferences?.serviceArea?.fullAddress ||
+        "",
+      radius:
+        serviceProviderProfile?.workingPreferences?.serviceArea?.radius || 0,
+      isSet:
+        !!serviceProviderProfile?.workingPreferences?.serviceArea?.fullAddress,
     },
   };
 

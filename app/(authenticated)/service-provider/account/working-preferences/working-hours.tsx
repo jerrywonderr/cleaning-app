@@ -6,7 +6,7 @@ import { Icon } from "@/lib/components/ui/icon";
 import { useLoader } from "@/lib/components/ui/loader";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
-import { useServicePreferences } from "@/lib/hooks/useServicePreferences";
+import { useServiceProvider } from "@/lib/hooks/useServiceProvider";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useRouter } from "expo-router";
 import { Clock, Save } from "lucide-react-native";
@@ -99,8 +99,11 @@ type FormData = {
 
 export default function WorkingHoursScreen() {
   const router = useRouter();
-  const { servicePreferences, updatePreferences, isUpdatingPreferences } =
-    useServicePreferences();
+  const {
+    serviceProviderProfile,
+    updateWorkingSchedule,
+    isUpdatingWorkingSchedule,
+  } = useServiceProvider();
   const { showLoader, hideLoader } = useLoader();
 
   const methods = useForm<FormData>({
@@ -125,8 +128,8 @@ export default function WorkingHoursScreen() {
 
   // Load existing working hours data when component mounts or data changes
   useEffect(() => {
-    if (servicePreferences?.workingPreferences?.workingSchedule) {
-      const existingSchedule = servicePreferences.workingPreferences
+    if (serviceProviderProfile?.workingPreferences?.workingSchedule) {
+      const existingSchedule = serviceProviderProfile.workingPreferences
         .workingSchedule as Record<string, any>;
       if (existingSchedule && typeof existingSchedule === "object") {
         Object.keys(existingSchedule).forEach((day) => {
@@ -141,16 +144,16 @@ export default function WorkingHoursScreen() {
         });
       }
     }
-  }, [servicePreferences, methods]);
+  }, [serviceProviderProfile, methods]);
 
   // Show/hide loader based on loading state
   useEffect(() => {
-    if (isUpdatingPreferences) {
+    if (isUpdatingWorkingSchedule) {
       showLoader("Saving working hours...");
     } else {
       hideLoader();
     }
-  }, [isUpdatingPreferences, showLoader, hideLoader]);
+  }, [isUpdatingWorkingSchedule, showLoader, hideLoader]);
 
   const handleSubmit = async (data: FormData) => {
     try {
@@ -179,12 +182,7 @@ export default function WorkingHoursScreen() {
         {} as any
       );
 
-      await updatePreferences({
-        workingPreferences: {
-          ...servicePreferences?.workingPreferences,
-          workingSchedule: utcWorkingHours,
-        },
-      });
+      await updateWorkingSchedule(utcWorkingHours);
 
       Alert.alert("Success", "Working hours updated successfully!", [
         {
@@ -212,7 +210,7 @@ export default function WorkingHoursScreen() {
             Object.keys(methods.formState.errors).length > 0 ||
             getActiveDaysCount() === 0
           }
-          isLoading={isUpdatingPreferences}
+          isLoading={isUpdatingWorkingSchedule}
           icon={Save}
         >
           Save Working Schedule ({getActiveDaysCount()} active days)

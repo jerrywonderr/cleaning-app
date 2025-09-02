@@ -8,7 +8,7 @@ import { useLoader } from "@/lib/components/ui/loader";
 import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
-import { useServicePreferences } from "@/lib/hooks/useServicePreferences";
+import { useServiceProvider } from "@/lib/hooks/useServiceProvider";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useRouter } from "expo-router";
 import { MapPin, Navigation, Save } from "lucide-react-native";
@@ -52,8 +52,8 @@ type FormData = {
 
 export default function ServiceAreaScreen() {
   const router = useRouter();
-  const { servicePreferences, updateServiceArea, isUpdatingServiceArea } =
-    useServicePreferences();
+  const { serviceProviderProfile, updateServiceArea, isUpdatingServiceArea } =
+    useServiceProvider();
   const { showLoader, hideLoader } = useLoader();
 
   const methods = useForm<FormData>({
@@ -67,8 +67,9 @@ export default function ServiceAreaScreen() {
 
   // Load existing service area data when component mounts or data changes
   useEffect(() => {
-    if (servicePreferences?.workingPreferences?.serviceArea) {
-      const existingData = servicePreferences.workingPreferences.serviceArea;
+    if (serviceProviderProfile?.workingPreferences?.serviceArea) {
+      const existingData =
+        serviceProviderProfile.workingPreferences.serviceArea;
       methods.setValue("address", {
         fullAddress: existingData.fullAddress,
         latitude: existingData.latitude,
@@ -77,7 +78,7 @@ export default function ServiceAreaScreen() {
       });
       methods.setValue("radius", existingData.radius);
     }
-  }, [servicePreferences, methods]);
+  }, [serviceProviderProfile, methods]);
 
   // Show/hide loader based on loading state
   useEffect(() => {
