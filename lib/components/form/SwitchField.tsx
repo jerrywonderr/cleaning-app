@@ -16,7 +16,7 @@ import { AlertCircleIcon } from "../ui/icon";
 
 interface SwitchFieldProps extends SwitchProps {
   name: string;
-  label: string;
+  label?: string;
   labelComponent?: React.ReactNode;
   helperText?: string;
   className?: string;
@@ -84,15 +84,15 @@ export function SwitchField({
       </View> */}
 
       <HStack className="justify-between items-center">
-        {labelComponent ? (
-          labelComponent
-        ) : (
-          <FormControlLabel>
-            <FormControlLabelText className="text-sm font-inter-medium">
-              {label}
-            </FormControlLabelText>
-          </FormControlLabel>
-        )}
+        {labelComponent
+          ? labelComponent
+          : label && (
+              <FormControlLabel>
+                <FormControlLabelText className="text-sm font-inter-medium">
+                  {label}
+                </FormControlLabelText>
+              </FormControlLabel>
+            )}
         <CustomSwitch
           value={field.value}
           onValueChange={(value: any) => field.onChange(value)}
