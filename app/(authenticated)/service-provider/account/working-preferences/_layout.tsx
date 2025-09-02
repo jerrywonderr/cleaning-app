@@ -25,12 +25,6 @@ export default function WorkingPreferencesLayout() {
         }}
       />
       <Stack.Screen
-        name="working-days"
-        options={{
-          title: "",
-        }}
-      />
-      <Stack.Screen
         name="service-area"
         options={{
           title: "",
