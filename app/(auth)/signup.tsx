@@ -1,7 +1,7 @@
 import { PrimaryButton } from "@/lib/components/custom-buttons";
 import { DateField, PasswordField, TextField } from "@/lib/components/form";
-import FormSwitch from "@/lib/components/form/FormSwitch";
 import { PhoneField } from "@/lib/components/form/PhoneField";
+import { SwitchField } from "@/lib/components/form/SwitchField";
 import Link from "@/lib/components/Link";
 import FixedScreen from "@/lib/components/screens/FixedScreen";
 import { Box } from "@/lib/components/ui/box";
@@ -121,8 +121,8 @@ const Signup = () => {
               name="dob"
               label="Date of Birth"
               placeholder="Select your date of birth"
-              methods={methods}
-              maximumDate={new Date()}
+              // methods={methods}
+              // maximumDate={new Date()}
             />
 
             <TextField
@@ -154,16 +154,14 @@ const Signup = () => {
               returnKeyType="done"
             />
 
-            {/* Service Provider Toggle */}
-            <HStack className="items-center justify-between">
-              <Text className="text-base font-medium text-gray-900">
-                I&apos;m a service provider
-              </Text>
-              <FormSwitch
-                value={methods.watch("isServiceProvider")}
-                onChange={(val) => methods.setValue("isServiceProvider", val)}
-              />
-            </HStack>
+            <SwitchField
+              labelComponent={
+                <Text className="text-base font-medium text-gray-900">
+                  I&apos;m a service provider
+                </Text>
+              }
+              name="isServiceProvider"
+            />
           </VStack>
         </FormProvider>
       </ScrollView>
