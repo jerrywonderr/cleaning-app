@@ -1,17 +1,15 @@
 import * as Location from "expo-location";
-import { forwardRef, useCallback, useImperativeHandle, useState } from "react";
+import { forwardRef, useCallback, useImperativeHandle } from "react";
 import { useController, useFormContext } from "react-hook-form";
 import { Alert, TouchableOpacity, View, ViewStyle } from "react-native";
-import { useBottomSheet } from "../../hooks/useBottomSheet";
-import { locationService } from "../../services/locationService";
+import { useBottomSheet } from "../../../hooks/useBottomSheet";
+import { locationService } from "../../../services/locationService";
 import {
-  LocationAutocompleteResult,
   LocationData,
   getContinentFromCountryCode,
-} from "../../types/location";
-import { cn } from "../../utils/style";
-import BaseBottomSheet from "../BaseBottomSheet";
-import { AzureMapsAutocomplete } from "../ui/azure-maps-autocomplete";
+} from "../../../types/location";
+import { cn } from "../../../utils/style";
+import BaseBottomSheet from "../../BaseBottomSheet";
 import {
   FormControl,
   FormControlError,
@@ -21,17 +19,21 @@ import {
   FormControlHelperText,
   FormControlLabel,
   FormControlLabelText,
-} from "../ui/form-control";
-import { AlertCircleIcon } from "../ui/icon";
-import { useLoader } from "../ui/loader/use-loader";
-import { Text } from "../ui/text";
+} from "../../ui/form-control";
+import { AlertCircleIcon } from "../../ui/icon";
+import { useLoader } from "../../ui/loader/use-loader";
+import { Text } from "../../ui/text";
+import { AddressSheetContent } from "./AddressSheetContent";
+import { useResponsiveSizes } from "./hooks/useResponsiveSizes";
+import { FindMeButton } from "./FindMeButton";
 
-interface AddressFieldProps {
+export interface AddressFieldProps {
   name: string;
   label?: string;
   helperText?: string;
   placeholder?: string;
   className?: string;
+  heightClassName?: string;
   containerStyle?: ViewStyle;
   onLocationChange?: (location: LocationData | null) => void;
 }
@@ -41,85 +43,6 @@ export interface AddressFieldRef {
   dismiss: () => void;
 }
 
-// Sheet content component that is shown inside the bottom sheet
-interface AddressSheetContentProps {
-  placeholder?: string;
-  onLocationSelect: (data: LocationData) => void;
-  onUseCurrentLocation: () => void;
-  onReset: () => void;
-  initialValue: LocationData | null;
-}
-
-const AddressSheetContent: React.FC<AddressSheetContentProps> = ({
-  placeholder,
-  onLocationSelect,
-  onUseCurrentLocation,
-  onReset,
-  initialValue,
-}) => {
-  const [currentText, setCurrentText] = useState(
-    initialValue?.fullAddress || ""
-  );
-
-  const handleLocationSelect = (data: LocationAutocompleteResult) => {
-    console.log("data", data);
-    const locationData: LocationData = {
-      fullAddress: data.address.fullAddress,
-      country: data.address.country,
-      countryCode: data.address.countryCode,
-      latitude: data.coordinates.latitude,
-      longitude: data.coordinates.longitude,
-      continent: getContinentFromCountryCode(data.address.countryCode),
-      city: data.address.city,
-      state: data.address.state,
-      postalCode: data.address.postalCode,
-      streetName: data.address.street,
-      streetNumber: "",
-    };
-    onLocationSelect(locationData);
-  };
-
-  return (
-    <View style={{ flex: 1 }} className="flex flex-col justify-between">
-      {/* Header */}
-      <Text className="text-xl font-semibold mb-4">Select Location</Text>
-
-      {/* Main Content Area - This should fill most of the space */}
-      <View className="flex-1">
-        <AzureMapsAutocomplete
-          placeholder={placeholder || "Enter your address"}
-          onSelect={handleLocationSelect}
-          initialValue={currentText}
-          onTextChange={setCurrentText}
-        />
-      </View>
-
-      {/* Footer Buttons - Fixed at bottom */}
-      <View className="w-full border-t border-gray-200 pt-4 mt-auto">
-        <TouchableOpacity
-          onPress={onUseCurrentLocation}
-          className="py-3 rounded-full bg-blue-500 mb-2"
-        >
-          <Text className="text-center text-white font-medium">
-            Use Current Location
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => {
-            setCurrentText("");
-            onReset();
-          }}
-          className="py-3 rounded-full bg-gray-100"
-        >
-          <Text className="text-center text-gray-700 font-medium">
-            Reset Location
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-};
-
 const AddressField = forwardRef<AddressFieldRef, AddressFieldProps>(
   (
     {
@@ -128,6 +51,7 @@ const AddressField = forwardRef<AddressFieldRef, AddressFieldProps>(
       helperText,
       placeholder,
       className,
+      heightClassName,
       containerStyle,
       onLocationChange,
     },
@@ -141,6 +65,7 @@ const AddressField = forwardRef<AddressFieldRef, AddressFieldProps>(
 
     const { bottomSheetRef, present, dismiss } = useBottomSheet();
     const { showLoader, hideLoader } = useLoader();
+    const { iconSize, fontSize, padding } = useResponsiveSizes(heightClassName);
 
     const handleReset = useCallback(() => {
       field.onChange(null);
@@ -149,7 +74,6 @@ const AddressField = forwardRef<AddressFieldRef, AddressFieldProps>(
 
     const handleLocationSelect = useCallback(
       (data: LocationData) => {
-        console.log("data", data);
         field.onChange(data);
         field.onBlur();
         onLocationChange?.(data);
@@ -160,13 +84,13 @@ const AddressField = forwardRef<AddressFieldRef, AddressFieldProps>(
 
     const handleUseCurrentLocation = useCallback(async () => {
       try {
-        showLoader("Getting current location...");
+        showLoader("Finding you...");
         // Request location permissions
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== "granted") {
           Alert.alert(
             "Permission Denied",
-            "Location permission is required to use current location."
+            "Location permission is required to find you."
           );
           return;
         }
@@ -177,8 +101,6 @@ const AddressField = forwardRef<AddressFieldRef, AddressFieldProps>(
         });
 
         const { latitude, longitude } = location.coords;
-        console.log("latitude", latitude);
-        console.log("longitude", longitude);
         // Get address from coordinates using our service
         const locationResult = await locationService.getLocationFromCoordinates(
           latitude,
@@ -230,7 +152,6 @@ const AddressField = forwardRef<AddressFieldRef, AddressFieldProps>(
       [present, dismiss]
     );
 
-    // Create a function for the TouchableOpacity to use
     const handleOpenSheet = useCallback(() => {
       present();
     }, [present]);
@@ -245,22 +166,28 @@ const AddressField = forwardRef<AddressFieldRef, AddressFieldProps>(
           </FormControlLabel>
         )}
 
-        {/* Touchable field that opens the address selector */}
         <TouchableOpacity onPress={handleOpenSheet} activeOpacity={0.7}>
           <View
             className={cn(
-              "h-12 border border-black/60 rounded-lg bg-white justify-center px-3",
+              "border border-black/60 rounded-lg bg-white justify-center px-3 relative",
+              heightClassName || "h-12",
               className
             )}
             style={containerStyle}
           >
-            <Text className="text-base text-gray-900">
+            <Text className="text-base text-gray-900 pr-20">
               {field.value?.fullAddress || placeholder || "Select address"}
             </Text>
+
+            <FindMeButton
+              onPress={handleUseCurrentLocation}
+              iconSize={iconSize}
+              fontSize={fontSize}
+              padding={padding}
+            />
           </View>
         </TouchableOpacity>
 
-        {/* Address Selection Bottom Sheet */}
         <BaseBottomSheet
           ref={bottomSheetRef}
           snapPoints={["80%"]}
