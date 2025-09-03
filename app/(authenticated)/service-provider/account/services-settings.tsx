@@ -3,6 +3,7 @@ import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
 import ServiceCard from "@/lib/components/ServiceCard";
 import { Box } from "@/lib/components/ui/box";
 import { HStack } from "@/lib/components/ui/hstack";
+import { useLoader } from "@/lib/components/ui/loader/use-loader";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import {
@@ -11,12 +12,10 @@ import {
 } from "@/lib/constants/service-config";
 import { useServiceProvider } from "@/lib/hooks/useServiceProvider";
 import { useUserStore } from "@/lib/store/useUserStore";
-import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Alert } from "react-native";
 
 export default function ServicesSettingsScreen() {
-  const router = useRouter();
   const userId = useUserStore((state) => state.profile?.id);
   const { serviceProviderProfile, updateProfile, isLoading } =
     useServiceProvider();
@@ -25,6 +24,15 @@ export default function ServicesSettingsScreen() {
     useState(serviceConfigs);
   const [localExtraOptions, setLocalExtraOptions] =
     useState(extraServiceOptions);
+  const { showLoader, hideLoader } = useLoader();
+
+  useEffect(() => {
+    if (isLoading) {
+      showLoader("Loading services...");
+    } else {
+      hideLoader();
+    }
+  }, [isLoading, showLoader, hideLoader]);
 
   useEffect(() => {
     if (serviceProviderProfile?.services) {
