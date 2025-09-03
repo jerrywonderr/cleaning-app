@@ -1,6 +1,7 @@
 import { PrimaryButton } from "@/lib/components/custom-buttons";
+import { EmptyState } from "@/lib/components/EmptyState";
 import { AddressField, AddressFieldRef } from "@/lib/components/form";
-import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
+import FootedFixedScreen from "@/lib/components/screens/FootedFixedScreen";
 import StepIndicator from "@/lib/components/StepIndicator";
 import { Avatar } from "@/lib/components/ui/avatar";
 import { Box } from "@/lib/components/ui/box";
@@ -12,6 +13,7 @@ import { VStack } from "@/lib/components/ui/vstack";
 import { CreateProposalFormData } from "@/lib/schemas/create-proposal";
 import { searchServiceProviders } from "@/lib/services/cloudFunctionsService";
 import { ServiceProviderResult } from "@/lib/types";
+import { FlashList } from "@shopify/flash-list";
 import { format } from "date-fns";
 import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
@@ -78,6 +80,84 @@ const ScheduleGrid = ({ schedule }: { schedule: any }) => {
     </VStack>
   );
 };
+
+const ProviderItem = ({
+  provider,
+  isSelected,
+  onSelect,
+}: {
+  provider: ServiceProviderResult;
+  isSelected: boolean;
+  onSelect: () => void;
+}) => (
+  <Pressable
+    onPress={onSelect}
+    className={`p-5 ${isSelected ? "bg-brand-50" : "bg-white"}`}
+  >
+    <VStack className="gap-3">
+      <HStack className="gap-4">
+        <VStack className="items-center">
+          <Avatar className="w-16 h-16 border-2 border-white shadow-soft-1">
+            {provider.profile.profileImage ? (
+              <Image
+                source={{ uri: provider.profile.profileImage }}
+                className="w-full h-full rounded-full"
+                resizeMode="cover"
+              />
+            ) : (
+              <VStack className="w-full h-full bg-gradient-to-br from-brand-100 to-brand-200 rounded-full items-center justify-center">
+                <Text className="text-brand-600 font-inter-bold text-xl">
+                  {provider.profile.firstName[0]}
+                  {provider.profile.lastName[0]}
+                </Text>
+              </VStack>
+            )}
+          </Avatar>
+        </VStack>
+
+        <VStack className="flex-1 gap-3">
+          <HStack className="items-center justify-between">
+            <VStack className="gap-1">
+              <Text className="text-gray-900 font-inter-bold text-lg">
+                {provider.profile.firstName} {provider.profile.lastName}
+              </Text>
+              <HStack className="items-center gap-2">
+                <HStack className="items-center gap-1 px-2 py-1 bg-brand-50 rounded-full">
+                  <Text className="text-brand-600 text-sm">💼</Text>
+                  <Text className="text-brand-700 text-sm font-inter-medium">
+                    {provider.totalJobs || 0} jobs
+                  </Text>
+                </HStack>
+              </HStack>
+            </VStack>
+          </HStack>
+        </VStack>
+      </HStack>
+
+      <ScheduleGrid schedule={provider.workingPreferences?.workingSchedule} />
+
+      <HStack className="items-center justify-between gap-2">
+        <HStack className="items-center gap-2">
+          <Text className="text-brand-500">📍</Text>
+          <Text className="text-gray-600 text-sm font-inter-medium">
+            {Math.round(provider.distance / 1000)}km away
+          </Text>
+        </HStack>
+        <Rating
+          type="star"
+          startingValue={provider.rating || 0}
+          imageSize={16}
+          readonly={true}
+          ratingColor="#fbbf24"
+          ratingBackgroundColor="transparent"
+          tintColor="transparent"
+          fractions={2}
+          showRating={false}
+        />
+      </HStack>
+    </VStack>
+  </Pressable>
+);
 export default function LocationScreen() {
   const { watch, setValue, setError, clearErrors, formState } =
     useFormContext<CreateProposalFormData>();
@@ -136,7 +216,7 @@ export default function LocationScreen() {
   };
 
   return (
-    <FootedScrollableScreen
+    <FootedFixedScreen
       addTopInset={false}
       footer={
         <PrimaryButton
@@ -175,113 +255,46 @@ export default function LocationScreen() {
                     {formState.errors.providerId.message}
                   </Text>
                 </VStack>
-              ) : providers.length === 0 ? (
-                <VStack className="items-center justify-center py-8">
-                  <Text className="text-gray-600 text-center">
-                    {serviceId
-                      ? "No service providers found in your area for this service."
-                      : "Select a service to see nearby providers."}
-                  </Text>
-                </VStack>
               ) : (
-                <VStack className="gap-4">
-                  {providers.map((provider) => (
-                    <Pressable
-                      key={provider.id}
-                      onPress={() => setValue("providerId", provider.id)}
-                      className={`p-5 rounded-2xl shadow-soft-1 ${
-                        selectedProvider === provider.id
-                          ? "bg-brand-50 border-2 border-brand-500"
-                          : "bg-white border border-gray-100"
-                      }`}
-                    >
-                      <VStack className="gap-3">
-                        <HStack className="gap-4">
-                          <VStack className="items-center">
-                            <Avatar className="w-16 h-16 border-2 border-white shadow-soft-1">
-                              {provider.profile.profileImage ? (
-                                <Image
-                                  source={{
-                                    uri: provider.profile.profileImage,
-                                  }}
-                                  className="w-full h-full rounded-full"
-                                  resizeMode="cover"
-                                />
-                              ) : (
-                                <VStack className="w-full h-full bg-gradient-to-br from-brand-100 to-brand-200 rounded-full items-center justify-center">
-                                  <Text className="text-brand-600 font-inter-bold text-xl">
-                                    {provider.profile.firstName[0]}
-                                    {provider.profile.lastName[0]}
-                                  </Text>
-                                </VStack>
-                              )}
-                            </Avatar>
-
-                            {selectedProvider === provider.id && (
-                              <VStack className="mt-2 px-2 py-1 bg-brand-500 rounded-full">
-                                <Text className="text-white text-xs font-inter-medium">
-                                  Selected
-                                </Text>
-                              </VStack>
-                            )}
-                          </VStack>
-
-                          <VStack className="flex-1 gap-3">
-                            <HStack className="items-center justify-between">
-                              <VStack className="gap-1">
-                                <Text className="text-gray-900 font-inter-bold text-lg">
-                                  {provider.profile.firstName}{" "}
-                                  {provider.profile.lastName}
-                                </Text>
-                                <HStack className="items-center gap-2">
-                                  <HStack className="items-center gap-1 px-2 py-1 bg-brand-50 rounded-full">
-                                    <Text className="text-brand-600 text-sm">
-                                      💼
-                                    </Text>
-                                    <Text className="text-brand-700 text-sm font-inter-medium">
-                                      {provider.totalJobs || 0} jobs
-                                    </Text>
-                                  </HStack>
-                                </HStack>
-                              </VStack>
-                            </HStack>
-                          </VStack>
-                        </HStack>
-
-                        <ScheduleGrid
-                          schedule={
-                            provider.workingPreferences?.workingSchedule
-                          }
+                <VStack style={{ minHeight: 200, flex: 1 }}>
+                  <FlashList
+                    data={providers}
+                    renderItem={({ item: provider, index }) => (
+                      <VStack>
+                        <ProviderItem
+                          provider={provider}
+                          isSelected={selectedProvider === provider.id}
+                          onSelect={() => setValue("providerId", provider.id)}
                         />
-
-                        <HStack className="items-center justify-between gap-2">
-                          {" "}
-                          <HStack className="items-center gap-2">
-                            <Text className="text-brand-500">📍</Text>
-                            <Text className="text-gray-600 text-sm font-inter-medium">
-                              {Math.round(provider.distance / 1000)}km away
-                            </Text>
-                          </HStack>
-                          <Rating
-                            type="star"
-                            startingValue={provider.rating || 0}
-                            imageSize={16}
-                            readonly={true}
-                            ratingColor="#fbbf24"
-                            ratingBackgroundColor="#d1d5db"
-                            fractions={2}
-                            showRating={false}
-                          />
-                        </HStack>
                       </VStack>
-                    </Pressable>
-                  ))}
+                    )}
+                    ItemSeparatorComponent={() => (
+                      <VStack className="h-px bg-gray-200 mx-5" />
+                    )}
+                    estimatedItemSize={200}
+                    ListEmptyComponent={
+                      <EmptyState
+                        title={
+                          serviceId
+                            ? "No providers found"
+                            : "Select a service first"
+                        }
+                        description={
+                          serviceId
+                            ? "No service providers found in your area for this service."
+                            : "Choose a service to see available providers nearby."
+                        }
+                      />
+                    }
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ backgroundColor: "yellow" }}
+                  />
                 </VStack>
               )}
             </VStack>
           )}
         </VStack>
       </Box>
-    </FootedScrollableScreen>
+    </FootedFixedScreen>
   );
 }
