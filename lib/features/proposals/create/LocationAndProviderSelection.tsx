@@ -78,6 +78,7 @@ export const LocationAndProviderSelection = ({
         name="location"
         label="Cleaning Address"
         placeholder="Enter your address"
+        heightClassName="h-16"
       />
 
       {selectedLocation && (

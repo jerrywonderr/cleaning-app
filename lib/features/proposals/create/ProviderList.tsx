@@ -39,9 +39,7 @@ export const ProviderList = ({
             onSelect={() => onProviderSelect(provider.id)}
           />
         )}
-        ItemSeparatorComponent={() => (
-          <VStack className="h-px bg-gray-200 mx-5" />
-        )}
+        ItemSeparatorComponent={() => <VStack className="h-px bg-gray-200" />}
         estimatedItemSize={200}
         ListEmptyComponent={
           <EmptyState

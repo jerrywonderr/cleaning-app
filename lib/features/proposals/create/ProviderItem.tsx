@@ -4,6 +4,8 @@ import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import { ServiceProviderResult } from "@/lib/types";
+import { cn } from "@/lib/utils/style";
+import { LinearGradient } from "expo-linear-gradient";
 import { Image } from "react-native";
 import { Rating } from "react-native-ratings";
 import { ScheduleGrid } from "./ScheduleGrid";
@@ -19,11 +21,10 @@ export const ProviderItem = ({
   isSelected,
   onSelect,
 }: ProviderItemProps) => (
-  <Pressable
-    onPress={onSelect}
-    className={`p-5 ${isSelected ? "bg-brand-50" : "bg-white"}`}
-  >
-    <VStack className="gap-5">
+  <Pressable onPress={onSelect}>
+    <VStack
+      className={cn("gap-5 p-4", isSelected ? "bg-brand-50" : "bg-white")}
+    >
       <HStack className="gap-4">
         <VStack className="items-center">
           <Avatar className="w-16 h-16 border-2 border-white shadow-soft-1">
@@ -34,12 +35,23 @@ export const ProviderItem = ({
                 resizeMode="cover"
               />
             ) : (
-              <VStack className="w-full h-full bg-gradient-to-br from-brand-100 to-brand-200 rounded-full items-center justify-center">
-                <Text className="text-brand-600 font-inter-bold text-xl">
+              <LinearGradient
+                colors={["#8B5CF6", "#A855F7", "#C084FC"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  borderRadius: 50,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text className="text-white/80 font-inter-bold text-xl">
                   {provider.profile.firstName[0]}
                   {provider.profile.lastName[0]}
                 </Text>
-              </VStack>
+              </LinearGradient>
             )}
           </Avatar>
         </VStack>
