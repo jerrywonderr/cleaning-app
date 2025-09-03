@@ -17,6 +17,7 @@ import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Alert, Image } from "react-native";
+import { Rating } from "react-native-ratings";
 
 const formatWorkingSchedule = (schedule: any) => {
   if (!schedule) return "Schedule not available";
@@ -32,6 +33,50 @@ const formatWorkingSchedule = (schedule: any) => {
       return `${day}: ${start}-${end}`;
     });
   return days.length > 0 ? days.join(", ") : "Schedule not available";
+};
+
+const ScheduleGrid = ({ schedule }: { schedule: any }) => {
+  if (!schedule) return null;
+
+  const dayOrder = [
+    "sunday",
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+  ];
+  const dayLabels = ["S", "M", "T", "W", "T", "F", "S"];
+
+  return (
+    <VStack className="gap-1">
+      <HStack className="justify-between">
+        {dayOrder.map((day, index) => {
+          const dayData = schedule[day];
+          const isActive = dayData?.isActive;
+          return (
+            <VStack key={day} className="items-center gap-1 flex-1">
+              <Text className="text-xs text-gray-500 font-inter-medium">
+                {dayLabels[index]}
+              </Text>
+              <VStack
+                className={`w-6 h-6 rounded-full items-center justify-center ${
+                  isActive ? "bg-brand-500" : "bg-gray-200"
+                }`}
+              >
+                {isActive ? (
+                  <Text className="text-white text-xs">✓</Text>
+                ) : (
+                  <Text className="text-gray-400 text-xs">○</Text>
+                )}
+              </VStack>
+            </VStack>
+          );
+        })}
+      </HStack>
+    </VStack>
+  );
 };
 export default function LocationScreen() {
   const { watch, setValue, setError, clearErrors, formState } =
@@ -144,62 +189,91 @@ export default function LocationScreen() {
                     <Pressable
                       key={provider.id}
                       onPress={() => setValue("providerId", provider.id)}
-                      className={`p-4 border rounded-lg ${
+                      className={`p-5 rounded-2xl shadow-soft-1 ${
                         selectedProvider === provider.id
-                          ? "border-brand-600 bg-brand-50"
-                          : "border-gray-300 bg-white"
+                          ? "bg-brand-50 border-2 border-brand-500"
+                          : "bg-white border border-gray-100"
                       }`}
                     >
-                      <HStack className="gap-3">
-                        <Avatar className="w-12 h-12">
-                          {provider.profile.profileImage ? (
-                            <Image
-                              source={{ uri: provider.profile.profileImage }}
-                              className="w-full h-full rounded-full"
-                              resizeMode="cover"
-                            />
-                          ) : (
-                            <VStack className="w-full h-full bg-gray-200 rounded-full items-center justify-center">
-                              <Text className="text-gray-600 font-inter-medium text-lg">
-                                {provider.profile.firstName[0]}
-                                {provider.profile.lastName[0]}
-                              </Text>
-                            </VStack>
-                          )}
-                        </Avatar>
-
-                        <VStack className="flex-1 gap-2">
-                          <HStack className="items-center justify-between">
-                            <Text className="text-black font-inter-medium text-lg">
-                              {provider.profile.firstName}{" "}
-                              {provider.profile.lastName}
-                            </Text>
-                            <HStack className="items-center gap-1">
-                              <Text className="text-yellow-500">⭐</Text>
-                              <Text className="text-sm text-gray-600 font-inter-medium">
-                                {(provider.rating || 0).toFixed(1)}
-                              </Text>
-                            </HStack>
-                          </HStack>
-
-                          <VStack className="gap-1">
-                            <Text className="text-sm text-gray-600">
-                              {formatWorkingSchedule(
-                                provider.workingPreferences?.workingSchedule
+                      <VStack className="gap-3">
+                        <HStack className="gap-4">
+                          <VStack className="items-center">
+                            <Avatar className="w-16 h-16 border-2 border-white shadow-soft-1">
+                              {provider.profile.profileImage ? (
+                                <Image
+                                  source={{
+                                    uri: provider.profile.profileImage,
+                                  }}
+                                  className="w-full h-full rounded-full"
+                                  resizeMode="cover"
+                                />
+                              ) : (
+                                <VStack className="w-full h-full bg-gradient-to-br from-brand-100 to-brand-200 rounded-full items-center justify-center">
+                                  <Text className="text-brand-600 font-inter-bold text-xl">
+                                    {provider.profile.firstName[0]}
+                                    {provider.profile.lastName[0]}
+                                  </Text>
+                                </VStack>
                               )}
-                            </Text>
+                            </Avatar>
 
-                            <HStack className="items-center gap-4">
-                              <Text className="text-sm text-gray-600">
-                                {provider.totalJobs || 0} jobs completed
-                              </Text>
-                              <Text className="text-sm text-gray-600">
-                                📍 {Math.round(provider.distance / 1000)}km away
-                              </Text>
+                            {selectedProvider === provider.id && (
+                              <VStack className="mt-2 px-2 py-1 bg-brand-500 rounded-full">
+                                <Text className="text-white text-xs font-inter-medium">
+                                  Selected
+                                </Text>
+                              </VStack>
+                            )}
+                          </VStack>
+
+                          <VStack className="flex-1 gap-3">
+                            <HStack className="items-center justify-between">
+                              <VStack className="gap-1">
+                                <Text className="text-gray-900 font-inter-bold text-lg">
+                                  {provider.profile.firstName}{" "}
+                                  {provider.profile.lastName}
+                                </Text>
+                                <HStack className="items-center gap-2">
+                                  <HStack className="items-center gap-1 px-2 py-1 bg-brand-50 rounded-full">
+                                    <Text className="text-brand-600 text-sm">
+                                      💼
+                                    </Text>
+                                    <Text className="text-brand-700 text-sm font-inter-medium">
+                                      {provider.totalJobs || 0} jobs
+                                    </Text>
+                                  </HStack>
+                                </HStack>
+                              </VStack>
                             </HStack>
                           </VStack>
-                        </VStack>
-                      </HStack>
+                        </HStack>
+
+                        <ScheduleGrid
+                          schedule={
+                            provider.workingPreferences?.workingSchedule
+                          }
+                        />
+
+                        <HStack className="items-center justify-between gap-2">
+                          {" "}
+                          <HStack className="items-center gap-2">
+                            <Text className="text-brand-500">📍</Text>
+                            <Text className="text-gray-600 text-sm font-inter-medium">
+                              {Math.round(provider.distance / 1000)}km away
+                            </Text>
+                          </HStack>
+                          <Rating
+                            type="star"
+                            startingValue={provider.rating || 0}
+                            imageSize={16}
+                            readonly={true}
+                            ratingColor="#fbbf24"
+                            ratingBackgroundColor="#d1d5db"
+                            fractions={2}
+                            showRating={false}
+                          />
+                        </HStack>
+                      </VStack>
                     </Pressable>
                   ))}
                 </VStack>
