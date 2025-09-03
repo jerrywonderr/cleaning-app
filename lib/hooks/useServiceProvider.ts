@@ -1,9 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FirebaseFirestoreService } from "../firebase/firestore";
+import { updateServiceProviderSettings } from "../services/cloudFunctionsService";
 import { useUserStore } from "../store/useUserStore";
 import {
   ServiceAreaData,
   UpdateServiceProviderProfileData,
+  UpdateServiceProviderRequest,
   WorkingSchedule,
 } from "../types/service-config";
 
@@ -23,8 +25,20 @@ export const useServiceProvider = () => {
   });
 
   const updateProfileMutation = useMutation({
-    mutationFn: (data: UpdateServiceProviderProfileData) =>
-      FirebaseFirestoreService.updateServiceProviderProfile(profile?.id!, data),
+    mutationFn: (data: UpdateServiceProviderProfileData) => {
+      const request: UpdateServiceProviderRequest = {
+        userId: profile?.id!,
+        providerData: {
+          services: data.services || serviceProviderProfile?.services!,
+          extraOptions:
+            data.extraOptions || serviceProviderProfile?.extraOptions!,
+          workingPreferences:
+            data.workingPreferences ||
+            serviceProviderProfile?.workingPreferences,
+        },
+      };
+      return updateServiceProviderSettings(request);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["serviceProviderProfile", profile?.id],
@@ -33,13 +47,20 @@ export const useServiceProvider = () => {
   });
 
   const updateServiceAreaMutation = useMutation({
-    mutationFn: (serviceArea: ServiceAreaData) =>
-      FirebaseFirestoreService.updateServiceProviderProfile(profile?.id!, {
-        workingPreferences: {
-          ...serviceProviderProfile?.workingPreferences,
-          serviceArea,
+    mutationFn: (serviceArea: ServiceAreaData) => {
+      const request: UpdateServiceProviderRequest = {
+        userId: profile?.id!,
+        providerData: {
+          services: serviceProviderProfile?.services!,
+          extraOptions: serviceProviderProfile?.extraOptions!,
+          workingPreferences: {
+            ...serviceProviderProfile?.workingPreferences,
+            serviceArea,
+          },
         },
-      }),
+      };
+      return updateServiceProviderSettings(request);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["serviceProviderProfile", profile?.id],
@@ -48,13 +69,20 @@ export const useServiceProvider = () => {
   });
 
   const updateWorkingScheduleMutation = useMutation({
-    mutationFn: (workingSchedule: WorkingSchedule) =>
-      FirebaseFirestoreService.updateServiceProviderProfile(profile?.id!, {
-        workingPreferences: {
-          ...serviceProviderProfile?.workingPreferences,
-          workingSchedule,
+    mutationFn: (workingSchedule: WorkingSchedule) => {
+      const request: UpdateServiceProviderRequest = {
+        userId: profile?.id!,
+        providerData: {
+          services: serviceProviderProfile?.services!,
+          extraOptions: serviceProviderProfile?.extraOptions!,
+          workingPreferences: {
+            ...serviceProviderProfile?.workingPreferences,
+            workingSchedule,
+          },
         },
-      }),
+      };
+      return updateServiceProviderSettings(request);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["serviceProviderProfile", profile?.id],

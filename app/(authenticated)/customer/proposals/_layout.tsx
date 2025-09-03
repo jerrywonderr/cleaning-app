@@ -4,7 +4,7 @@ import {
   createProposalSchema,
 } from "@/lib/schemas/create-proposal";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Stack, usePathname } from "expo-router";
+import { Stack } from "expo-router";
 import { FormProvider, useForm } from "react-hook-form";
 
 export default function ProposalsLayout() {
@@ -24,18 +24,6 @@ export default function ProposalsLayout() {
     },
   });
 
-  const pathname = usePathname();
-
-  const getStep = () => {
-    if (pathname.includes("select-service")) return 1;
-    if (pathname.includes("location")) return 2;
-    if (pathname.includes("select-provider")) return 3;
-    if (pathname.includes("create-proposal")) return 4;
-    if (pathname.includes("extra-options")) return 5;
-    if (pathname.includes("final-proposal")) return 6;
-    return 1;
-  };
-
   return (
     <FormProvider {...form}>
       <Stack
@@ -53,45 +41,39 @@ export default function ProposalsLayout() {
         }}
       >
         <Stack.Screen
-          name="select-service"
+          name="index"
           options={{
             title: "Select Service",
-            headerShown: false,
           }}
         />
         <Stack.Screen
           name="location"
           options={{
             title: "Location",
-            headerShown: false,
           }}
         />
         <Stack.Screen
           name="select-provider"
           options={{
             title: "Select Provider",
-            headerShown: false,
           }}
         />
         <Stack.Screen
           name="create-proposal"
           options={{
             title: "Create Proposal",
-            headerShown: false,
           }}
         />
         <Stack.Screen
           name="extra-options"
           options={{
             title: "Extra Options",
-            headerShown: false,
           }}
         />
         <Stack.Screen
           name="final-proposal"
           options={{
             title: "Review Proposal",
-            headerShown: false,
           }}
         />
       </Stack>

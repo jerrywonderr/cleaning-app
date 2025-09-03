@@ -1,5 +1,6 @@
 import { getFunctions, httpsCallable } from "firebase/functions";
 import app from "../firebase/config";
+import { UpdateServiceProviderRequest } from "../types/service-config";
 
 // Initialize Firebase Functions
 const functions = getFunctions(app);
@@ -44,6 +45,44 @@ export class CloudFunctionsService {
     }
   }
 
+  // Search for service providers
+  static async searchServiceProviders(
+    serviceType: string,
+    location: { latitude: number; longitude: number }
+  ) {
+    try {
+      const searchProvidersFunction = httpsCallable(
+        functions,
+        "searchServiceProviders"
+      );
+      const result = await searchProvidersFunction({
+        serviceType,
+        location,
+      });
+      return result.data;
+    } catch (error) {
+      console.error("Error searching service providers:", error);
+      throw error;
+    }
+  }
+
+  // Update service provider settings
+  static async updateServiceProviderSettings(
+    request: UpdateServiceProviderRequest
+  ) {
+    try {
+      const updateSettingsFunction = httpsCallable(
+        functions,
+        "updateServiceProviderSettings"
+      );
+      const result = await updateSettingsFunction(request);
+      return result.data;
+    } catch (error) {
+      console.error("Error updating service provider settings:", error);
+      throw error;
+    }
+  }
+
   // Health check endpoint
   static async healthCheck() {
     try {
@@ -61,4 +100,8 @@ export class CloudFunctionsService {
 // Export individual functions for convenience
 export const processPayment = CloudFunctionsService.processPayment;
 export const updateUserProfile = CloudFunctionsService.updateUserProfile;
+export const searchServiceProviders =
+  CloudFunctionsService.searchServiceProviders;
+export const updateServiceProviderSettings =
+  CloudFunctionsService.updateServiceProviderSettings;
 export const healthCheck = CloudFunctionsService.healthCheck;

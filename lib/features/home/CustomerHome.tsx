@@ -95,11 +95,7 @@ export default function CustomerHome() {
               What do you want to get done today?
             </Text>
             <Pressable
-              onPress={() =>
-                router.push(
-                  "/(authenticated)/customer/proposals/select-service"
-                )
-              }
+              onPress={() => router.push("/(authenticated)/customer/proposals")}
               className="bg-white px-5 py-2 rounded-full"
             >
               <Text className="text-brand-500 font-inter-medium">

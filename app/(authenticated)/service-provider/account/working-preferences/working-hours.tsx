@@ -7,6 +7,7 @@ import { useLoader } from "@/lib/components/ui/loader";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import { useServiceProvider } from "@/lib/hooks/useServiceProvider";
+import { WorkingSchedule } from "@/lib/types/service-config";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useRouter } from "expo-router";
 import { Clock, Save } from "lucide-react-native";
@@ -128,23 +129,52 @@ export default function WorkingHoursScreen() {
 
   // Load existing working hours data when component mounts or data changes
   useEffect(() => {
+    console.log("Service provider profile:", serviceProviderProfile);
+    console.log(
+      "Working preferences:",
+      serviceProviderProfile?.workingPreferences
+    );
+
     if (serviceProviderProfile?.workingPreferences?.workingSchedule) {
-      const existingSchedule = serviceProviderProfile.workingPreferences
-        .workingSchedule as Record<string, any>;
+      const existingSchedule =
+        serviceProviderProfile.workingPreferences.workingSchedule;
+      console.log("Loading existing schedule:", existingSchedule);
+
       if (existingSchedule && typeof existingSchedule === "object") {
+        // Build the complete form data object
+        const formData: FormData = {
+          workingHours: {
+            monday: { isActive: false, startTime: null, endTime: null },
+            tuesday: { isActive: false, startTime: null, endTime: null },
+            wednesday: { isActive: false, startTime: null, endTime: null },
+            thursday: { isActive: false, startTime: null, endTime: null },
+            friday: { isActive: false, startTime: null, endTime: null },
+            saturday: { isActive: false, startTime: null, endTime: null },
+            sunday: { isActive: false, startTime: null, endTime: null },
+          },
+        };
+
+        // Update with existing data
         Object.keys(existingSchedule).forEach((day) => {
           const dayData = existingSchedule[day];
+          console.log(`Setting ${day}:`, dayData);
+
           if (dayData && typeof dayData === "object") {
-            methods.setValue(`workingHours.${day}` as any, {
+            formData.workingHours[day as keyof typeof formData.workingHours] = {
               isActive: dayData.isActive || false,
               startTime: dayData.startTime ? new Date(dayData.startTime) : null,
               endTime: dayData.endTime ? new Date(dayData.endTime) : null,
-            });
+            };
           }
         });
+
+        console.log("Resetting form with data:", formData);
+        methods.reset(formData);
       }
+    } else {
+      console.log("No working schedule found in profile");
     }
-  }, [serviceProviderProfile, methods]);
+  }, [serviceProviderProfile]);
 
   // Show/hide loader based on loading state
   useEffect(() => {
@@ -168,18 +198,16 @@ export default function WorkingHoursScreen() {
       const utcWorkingHours = Object.keys(data.workingHours).reduce(
         (acc, day) => {
           const dayData = data.workingHours[day];
-          if (dayData.isActive && dayData.startTime && dayData.endTime) {
-            acc[day] = {
-              isActive: dayData.isActive,
-              startTime: dayData.startTime.toISOString(),
-              endTime: dayData.endTime.toISOString(),
-            };
-          } else {
-            acc[day] = dayData;
-          }
+          acc[day] = {
+            isActive: dayData.isActive,
+            startTime: dayData.startTime
+              ? dayData.startTime.toISOString()
+              : null,
+            endTime: dayData.endTime ? dayData.endTime.toISOString() : null,
+          };
           return acc;
         },
-        {} as any
+        {} as WorkingSchedule
       );
 
       await updateWorkingSchedule(utcWorkingHours);

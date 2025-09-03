@@ -12,10 +12,14 @@ export interface SearchLocation {
 
 export interface ServiceAreaData {
   fullAddress: string;
-  latitude: number;
-  longitude: number;
+  coordinates: {
+    latitude: number;
+    longitude: number;
+  };
   country: string;
+  countryCode: string;
   radius: number; // in meters
+  geohash: string; // for efficient spatial queries
 }
 
 // Working schedule types
@@ -111,13 +115,6 @@ export interface UpdateServiceProviderProfileData {
   extraOptions?: Record<string, boolean>;
   workingPreferences?: WorkingPreferences;
   isActive?: boolean;
-  location?: {
-    coordinates: {
-      latitude: number;
-      longitude: number;
-    };
-    radius: number;
-  };
 }
 
 // User types

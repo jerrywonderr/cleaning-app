@@ -37,10 +37,10 @@ export default function SelectService() {
         <VStack className="gap-4">
           {/* Header */}
           <VStack className="gap-2">
-            <Text className="text-2xl font-inter-bold text-black">
+            {/* <Text className="text-2xl font-inter-bold text-black">
               Choose a Cleaning Service
-            </Text>
-            <Text className="text-sm text-gray-600">
+            </Text> */}
+            <Text className="text-md text-gray-600">
               Select the type of cleaning service you want for your home.
             </Text>
           </VStack>

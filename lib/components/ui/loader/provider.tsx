@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useCallback, useState } from "react";
 import { LoaderContext } from "./context";
 import { Loader } from "./loader";
 
@@ -10,15 +10,15 @@ export const LoaderProvider = ({ children }: LoaderProviderProps) => {
   const [visible, setVisible] = useState(false);
   const [description, setDescription] = useState<string>();
 
-  const showLoader = (text?: string) => {
+  const showLoader = useCallback((text?: string) => {
     setDescription(text);
     setVisible(true);
-  };
+  }, []);
 
-  const hideLoader = () => {
+  const hideLoader = useCallback(() => {
     setVisible(false);
     setDescription(undefined);
-  };
+  }, []);
 
   return (
     <LoaderContext.Provider value={{ showLoader, hideLoader }}>
