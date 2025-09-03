@@ -8,37 +8,34 @@ import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import { serviceConfigs } from "@/lib/constants/service-config";
 import { CreateProposalFormData } from "@/lib/schemas/create-proposal";
+import { searchServiceProviders } from "@/lib/services/cloudFunctionsService";
+import { ServiceProviderResult } from "@/lib/types";
+import { format } from "date-fns";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Alert, Pressable } from "react-native";
 
-const serviceProviders = [
-  {
-    id: "provider-1",
-    name: "CleanCo Experts",
-    workingDays: ["Mon", "Tue", "Wed", "Thu", "Fri"],
-    workingHours: { start: "09:00", end: "17:00" },
-  },
-  {
-    id: "provider-2",
-    name: "Sparkle Team",
-    workingDays: ["Tue", "Wed", "Thu", "Fri", "Sat"],
-    workingHours: { start: "10:00", end: "18:00" },
-  },
-  {
-    id: "provider-3",
-    name: "Shiny Homes",
-    workingDays: ["Mon", "Wed", "Fri", "Sat"],
-    workingHours: { start: "08:00", end: "14:00" },
-  },
-];
+// Helper function to format time from ISO string
+const formatTime = (timeString: string) => {
+  try {
+    const date = new Date(timeString);
+    return format(date, "HH:mm");
+  } catch (error) {
+    return timeString;
+  }
+};
 
 // Generate hourly slots
 const generateTimeSlots = (start: string, end: string) => {
+  if (!start || !end) return [];
+
   const slots: string[] = [];
   let [hour] = start.split(":").map(Number);
   const [endHour] = end.split(":").map(Number);
+
+  if (isNaN(hour) || isNaN(endHour)) return [];
+
   while (hour < endHour) {
     const nextHour = hour + 1;
     slots.push(
@@ -58,12 +55,21 @@ const getAvailableRanges = (
   duration: number,
   providerHours: { start: string; end: string }
 ) => {
+  if (!providerHours?.start || !providerHours?.end || duration <= 0) {
+    return [];
+  }
+
   const allSlots = generateTimeSlots(providerHours.start, providerHours.end);
+  if (allSlots.length === 0) return [];
+
   const ranges: string[] = [];
   for (let i = 0; i <= allSlots.length - duration; i++) {
-    const startTime = allSlots[i].split("-")[0];
-    const endTime = allSlots[i + duration - 1].split("-")[1];
-    ranges.push(`${startTime}-${endTime}`);
+    const startTime = allSlots[i]?.split("-")[0];
+    const endTime = allSlots[i + duration - 1]?.split("-")[1];
+
+    if (startTime && endTime) {
+      ranges.push(`${startTime}-${endTime}`);
+    }
   }
   return ranges;
 };
@@ -72,28 +78,93 @@ export default function CreateProposalPage() {
   const { watch, setValue } = useFormContext<CreateProposalFormData>();
   const serviceId = watch("serviceId");
   const providerId = watch("providerId");
+  const location = watch("location");
 
   const selectedService = serviceConfigs.find((s) => s.id === serviceId);
-  const selectedProvider = serviceProviders.find((p) => p.id === providerId);
+
+  // Fetch provider data based on providerId from form
+  const [selectedProvider, setSelectedProvider] =
+    useState<ServiceProviderResult | null>(null);
+
+  // Fetch provider data when providerId or location changes
+  useEffect(() => {
+    const fetchProviderData = async () => {
+      if (!providerId || !location || !serviceId) {
+        setSelectedProvider(null);
+        return;
+      }
+
+      try {
+        const results = await searchServiceProviders(serviceId, {
+          latitude: location.latitude,
+          longitude: location.longitude,
+        });
+
+        const provider = (results as ServiceProviderResult[]).find(
+          (p) => p.id === providerId
+        );
+
+        setSelectedProvider(provider || null);
+      } catch (error) {
+        console.error("Error fetching provider data:", error);
+        setSelectedProvider(null);
+      }
+    };
+
+    fetchProviderData();
+  }, [providerId, location, serviceId]);
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [duration, setDuration] = useState(0);
   const [selectedRange, setSelectedRange] = useState<string | null>(null);
 
-  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const dayNames = [
+    "sunday",
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+  ];
   const formattedDate = selectedDate?.toISOString().split("T")[0] || "";
   const dayName = selectedDate ? dayNames[selectedDate.getDay()] : "";
 
+  // Get working hours for the selected day
+  const getWorkingHours = () => {
+    if (!selectedProvider?.workingPreferences?.workingSchedule || !dayName) {
+      return null;
+    }
+
+    const daySchedule =
+      selectedProvider.workingPreferences.workingSchedule[dayName];
+    if (
+      !daySchedule?.isActive ||
+      !daySchedule.startTime ||
+      !daySchedule.endTime
+    ) {
+      return null;
+    }
+
+    const startTime = formatTime(daySchedule.startTime);
+    const endTime = formatTime(daySchedule.endTime);
+
+    if (!startTime || !endTime) {
+      return null;
+    }
+
+    return {
+      start: startTime,
+      end: endTime,
+    };
+  };
+
+  const workingHours = getWorkingHours();
+  const isWorkingDay = workingHours !== null;
+
   const availableRanges =
-    selectedProvider &&
-    selectedDate &&
-    selectedProvider.workingDays.includes(dayName)
-      ? getAvailableRanges(
-          serviceId,
-          formattedDate,
-          duration,
-          selectedProvider.workingHours
-        )
+    selectedProvider && selectedDate && isWorkingDay && workingHours
+      ? getAvailableRanges(serviceId, formattedDate, duration, workingHours)
       : [];
 
   useEffect(() => {
@@ -108,12 +179,25 @@ export default function CreateProposalPage() {
       !selectedService ||
       !selectedProvider ||
       !selectedDate ||
-      !selectedRange
+      !selectedRange ||
+      !duration
     ) {
       Alert.alert("Missing Info", "Please select all required fields.");
       return;
     }
-    router.push("/customer/proposals/extra-options");
+
+    // Check if provider has extra services available
+    const hasExtraServices = Object.values(selectedProvider.extraOptions).some(
+      Boolean
+    );
+
+    if (hasExtraServices) {
+      // Navigate to extra options step
+      router.push("/customer/proposals/extra-options");
+    } else {
+      // Skip directly to final proposal
+      router.push("/customer/proposals/final-proposal");
+    }
   };
 
   return (
@@ -138,20 +222,43 @@ export default function CreateProposalPage() {
             <Text className="text-gray-600">
               {selectedService?.description}
             </Text>
+            <Text className="text-sm text-gray-500 mt-1">
+              ₦{selectedService?.perHourPrice}/hour
+            </Text>
+          </Box>
+
+          {/* Location */}
+          <Box className="bg-gray-50 p-4 rounded-lg">
+            <Text className="text-lg font-inter-bold mb-2">
+              Service Location
+            </Text>
+            <Text className="font-inter-medium">{location?.fullAddress}</Text>
           </Box>
 
           {/* Provider */}
-          <Box className="bg-gray-50 p-4 rounded-lg">
-            <Text className="text-lg font-inter-bold mb-2">
-              Service Provider
-            </Text>
-            <Text className="font-inter-medium">{selectedProvider?.name}</Text>
-            <Text className="text-gray-600">
-              {selectedProvider?.workingDays.join(", ")} |{" "}
-              {selectedProvider?.workingHours.start} -{" "}
-              {selectedProvider?.workingHours.end}
-            </Text>
-          </Box>
+          {selectedProvider && (
+            <Box className="bg-gray-50 p-4 rounded-lg">
+              <Text className="text-lg font-inter-bold mb-2">
+                Service Provider
+              </Text>
+              <Text className="font-inter-medium">
+                {selectedProvider.profile.firstName}{" "}
+                {selectedProvider.profile.lastName}
+              </Text>
+              <Text className="text-gray-600">
+                {selectedProvider.rating
+                  ? `⭐ ${selectedProvider.rating}`
+                  : "New Provider"}{" "}
+                |
+                {selectedProvider.totalJobs
+                  ? ` ${selectedProvider.totalJobs} jobs`
+                  : " No jobs yet"}
+              </Text>
+              <Text className="text-sm text-gray-500 mt-1">
+                {Math.round(selectedProvider.distance / 1000)}km away
+              </Text>
+            </Box>
+          )}
 
           {/* Date */}
           <DateField
@@ -202,33 +309,46 @@ export default function CreateProposalPage() {
               Select Time Range
             </Text>
             <HStack className="flex-wrap gap-2">
-              {selectedDate ? (
-                availableRanges.length ? (
-                  availableRanges.map((range) => (
-                    <Pressable
-                      key={range}
-                      onPress={() => setSelectedRange(range)}
-                      className={`px-4 py-2 rounded-lg border ${
-                        selectedRange === range
-                          ? "bg-brand-500 border-brand-500"
-                          : "border-gray-300"
-                      }`}
-                    >
-                      <Text
-                        className={`${
-                          selectedRange === range ? "text-white" : "text-black"
-                        }`}
-                      >
-                        {range}
-                      </Text>
-                    </Pressable>
-                  ))
-                ) : (
-                  <Text className="text-gray-500">No available ranges</Text>
-                )
-              ) : (
+              {!selectedDate ? (
                 <Text className="text-gray-500">
                   Please select a date first
+                </Text>
+              ) : !selectedProvider ? (
+                <Text className="text-gray-500">
+                  Please select a provider first
+                </Text>
+              ) : !isWorkingDay ? (
+                <Text className="text-gray-500">
+                  Provider is not available on {dayName}
+                </Text>
+              ) : !duration ? (
+                <Text className="text-gray-500">
+                  Please select duration first
+                </Text>
+              ) : availableRanges.length ? (
+                availableRanges.map((range) => (
+                  <Pressable
+                    key={range}
+                    onPress={() => setSelectedRange(range)}
+                    className={`px-4 py-2 rounded-lg border ${
+                      selectedRange === range
+                        ? "bg-brand-500 border-brand-500"
+                        : "border-gray-300"
+                    }`}
+                  >
+                    <Text
+                      className={`${
+                        selectedRange === range ? "text-white" : "text-black"
+                      }`}
+                    >
+                      {range}
+                    </Text>
+                  </Pressable>
+                ))
+              ) : (
+                <Text className="text-gray-500">
+                  No available time slots for {duration} hour
+                  {duration > 1 ? "s" : ""}
                 </Text>
               )}
             </HStack>
