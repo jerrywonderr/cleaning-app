@@ -31,7 +31,7 @@ export const ProviderList = ({
   return (
     <VStack style={{ minHeight: 200, flex: 1 }}>
       <FlashList
-        data={Array(5).fill(providers).flat()}
+        data={providers}
         renderItem={({ item: provider }) => (
           <ProviderItem
             provider={provider}
