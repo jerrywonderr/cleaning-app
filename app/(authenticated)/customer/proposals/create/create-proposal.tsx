@@ -193,10 +193,10 @@ export default function CreateProposalPage() {
 
     if (hasExtraServices) {
       // Navigate to extra options step
-      router.push("/customer/proposals/extra-options");
+      router.push("/customer/proposals/create/extra-options");
     } else {
       // Skip directly to final proposal
-      router.push("/customer/proposals/final-proposal");
+      router.push("/customer/proposals/create/final-proposal");
     }
   };
 

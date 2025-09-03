@@ -4,40 +4,46 @@ import { Icon } from "@/lib/components/ui/icon";
 import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import ProposalCard from "@/lib/features/proposals/ProposalCard";
-import { useActiveOffers } from "@/lib/hooks/useOffers";
+import { useUserType } from "@/lib/hooks/useAuth";
+import { useProviderServiceRequests } from "@/lib/hooks/useServiceRequests";
 import { FlashList } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
 import { FileText } from "lucide-react-native";
 import { useState } from "react";
 import { RefreshControl } from "react-native";
 
-// mock proposals for now
-const mockProposals = {
-  pending: [
-    { id: "1", title: "Deep Cleaning", provider: "Sparkle Ltd" },
-    { id: "2", title: "Move-out Cleaning", provider: "Shiny Homes" },
-  ],
-  confirmed: [{ id: "3", title: "Carpet Shampoo", provider: "Fresh Floors" }],
-};
-
 export default function ProposalsScreen() {
-  const [activeTab, setActiveTab] = useState<"pending" | "confirmed">(
-    "pending"
-  );
+  const [activeTab, setActiveTab] = useState<"pending" | "accepted">("pending");
   const router = useRouter();
+  const { profile } = useUserType();
 
-  // Fake refresh handler
+  // Fetch service requests for this provider
+  const {
+    data: serviceRequests = [],
+    refetch,
+    isRefetching,
+  } = useProviderServiceRequests(profile?.id || "");
+
+  // Filter service requests based on tab
+  const filteredRequests = serviceRequests.filter((request) => {
+    if (activeTab === "pending") {
+      return request.serviceRequest.status === "pending";
+    } else if (activeTab === "accepted") {
+      return request.serviceRequest.status === "accepted";
+    }
+    return false;
+  });
+
   const handleRefresh = () => {
-    // Later hook into API
-    console.log("Refreshing proposals...");
+    refetch();
   };
 
   const getTabTitle = (tab: string) => {
     switch (tab) {
       case "pending":
-        return "Pending";
-      case "confirmed":
-        return "Confirmed";
+        return "New Requests";
+      case "accepted":
+        return "Accepted";
       default:
         return tab;
     }
@@ -46,31 +52,30 @@ export default function ProposalsScreen() {
   const getEmptyStateMessage = (tab: string) => {
     switch (tab) {
       case "pending":
-        return "You don’t have any pending proposals.";
-      case "confirmed":
-        return "You don’t have any confirmed proposals yet.";
+        return "No new service requests at the moment.";
+      case "accepted":
+        return "No accepted requests waiting for customer payment.";
       default:
-        return "No proposals found.";
+        return "No service requests found.";
     }
   };
 
-  const proposals = mockProposals[activeTab] || [];
-  const { data: allOffers, isLoading: isLoadingOffers } = useActiveOffers();
-  const handleViewOffer = (offerId: string) => {
-    router.push(`/service-provider/offers/${offerId}`);
+  const handleViewServiceRequest = (serviceRequestId: string) => {
+    // TODO: Navigate to service request details for provider actions
+    console.log("View service request:", serviceRequestId);
   };
 
   return (
     <FixedScreen addTopInset={false}>
       {/* Header */}
       <Box className="bg-white px-2 py-4 border-b border-gray-100">
-        <Text className="text-gray-500">Manage your proposals</Text>
+        <Text className="text-gray-500">Manage incoming service requests</Text>
       </Box>
 
       {/* Tab Navigation */}
       <Box className="bg-white border-b border-gray-100">
         <Box className="flex-row mx-6">
-          {(["pending", "confirmed"] as const).map((tab) => (
+          {(["pending", "accepted"] as const).map((tab) => (
             <Pressable
               key={tab}
               className={`flex-1 py-4 ${
@@ -90,37 +95,47 @@ export default function ProposalsScreen() {
         </Box>
       </Box>
 
-      {/* Proposals List */}
+      {/* Service Requests List */}
       <Box className="flex-1 pt-6">
-        {proposals.length > 0 && (
+        {filteredRequests.length > 0 && (
           <Text className="text-sm text-gray-500 mb-4 font-medium px-6">
-            {proposals.length} {getTabTitle(activeTab).toLowerCase()} proposal
-            {proposals.length !== 1 ? "s" : ""}
+            {filteredRequests.length} {getTabTitle(activeTab).toLowerCase()}{" "}
+            service request{filteredRequests.length !== 1 ? "s" : ""}
           </Text>
         )}
 
-        {proposals.length > 0 ? (
+        {filteredRequests.length > 0 ? (
           <FlashList
-            data={allOffers}
-            renderItem={({ item: offer }) => (
-              <ProposalCard
-                key={offer.id}
-                title={offer.title}
-                price={offer.price}
-                client={offer.provider}
-                description={offer.description}
-                image={offer.image}
-                status="pending"
-                onPress={() => handleViewOffer(offer.id)}
-              />
-            )}
+            data={filteredRequests}
+            keyExtractor={(item) => item.serviceRequest.id}
+            estimatedItemSize={120}
+            renderItem={({ item }) => {
+              const { serviceRequest, customer } = item;
+              return (
+                <ProposalCard
+                  key={serviceRequest.id}
+                  title={serviceRequest.serviceName}
+                  price={serviceRequest.totalPrice}
+                  client={`${customer.firstName} ${customer.lastName}`}
+                  description={`${serviceRequest.duration} hour${
+                    serviceRequest.duration > 1 ? "s" : ""
+                  } • ${serviceRequest.timeRange} • ${
+                    serviceRequest.location.fullAddress
+                  }`}
+                  image={customer.profileImage}
+                  status={
+                    serviceRequest.status === "pending" ? "pending" : "accepted"
+                  }
+                  onPress={() => handleViewServiceRequest(serviceRequest.id)}
+                />
+              );
+            }}
             showsVerticalScrollIndicator={false}
             contentContainerClassName="gap-3 my-4"
             ItemSeparatorComponent={() => <Box className="h-[0.5] my-2" />}
-            estimatedItemSize={100}
             refreshControl={
               <RefreshControl
-                refreshing={false}
+                refreshing={isRefetching}
                 onRefresh={handleRefresh}
                 tintColor="#6366f1"
               />
@@ -130,7 +145,7 @@ export default function ProposalsScreen() {
           <Box className="flex-1 items-center justify-center py-12 px-6">
             <Icon as={FileText} size="xl" className="text-gray-300 mb-4" />
             <Text className="text-gray-500 text-center text-lg font-medium mb-2">
-              No {getTabTitle(activeTab).toLowerCase()} proposals
+              No {getTabTitle(activeTab).toLowerCase()} service requests
             </Text>
             <Text className="text-gray-400 text-center">
               {getEmptyStateMessage(activeTab)}

@@ -22,7 +22,7 @@ export default function LocationScreen() {
       Alert.alert("Selection Required", "Please select a service provider");
       return;
     }
-    router.push("/customer/proposals/create-proposal");
+    router.push("/customer/proposals/create/create-proposal");
   };
 
   return (

@@ -9,14 +9,20 @@ import {
   extraServiceOptions,
   serviceConfigs,
 } from "@/lib/constants/service-config";
+import { useUserType } from "@/lib/hooks/useAuth";
+import { useCreateServiceRequest } from "@/lib/hooks/useServiceRequests";
 import { CreateProposalFormData } from "@/lib/schemas/create-proposal";
 import { searchServiceProviders } from "@/lib/services/cloudFunctionsService";
 import { ServiceProviderResult } from "@/lib/types";
+import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
+import { Alert } from "react-native";
 
 export default function FinalProposalPage() {
   const { watch } = useFormContext<CreateProposalFormData>();
+  const { profile } = useUserType();
+  const createServiceRequest = useCreateServiceRequest();
 
   const serviceId = watch("serviceId");
   const providerId = watch("providerId");
@@ -104,57 +110,73 @@ export default function FinalProposalPage() {
     }
   };
 
-  const finalizeProposal = () => {
-    // Prepare proposal data for submission
-    const proposalData = {
-      // Core proposal details
-      serviceId,
+  const finalizeProposal = async () => {
+    if (!selectedProvider) {
+      Alert.alert(
+        "Error",
+        "Provider information is missing. Please try again."
+      );
+      return;
+    }
+
+    if (!profile?.id) {
+      Alert.alert("Error", "User information is missing. Please log in again.");
+      return;
+    }
+
+    // Prepare service request data
+    const serviceRequestData = {
+      customerId: profile.id,
       providerId,
-      location,
-
-      // Service details
-      serviceType: selectedService?.id,
-      serviceName: selectedService?.name,
+      serviceType: serviceId,
+      serviceName: selectedService?.name || "",
       duration,
-
-      // Scheduling
       scheduledDate: selectedDate,
       timeRange: selectedTimeRange,
-
-      // Pricing
+      location,
       basePrice: pricing.basePrice,
       extrasPrice: pricing.extrasPrice,
       totalPrice: pricing.total,
-
-      // Extras
-      extraOptions: selectedExtras,
-
-      // Provider info
-      providerName: selectedProvider
-        ? `${selectedProvider.profile.firstName} ${selectedProvider.profile.lastName}`
-        : "Unknown Provider",
-      providerPhone: selectedProvider?.profile.phone,
-      providerRating: selectedProvider?.rating,
-
-      // Timestamps
-      createdAt: new Date().toISOString(),
-      status: "pending", // Initial status
+      extraOptions: selectedExtras.filter((id): id is string => Boolean(id)),
     };
 
-    console.log("Proposal Data:", proposalData);
-
-    // TODO: Save to database/service
-    // await saveProposal(proposalData);
-
-    // router.push("/(authenticated)/customer/(tabs)/proposals");
+    // Create the service request using the mutation hook
+    createServiceRequest.mutate(serviceRequestData, {
+      onSuccess: (serviceRequestId) => {
+        Alert.alert(
+          "Service Request Created!",
+          "Your service request has been sent to the provider. You'll be notified when they respond.",
+          [
+            {
+              text: "OK",
+              onPress: () =>
+                router.push("/(authenticated)/customer/(tabs)/proposals"),
+            },
+          ]
+        );
+      },
+      onError: (error) => {
+        console.error("Error creating service request:", error);
+        Alert.alert(
+          "Error",
+          "Failed to create service request. Please try again.",
+          [{ text: "OK" }]
+        );
+      },
+    });
   };
 
   return (
     <FootedScrollableScreen
       addTopInset={false}
       footer={
-        <PrimaryButton onPress={finalizeProposal}>
-          Confirm Proposal
+        <PrimaryButton
+          onPress={finalizeProposal}
+          disabled={createServiceRequest.isPending}
+        >
+          {createServiceRequest.isPending
+            ? "Creating Request..."
+            : "Confirm Proposal"}
         </PrimaryButton>
       }
     >
@@ -250,19 +272,21 @@ export default function FinalProposalPage() {
                 Extra Services
               </Text>
               <VStack className="gap-2">
-                {selectedExtras.map((id: string) => {
-                  const option = extraServiceOptions.find((o) => o.id === id);
-                  return (
-                    <HStack key={id} className="justify-between items-center">
-                      <Text className="text-black font-inter-medium">
-                        • {option?.name}
-                      </Text>
-                      <Text className="text-sm font-inter-bold text-brand-500">
-                        +₦{option?.additionalPrice}
-                      </Text>
-                    </HStack>
-                  );
-                })}
+                {selectedExtras
+                  .filter((id): id is string => Boolean(id))
+                  .map((id) => {
+                    const option = extraServiceOptions.find((o) => o.id === id);
+                    return (
+                      <HStack key={id} className="justify-between items-center">
+                        <Text className="text-black font-inter-medium">
+                          • {option?.name}
+                        </Text>
+                        <Text className="text-sm font-inter-bold text-brand-500">
+                          +₦{option?.additionalPrice}
+                        </Text>
+                      </HStack>
+                    );
+                  })}
               </VStack>
             </Box>
           )}

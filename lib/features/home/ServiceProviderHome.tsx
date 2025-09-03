@@ -7,9 +7,10 @@ import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import AppointmentItem from "@/lib/features/appointments/AppointmentItem";
-import { useAppointmentsByStatus } from "@/lib/hooks/useAppointments";
+import { useUserType } from "@/lib/hooks/useAuth";
+import { useProviderServiceRequests } from "@/lib/hooks/useServiceRequests";
 import { useAppStore } from "@/lib/store/useAppStore";
-import { useUserStore } from "@/lib/store/useUserStore";
+import { format } from "date-fns";
 import { useRouter } from "expo-router";
 import {
   Bell,
@@ -23,21 +24,55 @@ import React from "react";
 import { ScrollView, TouchableOpacity } from "react-native";
 
 export default function ServiceProviderHome() {
-  const { profile } = useUserStore();
+  const { profile } = useUserType();
   const router = useRouter();
 
   const hasNotification = true;
   const { balanceVisibile, toggleBalanceVisibility } = useAppStore();
 
-  // Fetch upcoming and ongoing appointments
-  const { data: upcomingAppointments = [] } = useAppointmentsByStatus(
-    "upcoming",
-    "serviceProvider"
+  // Fetch service requests for this provider
+  const { data: serviceRequests = [] } = useProviderServiceRequests(
+    profile?.id || ""
   );
-  const { data: ongoingAppointments = [] } = useAppointmentsByStatus(
-    "ongoing",
-    "serviceProvider"
+
+  // Filter appointments based on status
+  const upcomingAppointments = serviceRequests.filter(
+    (request) => request.serviceRequest.status === "confirmed"
   );
+  const ongoingAppointments = serviceRequests.filter(
+    (request) => request.serviceRequest.status === "in-progress"
+  );
+
+  // Map ServiceRequestStatus to AppointmentStatus
+  const mapServiceRequestStatusToAppointmentStatus = (status: string) => {
+    switch (status) {
+      case "pending":
+        return "pending";
+      case "accepted":
+        return "pending"; // Map accepted to pending for display
+      case "confirmed":
+        return "confirmed";
+      case "in-progress":
+        return "in-progress";
+      case "completed":
+        return "completed";
+      case "cancelled":
+        return "cancelled";
+      default:
+        return "pending";
+    }
+  };
+
+  // Format time using Date constructor and date-fns
+  const formatTime = (timeString: string) => {
+    try {
+      const date = new Date(timeString);
+      return format(date, "HH:mm");
+    } catch (error) {
+      console.warn("Failed to parse time string:", timeString, error);
+      return timeString;
+    }
+  };
 
   const formatNaira = (amount: number): string => {
     return new Intl.NumberFormat("en-NG", {
@@ -159,35 +194,36 @@ export default function ServiceProviderHome() {
               </Box>
               {ongoingAppointments.length > 0 ? (
                 <VStack className="gap-3">
-                  {ongoingAppointments.slice(0, 5).map((appointment) => (
-                    <AppointmentItem
-                      key={appointment.id}
-                      id={appointment.id}
-                      date={appointment.scheduledDate.toLocaleDateString(
-                        "en-US",
-                        {
+                  {ongoingAppointments.slice(0, 5).map((request) => {
+                    const { serviceRequest, customer } = request;
+                    const scheduledDate = new Date(
+                      serviceRequest.scheduledDate
+                    );
+                    const [startTime] = serviceRequest.timeRange.split("-");
+                    const formattedTime = formatTime(startTime);
+
+                    return (
+                      <AppointmentItem
+                        key={serviceRequest.id}
+                        id={serviceRequest.id}
+                        date={scheduledDate.toLocaleDateString("en-US", {
                           month: "short",
                           day: "numeric",
+                        })}
+                        time={formattedTime}
+                        client={`${customer.firstName} ${customer.lastName}`}
+                        service={serviceRequest.serviceName}
+                        status={mapServiceRequestStatusToAppointmentStatus(
+                          serviceRequest.status
+                        )}
+                        onPress={() =>
+                          router.push(
+                            `/service-provider/appointments/${serviceRequest.id}`
+                          )
                         }
-                      )}
-                      time={appointment.scheduledTime.toLocaleTimeString(
-                        "en-US",
-                        {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: true,
-                        }
-                      )}
-                      client={appointment.serviceType.replace("-", " ")}
-                      service={appointment.serviceType}
-                      status={appointment.status}
-                      onPress={() =>
-                        router.push(
-                          `/service-provider/appointments/${appointment.id}`
-                        )
-                      }
-                    />
-                  ))}
+                      />
+                    );
+                  })}
                 </VStack>
               ) : (
                 <Box className="bg-gray-50 p-4 rounded-xl items-center">
@@ -207,35 +243,36 @@ export default function ServiceProviderHome() {
               </Box>
               {upcomingAppointments.length > 0 ? (
                 <VStack className="gap-3">
-                  {upcomingAppointments.slice(0, 5).map((appointment) => (
-                    <AppointmentItem
-                      key={appointment.id}
-                      id={appointment.id}
-                      date={appointment.scheduledDate.toLocaleDateString(
-                        "en-US",
-                        {
+                  {upcomingAppointments.slice(0, 5).map((request) => {
+                    const { serviceRequest, customer } = request;
+                    const scheduledDate = new Date(
+                      serviceRequest.scheduledDate
+                    );
+                    const [startTime] = serviceRequest.timeRange.split("-");
+                    const formattedTime = formatTime(startTime);
+
+                    return (
+                      <AppointmentItem
+                        key={serviceRequest.id}
+                        id={serviceRequest.id}
+                        date={scheduledDate.toLocaleDateString("en-US", {
                           month: "short",
                           day: "numeric",
+                        })}
+                        time={formattedTime}
+                        client={`${customer.firstName} ${customer.lastName}`}
+                        service={serviceRequest.serviceName}
+                        status={mapServiceRequestStatusToAppointmentStatus(
+                          serviceRequest.status
+                        )}
+                        onPress={() =>
+                          router.push(
+                            `/service-provider/appointments/${serviceRequest.id}`
+                          )
                         }
-                      )}
-                      time={appointment.scheduledTime.toLocaleTimeString(
-                        "en-US",
-                        {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: true,
-                        }
-                      )}
-                      client={appointment.serviceType.replace("-", " ")}
-                      service={appointment.serviceType}
-                      status={appointment.status}
-                      onPress={() =>
-                        router.push(
-                          `/service-provider/appointments/${appointment.id}`
-                        )
-                      }
-                    />
-                  ))}
+                      />
+                    );
+                  })}
                 </VStack>
               ) : (
                 <Box className="bg-gray-50 p-4 rounded-xl items-center">

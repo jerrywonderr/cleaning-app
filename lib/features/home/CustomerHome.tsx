@@ -6,27 +6,62 @@ import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import AppointmentItem from "@/lib/features/appointments/AppointmentItem";
-import { useAppointmentsByStatus } from "@/lib/hooks/useAppointments";
-import { useUserStore } from "@/lib/store/useUserStore";
+import { useUserType } from "@/lib/hooks/useAuth";
+import { useCustomerServiceRequests } from "@/lib/hooks/useServiceRequests";
+import { format } from "date-fns";
 import { useRouter } from "expo-router";
 import { Bell, Calendar, ChevronRight, Info, Send } from "lucide-react-native";
 import React from "react";
 import { Image as RNImage, ScrollView } from "react-native";
 
 export default function CustomerHome() {
-  const { profile } = useUserStore();
+  const { profile } = useUserType();
   const router = useRouter();
   const hasNotification = true;
 
-  // Fetch upcoming and ongoing appointments
-  const { data: upcomingAppointments = [] } = useAppointmentsByStatus(
-    "upcoming",
-    "customer"
+  // Fetch service requests for this customer
+  const { data: serviceRequests = [] } = useCustomerServiceRequests(
+    profile?.id || ""
   );
-  const { data: ongoingAppointments = [] } = useAppointmentsByStatus(
-    "ongoing",
-    "customer"
+
+  // Filter appointments based on status
+  const upcomingAppointments = serviceRequests.filter(
+    (request) => request.serviceRequest.status === "confirmed"
   );
+  const ongoingAppointments = serviceRequests.filter(
+    (request) => request.serviceRequest.status === "in-progress"
+  );
+
+  // Map ServiceRequestStatus to AppointmentStatus
+  const mapServiceRequestStatusToAppointmentStatus = (status: string) => {
+    switch (status) {
+      case "pending":
+        return "pending";
+      case "accepted":
+        return "pending"; // Map accepted to pending for display
+      case "confirmed":
+        return "confirmed";
+      case "in-progress":
+        return "in-progress";
+      case "completed":
+        return "completed";
+      case "cancelled":
+        return "cancelled";
+      default:
+        return "pending";
+    }
+  };
+
+  // Format time using Date constructor and date-fns
+  const formatTime = (timeString: string) => {
+    try {
+      const date = new Date(timeString);
+      return format(date, "HH:mm");
+    } catch (error) {
+      console.warn("Failed to parse time string:", timeString, error);
+      return timeString;
+    }
+  };
 
   return (
     <FixedScreen addTopInset={true} addBottomInset={false}>
@@ -95,7 +130,9 @@ export default function CustomerHome() {
               What do you want to get done today?
             </Text>
             <Pressable
-              onPress={() => router.push("/(authenticated)/customer/proposals")}
+              onPress={() =>
+                router.push("/(authenticated)/customer/proposals/create")
+              }
               className="bg-white px-5 py-2 rounded-full"
             >
               <Text className="text-brand-500 font-inter-medium">
@@ -219,33 +256,36 @@ export default function CustomerHome() {
               </Box>
               {ongoingAppointments.length > 0 ? (
                 <VStack className="gap-3">
-                  {ongoingAppointments.slice(0, 5).map((appointment) => (
-                    <AppointmentItem
-                      key={appointment.id}
-                      id={appointment.id}
-                      date={appointment.scheduledDate.toLocaleDateString(
-                        "en-US",
-                        {
+                  {ongoingAppointments.slice(0, 5).map((request) => {
+                    const { serviceRequest, provider } = request;
+                    const scheduledDate = new Date(
+                      serviceRequest.scheduledDate
+                    );
+                    const [startTime] = serviceRequest.timeRange.split("-");
+                    const formattedTime = formatTime(startTime);
+
+                    return (
+                      <AppointmentItem
+                        key={serviceRequest.id}
+                        id={serviceRequest.id}
+                        date={scheduledDate.toLocaleDateString("en-US", {
                           month: "short",
                           day: "numeric",
+                        })}
+                        time={formattedTime}
+                        client={`${provider.firstName} ${provider.lastName}`}
+                        service={serviceRequest.serviceName}
+                        status={mapServiceRequestStatusToAppointmentStatus(
+                          serviceRequest.status
+                        )}
+                        onPress={() =>
+                          router.push(
+                            `/customer/appointments/${serviceRequest.id}`
+                          )
                         }
-                      )}
-                      time={appointment.scheduledTime.toLocaleTimeString(
-                        "en-US",
-                        {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: true,
-                        }
-                      )}
-                      client={appointment.serviceType.replace("-", " ")}
-                      service={appointment.serviceType}
-                      status={appointment.status}
-                      onPress={() =>
-                        router.push(`/customer/appointments/${appointment.id}`)
-                      }
-                    />
-                  ))}
+                      />
+                    );
+                  })}
                 </VStack>
               ) : (
                 <Box className="bg-gray-50 p-4 rounded-xl items-center">
@@ -265,33 +305,36 @@ export default function CustomerHome() {
               </Box>
               {upcomingAppointments.length > 0 ? (
                 <VStack className="gap-3">
-                  {upcomingAppointments.slice(0, 5).map((appointment) => (
-                    <AppointmentItem
-                      key={appointment.id}
-                      id={appointment.id}
-                      date={appointment.scheduledDate.toLocaleDateString(
-                        "en-US",
-                        {
+                  {upcomingAppointments.slice(0, 5).map((request) => {
+                    const { serviceRequest, provider } = request;
+                    const scheduledDate = new Date(
+                      serviceRequest.scheduledDate
+                    );
+                    const [startTime] = serviceRequest.timeRange.split("-");
+                    const formattedTime = formatTime(startTime);
+
+                    return (
+                      <AppointmentItem
+                        key={serviceRequest.id}
+                        id={serviceRequest.id}
+                        date={scheduledDate.toLocaleDateString("en-US", {
                           month: "short",
                           day: "numeric",
+                        })}
+                        time={formattedTime}
+                        client={`${provider.firstName} ${provider.lastName}`}
+                        service={serviceRequest.serviceName}
+                        status={mapServiceRequestStatusToAppointmentStatus(
+                          serviceRequest.status
+                        )}
+                        onPress={() =>
+                          router.push(
+                            `/customer/appointments/${serviceRequest.id}`
+                          )
                         }
-                      )}
-                      time={appointment.scheduledTime.toLocaleTimeString(
-                        "en-US",
-                        {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: true,
-                        }
-                      )}
-                      client={appointment.serviceType.replace("-", " ")}
-                      service={appointment.serviceType}
-                      status={appointment.status}
-                      onPress={() =>
-                        router.push(`/customer/appointments/${appointment.id}`)
-                      }
-                    />
-                  ))}
+                      />
+                    );
+                  })}
                 </VStack>
               ) : (
                 <Box className="bg-gray-50 p-4 rounded-xl items-center">

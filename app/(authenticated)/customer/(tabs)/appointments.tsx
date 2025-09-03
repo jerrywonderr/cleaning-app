@@ -4,8 +4,8 @@ import { Icon } from "@/lib/components/ui/icon";
 import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import AppointmentItem from "@/lib/features/appointments/AppointmentItem";
-import { useAppointmentsByStatus } from "@/lib/hooks/useAppointments";
-import { useUserStore } from "@/lib/store/useUserStore";
+import { useUserType } from "@/lib/hooks/useAuth";
+import { useCustomerServiceRequests } from "@/lib/hooks/useServiceRequests";
 import { FlashList } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
 import { Calendar } from "lucide-react-native";
@@ -17,15 +17,27 @@ export default function AppointmentsScreen() {
     "upcoming"
   );
   const router = useRouter();
-  const { profile } = useUserStore();
+  const { profile } = useUserType();
 
-  // Fetch appointments based on active tab
+  // Fetch service requests (confirmed appointments) based on active tab
   const {
-    data: appointments = [],
-    isLoading,
+    data: serviceRequests = [],
     refetch,
     isRefetching,
-  } = useAppointmentsByStatus(activeTab, "customer");
+  } = useCustomerServiceRequests(profile?.id || "");
+
+  // Filter service requests based on tab (only confirmed, in-progress, completed)
+  const filteredAppointments = serviceRequests.filter((request) => {
+    const status = request.serviceRequest.status;
+    if (activeTab === "upcoming") {
+      return status === "confirmed";
+    } else if (activeTab === "ongoing") {
+      return status === "in-progress";
+    } else if (activeTab === "past") {
+      return status === "completed";
+    }
+    return false;
+  });
 
   const handleRefresh = () => {
     refetch();
@@ -102,40 +114,43 @@ export default function AppointmentsScreen() {
 
       {/* Appointments List */}
       <Box className="flex-1 pt-6">
-        {appointments.length > 0 && (
+        {filteredAppointments.length > 0 && (
           <Text className="text-sm text-gray-500 mb-4 font-medium px-6">
-            {appointments.length} {getTabTitle(activeTab).toLowerCase()}{" "}
+            {filteredAppointments.length} {getTabTitle(activeTab).toLowerCase()}{" "}
             appointment
-            {appointments.length !== 1 ? "s" : ""}
+            {filteredAppointments.length !== 1 ? "s" : ""}
           </Text>
         )}
 
-        {appointments.length > 0 ? (
+        {filteredAppointments.length > 0 ? (
           <FlashList
-            data={appointments}
-            keyExtractor={(item) => item.id}
+            data={filteredAppointments}
+            keyExtractor={(item) => item.serviceRequest.id}
             estimatedItemSize={100}
-            renderItem={({ item }) => (
-              <AppointmentItem
-                id={item.id}
-                date={item.scheduledDate.toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                })}
-                time={item.scheduledTime.toLocaleTimeString("en-US", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  hour12: true,
-                })}
-                client={item.serviceType.replace("-", " ")}
-                service={item.serviceType}
-                status={item.status}
-                onPress={() => router.push(`/customer/appointments/${item.id}`)}
-              />
-            )}
+            renderItem={({ item }) => {
+              const { serviceRequest, provider } = item;
+              const scheduledDate = new Date(serviceRequest.scheduledDate);
+              const [startTime] = serviceRequest.timeRange.split("-");
+
+              return (
+                <AppointmentItem
+                  id={serviceRequest.id}
+                  date={scheduledDate.toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                  })}
+                  time={startTime}
+                  client={serviceRequest.serviceName}
+                  service={serviceRequest.serviceType}
+                  status={serviceRequest.status}
+                  onPress={() =>
+                    router.push(`/customer/appointments/${serviceRequest.id}`)
+                  }
+                />
+              );
+            }}
             showsVerticalScrollIndicator={false}
             ItemSeparatorComponent={() => <Box className="h-4" />}
-            // contentContainerStyle={{ paddingHorizontal: 6 }}
             refreshControl={
               <RefreshControl
                 refreshing={isRefetching}

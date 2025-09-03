@@ -43,13 +43,31 @@ export default function ProposalsLayout() {
         <Stack.Screen
           name="index"
           options={{
-            title: "Proposals",
+            title: "Select Service",
           }}
         />
         <Stack.Screen
-          name="create"
+          name="location"
           options={{
-            headerShown: false,
+            title: "Location",
+          }}
+        />
+        <Stack.Screen
+          name="create-proposal"
+          options={{
+            title: "Create Proposal",
+          }}
+        />
+        <Stack.Screen
+          name="extra-options"
+          options={{
+            title: "Extra Options",
+          }}
+        />
+        <Stack.Screen
+          name="final-proposal"
+          options={{
+            title: "Review Proposal",
           }}
         />
       </Stack>

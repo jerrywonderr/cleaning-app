@@ -69,7 +69,7 @@ export default function SelectExtraOptions() {
   };
 
   const handleNext = () => {
-    router.push("/customer/proposals/final-proposal");
+    router.push("/customer/proposals/create/final-proposal");
   };
 
   return (
