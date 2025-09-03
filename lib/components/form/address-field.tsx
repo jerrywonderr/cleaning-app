@@ -23,6 +23,7 @@ import {
   FormControlLabelText,
 } from "../ui/form-control";
 import { AlertCircleIcon } from "../ui/icon";
+import { useLoader } from "../ui/loader/use-loader";
 import { Text } from "../ui/text";
 
 interface AddressFieldProps {
@@ -139,6 +140,7 @@ const AddressField = forwardRef<AddressFieldRef, AddressFieldProps>(
     } = useController({ name, control });
 
     const { bottomSheetRef, present, dismiss } = useBottomSheet();
+    const { showLoader, hideLoader } = useLoader();
 
     const handleReset = useCallback(() => {
       field.onChange(null);
@@ -158,6 +160,7 @@ const AddressField = forwardRef<AddressFieldRef, AddressFieldProps>(
 
     const handleUseCurrentLocation = useCallback(async () => {
       try {
+        showLoader("Getting current location...");
         // Request location permissions
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== "granted") {
@@ -209,8 +212,10 @@ const AddressField = forwardRef<AddressFieldRef, AddressFieldProps>(
           "Location Error",
           "Failed to get your current location. Please try again or select an address manually."
         );
+      } finally {
+        hideLoader();
       }
-    }, [field, onLocationChange, dismiss]);
+    }, [field, onLocationChange, dismiss, showLoader, hideLoader]);
 
     useImperativeHandle(
       ref,
