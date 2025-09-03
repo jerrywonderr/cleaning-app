@@ -1,12 +1,14 @@
 import { PrimaryButton } from "@/lib/components/custom-buttons";
 import { DateField } from "@/lib/components/form";
 import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
+import StepIndicator from "@/lib/components/StepIndicator";
 import { Box } from "@/lib/components/ui/box";
 import { HStack } from "@/lib/components/ui/hstack";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import { serviceConfigs } from "@/lib/constants/service-config";
-import { useRouter } from "expo-router";
+import { CreateProposalFormData } from "@/lib/schemas/create-proposal";
+import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Alert, Pressable } from "react-native";
@@ -67,9 +69,7 @@ const getAvailableRanges = (
 };
 
 export default function CreateProposalPage() {
-  const { watch, setValue } = useFormContext();
-  const router = useRouter();
-
+  const { watch, setValue } = useFormContext<CreateProposalFormData>();
   const serviceId = watch("serviceId");
   const providerId = watch("providerId");
 
@@ -113,113 +113,128 @@ export default function CreateProposalPage() {
       Alert.alert("Missing Info", "Please select all required fields.");
       return;
     }
-    router.push("/(authenticated)/customer/proposals/extra-options");
+    router.push("/customer/proposals/extra-options");
   };
 
   return (
     <FootedScrollableScreen
+      addTopInset={false}
       footer={<PrimaryButton onPress={handleSubmit}>Next</PrimaryButton>}
     >
-      <VStack className="gap-6">
-        <Text className="text-2xl font-inter-bold text-black">
-          Create Your Proposal
-        </Text>
+      <StepIndicator steps={6} currentStep={4} />
 
-        {/* Selected Service */}
-        <Box className="bg-gray-50 p-4 rounded-lg">
-          <Text className="text-lg font-inter-bold mb-2">Selected Service</Text>
-          <Text className="font-inter-medium">{selectedService?.name}</Text>
-          <Text className="text-gray-600">{selectedService?.description}</Text>
-        </Box>
-
-        {/* Provider */}
-        <Box className="bg-gray-50 p-4 rounded-lg">
-          <Text className="text-lg font-inter-bold mb-2">Service Provider</Text>
-          <Text className="font-inter-medium">{selectedProvider?.name}</Text>
-          <Text className="text-gray-600">
-            {selectedProvider?.workingDays.join(", ")} |{" "}
-            {selectedProvider?.workingHours.start} -{" "}
-            {selectedProvider?.workingHours.end}
+      <Box className="flex-1 bg-white pt-6">
+        <VStack className="gap-6">
+          <Text className="text-2xl font-inter-bold text-black">
+            Create Your Proposal
           </Text>
-        </Box>
 
-        {/* Date */}
-        <DateField
-          name="date"
-          label="Select Date"
-          onConfirm={setSelectedDate}
-          minimumDate={new Date()}
-        />
+          {/* Selected Service */}
+          <Box className="bg-gray-50 p-4 rounded-lg">
+            <Text className="text-lg font-inter-bold mb-2">
+              Selected Service
+            </Text>
+            <Text className="font-inter-medium">{selectedService?.name}</Text>
+            <Text className="text-gray-600">
+              {selectedService?.description}
+            </Text>
+          </Box>
 
-        {/* Duration */}
-        <VStack className="gap-2">
-          <Text className="text-lg font-inter-bold mb-2">Duration (hours)</Text>
-          <HStack className="flex-wrap gap-2">
-            {[1, 2, 3, 4].map((h) => (
-              <Pressable
-                key={h}
-                onPress={() => selectedDate && setDuration(h)}
-                disabled={!selectedDate}
-                className={`px-4 py-2 rounded-lg border ${
-                  duration === h
-                    ? "bg-brand-500 border-brand-500"
-                    : !selectedDate
-                    ? "border-gray-200 bg-gray-100"
-                    : "border-gray-300 bg-white"
-                }`}
-              >
-                <Text
-                  className={`${
+          {/* Provider */}
+          <Box className="bg-gray-50 p-4 rounded-lg">
+            <Text className="text-lg font-inter-bold mb-2">
+              Service Provider
+            </Text>
+            <Text className="font-inter-medium">{selectedProvider?.name}</Text>
+            <Text className="text-gray-600">
+              {selectedProvider?.workingDays.join(", ")} |{" "}
+              {selectedProvider?.workingHours.start} -{" "}
+              {selectedProvider?.workingHours.end}
+            </Text>
+          </Box>
+
+          {/* Date */}
+          <DateField
+            name="date"
+            label="Select Date"
+            onConfirm={setSelectedDate}
+            minimumDate={new Date()}
+          />
+
+          {/* Duration */}
+          <VStack className="gap-2">
+            <Text className="text-lg font-inter-bold mb-2">
+              Duration (hours)
+            </Text>
+            <HStack className="flex-wrap gap-2">
+              {[1, 2, 3, 4].map((h) => (
+                <Pressable
+                  key={h}
+                  onPress={() => selectedDate && setDuration(h)}
+                  disabled={!selectedDate}
+                  className={`px-4 py-2 rounded-lg border ${
                     duration === h
-                      ? "text-white"
+                      ? "bg-brand-500 border-brand-500"
                       : !selectedDate
-                      ? "text-gray-400"
-                      : "text-black"
+                      ? "border-gray-200 bg-gray-100"
+                      : "border-gray-300 bg-white"
                   }`}
                 >
-                  {h} hr{h > 1 ? "s" : ""}
-                </Text>
-              </Pressable>
-            ))}
-          </HStack>
-        </VStack>
-
-        {/* Time Ranges */}
-        <VStack className="gap-2">
-          <Text className="text-lg font-inter-bold mb-2">
-            Select Time Range
-          </Text>
-          <HStack className="flex-wrap gap-2">
-            {selectedDate ? (
-              availableRanges.length ? (
-                availableRanges.map((range) => (
-                  <Pressable
-                    key={range}
-                    onPress={() => setSelectedRange(range)}
-                    className={`px-4 py-2 rounded-lg border ${
-                      selectedRange === range
-                        ? "bg-brand-500 border-brand-500"
-                        : "border-gray-300"
+                  <Text
+                    className={`${
+                      duration === h
+                        ? "text-white"
+                        : !selectedDate
+                        ? "text-gray-400"
+                        : "text-black"
                     }`}
                   >
-                    <Text
-                      className={`${
-                        selectedRange === range ? "text-white" : "text-black"
+                    {h} hr{h > 1 ? "s" : ""}
+                  </Text>
+                </Pressable>
+              ))}
+            </HStack>
+          </VStack>
+
+          {/* Time Ranges */}
+          <VStack className="gap-2">
+            <Text className="text-lg font-inter-bold mb-2">
+              Select Time Range
+            </Text>
+            <HStack className="flex-wrap gap-2">
+              {selectedDate ? (
+                availableRanges.length ? (
+                  availableRanges.map((range) => (
+                    <Pressable
+                      key={range}
+                      onPress={() => setSelectedRange(range)}
+                      className={`px-4 py-2 rounded-lg border ${
+                        selectedRange === range
+                          ? "bg-brand-500 border-brand-500"
+                          : "border-gray-300"
                       }`}
                     >
-                      {range}
-                    </Text>
-                  </Pressable>
-                ))
+                      <Text
+                        className={`${
+                          selectedRange === range ? "text-white" : "text-black"
+                        }`}
+                      >
+                        {range}
+                      </Text>
+                    </Pressable>
+                  ))
+                ) : (
+                  <Text className="text-gray-500">No available ranges</Text>
+                )
               ) : (
-                <Text className="text-gray-500">No available ranges</Text>
-              )
-            ) : (
-              <Text className="text-gray-500">Please select a date first</Text>
-            )}
-          </HStack>
+                <Text className="text-gray-500">
+                  Please select a date first
+                </Text>
+              )}
+            </HStack>
+          </VStack>
         </VStack>
-      </VStack>
+      </Box>
     </FootedScrollableScreen>
   );
 }

@@ -1,15 +1,25 @@
-import StepIndicator from "@/lib/components/StepIndicator";
-import { VStack } from "@/lib/components/ui/vstack";
-import { Slot, usePathname } from "expo-router";
+import ScreenHeader from "@/lib/components/ScreenHeader";
+import {
+  CreateProposalFormData,
+  createProposalSchema,
+} from "@/lib/schemas/create-proposal";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { Stack, usePathname } from "expo-router";
 import { FormProvider, useForm } from "react-hook-form";
 
 export default function ProposalsLayout() {
-  const methods = useForm({
+  const form = useForm<CreateProposalFormData>({
+    resolver: yupResolver(createProposalSchema),
+    mode: "onChange",
     defaultValues: {
       serviceId: "",
-      location: null,
+      location: undefined,
       providerId: "",
-      proposalDetails: {},
+      proposalDetails: {
+        date: "",
+        duration: 0,
+        timeRange: "",
+      },
       extraOptions: [],
     },
   });
@@ -27,13 +37,64 @@ export default function ProposalsLayout() {
   };
 
   return (
-    <FormProvider {...methods}>
-      <VStack className="flex-1 pt-4 bg-white">
-        <VStack className="px-4">
-          <StepIndicator steps={6} currentStep={getStep()} />
-        </VStack>
-        <Slot />
-      </VStack>
+    <FormProvider {...form}>
+      <Stack
+        screenOptions={{
+          headerTitleAlign: "center",
+          headerTitleStyle: { fontWeight: "bold", fontSize: 18 },
+          header: ({ navigation, options }) => (
+            <ScreenHeader
+              navigation={navigation}
+              title={options.title}
+              showBackButton={options.headerBackVisible}
+            />
+          ),
+          animation: "fade_from_bottom",
+        }}
+      >
+        <Stack.Screen
+          name="select-service"
+          options={{
+            title: "Select Service",
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="location"
+          options={{
+            title: "Location",
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="select-provider"
+          options={{
+            title: "Select Provider",
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="create-proposal"
+          options={{
+            title: "Create Proposal",
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="extra-options"
+          options={{
+            title: "Extra Options",
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="final-proposal"
+          options={{
+            title: "Review Proposal",
+            headerShown: false,
+          }}
+        />
+      </Stack>
     </FormProvider>
   );
 }
