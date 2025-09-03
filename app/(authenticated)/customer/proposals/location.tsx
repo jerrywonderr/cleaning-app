@@ -1,21 +1,18 @@
 import { PrimaryButton } from "@/lib/components/custom-buttons";
 import { AddressField, AddressFieldRef } from "@/lib/components/form";
-import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
-import { Box } from "@/lib/components/ui/box";
+import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useRef, useState } from "react";
-import { FormProvider, useForm } from "react-hook-form";
+import { useRouter } from "expo-router";
+import { useRef } from "react";
+import { useFormContext } from "react-hook-form";
 
 export default function LocationScreen() {
-  const router = useRouter();
-  const params = useLocalSearchParams();
-  const serviceId = params.serviceId as string;
+  const { watch, setValue } = useFormContext();
+  const selectedLocation = watch("location");
 
-  const methods = useForm();
-  const [selectedLocation, setSelectedLocation] = useState<any>(null);
   const addressRef = useRef<AddressFieldRef>(null);
+  const router = useRouter();
 
   const handleNext = () => {
     if (!selectedLocation) {
@@ -23,40 +20,30 @@ export default function LocationScreen() {
       return;
     }
 
-    router.push({
-      pathname: "/(authenticated)/customer/proposals/select-provider",
-      params: {
-        serviceId,
-        location: JSON.stringify(selectedLocation),
-      },
-    });
+    router.push("/(authenticated)/customer/proposals/select-provider");
   };
 
   return (
-    <FormProvider {...methods}>
-      <ScrollableScreen addTopInset={false}>
-        <VStack className="p-4 gap-6">
-          <Text className="text-2xl font-inter-bold text-black">
-            Where should we clean?
-          </Text>
+    <FootedScrollableScreen
+      footer={
+        <PrimaryButton onPress={handleNext} disabled={!selectedLocation}>
+          Next
+        </PrimaryButton>
+      }
+    >
+      <VStack className="gap-6">
+        <Text className="text-2xl font-inter-bold text-black">
+          Where should we clean?
+        </Text>
 
-          <Box>
-            <AddressField
-              ref={addressRef}
-              name="cleaningAddress"
-              label="Cleaning Address"
-              placeholder="Enter your address"
-              onLocationChange={(location) => setSelectedLocation(location)}
-            />
-          </Box>
-
-          <Box className="mt-6">
-            <PrimaryButton onPress={handleNext} disabled={!selectedLocation}>
-              Next
-            </PrimaryButton>
-          </Box>
-        </VStack>
-      </ScrollableScreen>
-    </FormProvider>
+        <AddressField
+          ref={addressRef}
+          name="location"
+          label="Cleaning Address"
+          placeholder="Enter your address"
+          onLocationChange={(location) => setValue("location", location)}
+        />
+      </VStack>
+    </FootedScrollableScreen>
   );
 }

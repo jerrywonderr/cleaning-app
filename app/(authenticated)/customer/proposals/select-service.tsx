@@ -1,44 +1,52 @@
-import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
+import { PrimaryButton } from "@/lib/components/custom-buttons";
+import ProposalServiceCard from "@/lib/components/ProposalServiceCard";
+import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
-
-import { Pressable } from "@/lib/components/ui/pressable";
+import { serviceConfigs } from "@/lib/constants/service-config";
 import { useRouter } from "expo-router";
+import { useFormContext } from "react-hook-form";
 
-// Example services
-const services = [
-  { id: "service-1", name: "Classic Cleaning" },
-  { id: "service-2", name: "Deep Cleaning" },
-  { id: "service-3", name: "Move-In Move Out" },
-];
-
-export default function SelectServiceScreen() {
+export default function SelectService() {
+  const { watch, setValue } = useFormContext();
+  const selectedService = watch("serviceId");
   const router = useRouter();
 
-  return (
-    <ScrollableScreen addTopInset={false}>
-      <VStack className="p-4 gap-6">
-        <Text className="text-2xl font-inter-bold text-black">
-          Select a Service
-        </Text>
+  const handleNext = () => {
+    if (!selectedService) {
+      alert("Please select a service");
+      return;
+    }
+    router.push("/(authenticated)/customer/proposals/location");
+  };
 
+  return (
+    <FootedScrollableScreen
+      footer={<PrimaryButton onPress={handleNext}>Next</PrimaryButton>}
+    >
+      <VStack className="gap-4">
+        {/* Header */}
+        <VStack className="gap-2">
+          <Text className="text-2xl font-inter-bold text-black">
+            Choose a Cleaning Service
+          </Text>
+          <Text className="text-sm text-gray-600">
+            Select the type of cleaning service you want for your home.
+          </Text>
+        </VStack>
+
+        {/* Service Cards */}
         <VStack className="gap-4">
-          {services.map((service) => (
-            <Pressable
+          {serviceConfigs.map((service) => (
+            <ProposalServiceCard
               key={service.id}
-              onPress={() =>
-                router.push({
-                  pathname: "/(authenticated)/customer/proposals/location",
-                  params: { serviceId: service.id },
-                })
-              }
-              className="p-4 border border-gray-300 rounded-lg"
-            >
-              <Text className="text-black">{service.name}</Text>
-            </Pressable>
+              service={service}
+              isSelected={selectedService === service.id}
+              onPress={() => setValue("serviceId", service.id)}
+            />
           ))}
         </VStack>
       </VStack>
-    </ScrollableScreen>
+    </FootedScrollableScreen>
   );
 }
