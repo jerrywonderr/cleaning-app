@@ -10,12 +10,14 @@ interface ServiceCardProps {
   service: ServiceConfig;
   onToggle?: (serviceId: string, enabled: boolean) => void;
   showToggle?: boolean;
+  showPrice?: boolean;
 }
 
 export default function ServiceCard({
   service,
   onToggle,
   showToggle = false,
+  showPrice = true,
 }: ServiceCardProps) {
   return (
     <Box className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -41,12 +43,14 @@ export default function ServiceCard({
             />
           )}
         </HStack>
-        <HStack className="justify-between items-center pt-2">
-          <Text className="text-sm text-gray-500">Per Hour Rate</Text>
-          <Text className="text-lg font-inter-bold text-brand-600">
-            ₦{service.perHourPrice}
-          </Text>
-        </HStack>
+        {showPrice && (
+          <HStack className="justify-between items-center pt-2">
+            <Text className="text-sm text-gray-500">Per Hour Rate</Text>
+            <Text className="text-lg font-inter-bold text-brand-600">
+              ₦{service.perHourPrice}
+            </Text>
+          </HStack>
+        )}
       </VStack>
     </Box>
   );

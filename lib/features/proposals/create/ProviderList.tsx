@@ -9,6 +9,7 @@ interface ProviderListProps {
   providers: ServiceProviderResult[];
   selectedProviderId?: string;
   onProviderSelect: (providerId: string) => void;
+  onViewProfile: (providerId: string) => void;
   serviceId?: string;
   error?: string;
 }
@@ -17,6 +18,7 @@ export const ProviderList = ({
   providers,
   selectedProviderId,
   onProviderSelect,
+  onViewProfile,
   serviceId,
   error,
 }: ProviderListProps) => {
@@ -37,6 +39,7 @@ export const ProviderList = ({
             provider={provider}
             isSelected={selectedProviderId === provider.id}
             onSelect={() => onProviderSelect(provider.id)}
+            onViewProfile={() => onViewProfile(provider.id)}
           />
         )}
         ItemSeparatorComponent={() => <VStack className="h-px bg-gray-200" />}

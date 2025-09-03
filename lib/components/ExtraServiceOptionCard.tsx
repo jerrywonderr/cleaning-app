@@ -11,6 +11,7 @@ interface ExtraServiceOptionCardProps {
   onToggle?: (optionId: string, enabled: boolean) => void;
   showToggle?: boolean;
   className?: string;
+  showPrice?: boolean;
 }
 
 export default function ExtraServiceOptionCard({
@@ -18,6 +19,7 @@ export default function ExtraServiceOptionCard({
   onToggle,
   showToggle = false,
   className = "",
+  showPrice = true,
 }: ExtraServiceOptionCardProps) {
   const handlePress = () => {
     if (onToggle) onToggle(option.id, !option.isEnabled);
@@ -41,12 +43,14 @@ export default function ExtraServiceOptionCard({
           />
         )}
       </HStack>
-      <HStack className="justify-between items-center pt-1">
-        <Text className="text-sm text-gray-500">Additional Cost</Text>
-        <Text className="text-base font-inter-semibold text-brand-600">
-          +₦{option.additionalPrice}
-        </Text>
-      </HStack>
+      {showPrice && (
+        <HStack className="justify-between items-center pt-1">
+          <Text className="text-sm text-gray-500">Additional Cost</Text>
+          <Text className="text-base font-inter-semibold text-brand-600">
+            +₦{option.additionalPrice}
+          </Text>
+        </HStack>
+      )}
     </VStack>
   );
 

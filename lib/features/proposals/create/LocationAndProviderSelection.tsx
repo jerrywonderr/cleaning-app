@@ -8,6 +8,7 @@ import { ServiceProviderResult } from "@/lib/types";
 import { useEffect, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { ProviderList } from "./ProviderList";
+import { ProviderProfileSheet } from "./ProviderProfileSheet";
 
 interface LocationAndProviderSelectionProps {
   onLocationChange?: (location: any) => void;
@@ -26,15 +27,18 @@ export const LocationAndProviderSelection = ({
   const { showLoader, hideLoader } = useLoader();
 
   const [providers, setProviders] = useState<ServiceProviderResult[]>([]);
+  const [selectedProviderForProfile, setSelectedProviderForProfile] =
+    useState<ServiceProviderResult | null>(null);
 
   const addressRef = useRef<AddressFieldRef>(null);
+  const profileSheetRef = useRef<any>(null);
 
   useEffect(() => {
     const fetchProviders = async () => {
       if (!serviceId || !selectedLocation) return;
       try {
         clearErrors("providerId");
-        showLoader("Finding service providers in your area...");
+        showLoader("Finding service providers...");
         const results = await searchServiceProviders(serviceId, {
           latitude: selectedLocation.latitude,
           longitude: selectedLocation.longitude,
@@ -67,6 +71,21 @@ export const LocationAndProviderSelection = ({
     onProviderChange?.(providerId);
   };
 
+  const handleViewProfile = (providerId: string) => {
+    const provider = providers.find((p) => p.id === providerId);
+    if (provider) {
+      setSelectedProviderForProfile(provider);
+      profileSheetRef.current?.present();
+    }
+  };
+
+  const handleBookProvider = () => {
+    profileSheetRef.current?.dismiss();
+    if (selectedProviderForProfile) {
+      handleProviderSelect(selectedProviderForProfile.id);
+    }
+  };
+
   return (
     <VStack className="gap-6 flex-1">
       <Text className="text-2xl font-inter-bold text-black">
@@ -91,10 +110,19 @@ export const LocationAndProviderSelection = ({
             providers={providers}
             selectedProviderId={selectedProvider}
             onProviderSelect={handleProviderSelect}
+            onViewProfile={handleViewProfile}
             serviceId={serviceId}
             error={formState.errors.providerId?.message}
           />
         </VStack>
+      )}
+
+      {selectedProviderForProfile && (
+        <ProviderProfileSheet
+          ref={profileSheetRef}
+          provider={selectedProviderForProfile}
+          onBookProvider={handleBookProvider}
+        />
       )}
     </VStack>
   );
