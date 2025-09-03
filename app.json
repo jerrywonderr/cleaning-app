@@ -12,7 +12,9 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.rehoboth.app",
       "infoPlist": {
-        "NSPhotoLibraryUsageDescription": "This app accesses your photos to create profile pictures and services display pictures."
+        "NSPhotoLibraryUsageDescription": "This app accesses your photos to create profile pictures and services display pictures.",
+        "NSLocationWhenInUseUsageDescription": "This app uses your location to help you find nearby service providers and set your service area.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app uses your location to help you find nearby service providers and set your service area."
       }
     },
     "android": {
@@ -21,7 +23,8 @@
         "backgroundColor": "#000000"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.rehoboth.app"
+      "package": "com.rehoboth.app",
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"]
     },
     "web": {
       "bundler": "metro",
@@ -49,6 +52,13 @@
         "expo-image-picker",
         {
           "photosPermission": "The app accesses your photos to create profile pictures and services display pictures."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "This app uses your location to help you find nearby service providers and set your service area.",
+          "locationWhenInUsePermission": "This app uses your location to help you find nearby service providers and set your service area."
         }
       ]
     ],

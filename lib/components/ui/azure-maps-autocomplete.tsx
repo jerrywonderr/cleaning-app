@@ -7,12 +7,12 @@ import {
   View,
 } from "react-native";
 import { locationService } from "../../services/locationService";
-import { AddressSearchResult } from "../../types/location";
+import { LocationAutocompleteResult } from "../../types/location";
 import { Text } from "./text";
 
 interface AzureMapsAutocompleteProps {
   placeholder?: string;
-  onSelect: (data: AddressSearchResult) => void;
+  onSelect: (data: LocationAutocompleteResult) => void;
   initialValue?: string;
   onTextChange?: (text: string) => void;
 }
@@ -24,10 +24,10 @@ export const AzureMapsAutocomplete: React.FC<AzureMapsAutocompleteProps> = ({
   onTextChange,
 }) => {
   const [searchText, setSearchText] = useState(initialValue || "");
-  const [results, setResults] = useState<AddressSearchResult[]>([]);
+  const [results, setResults] = useState<LocationAutocompleteResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const searchTimeout = useRef<ReturnType<typeof setTimeout>>();
+  const searchTimeout = useRef<number | null>(null);
 
   useEffect(() => {
     setSearchText(initialValue || "");
@@ -44,8 +44,7 @@ export const AzureMapsAutocomplete: React.FC<AzureMapsAutocompleteProps> = ({
 
     try {
       const searchResults = await locationService.searchAddress(query);
-      // Type assertion since we know the service returns AddressSearchResult[]
-      setResults(searchResults as AddressSearchResult[]);
+      setResults(searchResults);
     } catch (err) {
       setError("Failed to fetch results");
       console.error("Address search error:", err);
@@ -72,9 +71,9 @@ export const AzureMapsAutocomplete: React.FC<AzureMapsAutocompleteProps> = ({
     };
   }, [searchText, handleSearch]);
 
-  const handleSelect = (item: AddressSearchResult) => {
+  const handleSelect = (item: LocationAutocompleteResult) => {
     onSelect(item);
-    setSearchText(item.address.freeformAddress);
+    setSearchText(item.address.fullAddress);
     setResults([]);
   };
 
@@ -112,9 +111,7 @@ export const AzureMapsAutocomplete: React.FC<AzureMapsAutocompleteProps> = ({
                 onPress={() => handleSelect(item)}
                 className="p-4 border-b border-gray-100"
               >
-                <Text className="text-base">
-                  {item.address.freeformAddress}
-                </Text>
+                <Text className="text-base">{item.address.fullAddress}</Text>
                 <Text className="text-sm text-gray-500">
                   {item.address.country}
                 </Text>

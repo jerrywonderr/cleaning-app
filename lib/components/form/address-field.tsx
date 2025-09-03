@@ -1,9 +1,11 @@
+import * as Location from "expo-location";
 import { forwardRef, useCallback, useImperativeHandle, useState } from "react";
 import { useController, useFormContext } from "react-hook-form";
-import { TouchableOpacity, View, ViewStyle } from "react-native";
+import { Alert, TouchableOpacity, View, ViewStyle } from "react-native";
 import { useBottomSheet } from "../../hooks/useBottomSheet";
+import { locationService } from "../../services/locationService";
 import {
-  AddressSearchResult,
+  LocationAutocompleteResult,
   LocationData,
   getContinentFromCountryCode,
 } from "../../types/location";
@@ -58,24 +60,20 @@ const AddressSheetContent: React.FC<AddressSheetContentProps> = ({
     initialValue?.fullAddress || ""
   );
 
-  const handleReset = () => {
-    setCurrentText("");
-    onReset();
-  };
-
-  const handleLocationSelect = (data: AddressSearchResult) => {
+  const handleLocationSelect = (data: LocationAutocompleteResult) => {
+    console.log("data", data);
     const locationData: LocationData = {
-      fullAddress: data.address.freeformAddress,
+      fullAddress: data.address.fullAddress,
       country: data.address.country,
       countryCode: data.address.countryCode,
-      latitude: data.position.lat,
-      longitude: data.position.lon,
+      latitude: data.coordinates.latitude,
+      longitude: data.coordinates.longitude,
       continent: getContinentFromCountryCode(data.address.countryCode),
       city: data.address.city,
       state: data.address.state,
       postalCode: data.address.postalCode,
-      streetName: data.address.streetName,
-      streetNumber: data.address.streetNumber,
+      streetName: data.address.street,
+      streetNumber: "",
     };
     onLocationSelect(locationData);
   };
@@ -106,7 +104,10 @@ const AddressSheetContent: React.FC<AddressSheetContentProps> = ({
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={onReset}
+          onPress={() => {
+            setCurrentText("");
+            onReset();
+          }}
           className="py-3 rounded-full bg-gray-100"
         >
           <Text className="text-center text-gray-700 font-medium">
@@ -155,22 +156,60 @@ const AddressField = forwardRef<AddressFieldRef, AddressFieldProps>(
       [field, onLocationChange, dismiss]
     );
 
-    const handleUseCurrentLocation = useCallback(() => {
-      // Mock current location - replace with actual location service
-      const locationData: LocationData = {
-        fullAddress: "Current Location, Lagos, Nigeria",
-        country: "Nigeria",
-        countryCode: "NG",
-        latitude: 6.5244,
-        longitude: 3.3792,
-        continent: "Africa",
-        city: "Lagos",
-        state: "Lagos",
-      };
-      field.onChange(locationData);
-      field.onBlur();
-      onLocationChange?.(locationData);
-      dismiss();
+    const handleUseCurrentLocation = useCallback(async () => {
+      try {
+        // Request location permissions
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") {
+          Alert.alert(
+            "Permission Denied",
+            "Location permission is required to use current location."
+          );
+          return;
+        }
+
+        // Get current position
+        const location = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.High,
+        });
+
+        const { latitude, longitude } = location.coords;
+        console.log("latitude", latitude);
+        console.log("longitude", longitude);
+        // Get address from coordinates using our service
+        const locationResult = await locationService.getLocationFromCoordinates(
+          latitude,
+          longitude
+        );
+
+        // Transform the result to LocationData format
+        const locationData: LocationData = {
+          fullAddress: locationResult.address.fullAddress,
+          country: locationResult.address.country,
+          countryCode: locationResult.address.countryCode,
+          latitude: locationResult.coordinates.latitude,
+          longitude: locationResult.coordinates.longitude,
+          continent: getContinentFromCountryCode(
+            locationResult.address.countryCode
+          ),
+          city: locationResult.address.city,
+          state: locationResult.address.state,
+          postalCode: locationResult.address.postalCode,
+          streetName: locationResult.address.street,
+          streetNumber: "",
+        };
+
+        field.onChange(locationData);
+        field.onBlur();
+        onLocationChange?.(locationData);
+        dismiss();
+      } catch (error) {
+        console.error("Error getting current location:", error);
+        Alert.alert(
+          "Location Error",
+          "Failed to get your current location. Please try again or select an address manually."
+        );
+      }
     }, [field, onLocationChange, dismiss]);
 
     useImperativeHandle(
@@ -190,8 +229,6 @@ const AddressField = forwardRef<AddressFieldRef, AddressFieldProps>(
     const handleOpenSheet = useCallback(() => {
       present();
     }, [present]);
-
-    console.log("error", error);
 
     return (
       <FormControl isInvalid={!!error}>

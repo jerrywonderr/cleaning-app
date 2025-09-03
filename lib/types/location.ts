@@ -1,21 +1,3 @@
-export interface AddressSearchResult {
-  address: {
-    freeformAddress: string;
-    country: string;
-    countryCode: string;
-    municipality: string;
-    streetName: string;
-    streetNumber: string;
-    postalCode: string;
-    state: string;
-    city: string;
-  };
-  position: {
-    lat: number;
-    lon: number;
-  };
-}
-
 export interface LocationData {
   fullAddress: string;
   country: string;
@@ -28,6 +10,26 @@ export interface LocationData {
   postalCode?: string;
   streetName?: string;
   streetNumber?: string;
+}
+
+export interface LocationAutocompleteResult {
+  id: string;
+  displayName: string;
+  type: string;
+  score: number;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    country: string;
+    countryCode: string;
+    postalCode: string;
+    fullAddress: string;
+  };
+  coordinates: {
+    latitude: number;
+    longitude: number;
+  };
 }
 
 export const CONTINENT_MAP: { [key: string]: string[] } = {
