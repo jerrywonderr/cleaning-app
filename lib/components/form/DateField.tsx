@@ -37,7 +37,7 @@ export const DateField = ({
   confirmText,
   cancelText,
   onConfirm,
-  minimumDate = new Date(),
+  minimumDate,
   maximumDate,
   ...props
 }: DateFieldProps) => {
