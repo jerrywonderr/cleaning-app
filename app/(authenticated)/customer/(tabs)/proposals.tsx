@@ -7,6 +7,7 @@ import ProposalCard from "@/lib/features/proposals/ProposalCard";
 import { useUserType } from "@/lib/hooks/useAuth";
 import { useCustomerServiceRequests } from "@/lib/hooks/useServiceRequests";
 import { FlashList } from "@shopify/flash-list";
+import { useRouter } from "expo-router";
 import { FileText } from "lucide-react-native";
 import { useState } from "react";
 import { RefreshControl } from "react-native";
@@ -14,6 +15,7 @@ import { RefreshControl } from "react-native";
 export default function ProposalsScreen() {
   const [activeTab, setActiveTab] = useState<"pending" | "accepted">("pending");
   const { profile } = useUserType();
+  const router = useRouter();
 
   // Fetch service requests based on active tab
   const {
@@ -59,8 +61,7 @@ export default function ProposalsScreen() {
   };
 
   const handleViewServiceRequest = (serviceRequestId: string) => {
-    // TODO: Navigate to service request details
-    console.log("View service request:", serviceRequestId);
+    router.push(`/(authenticated)/customer/proposals/${serviceRequestId}`);
   };
 
   return (

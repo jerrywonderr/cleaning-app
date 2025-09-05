@@ -3,7 +3,17 @@
  *
  * This file defines the data structures for service requests in the cleaning app.
  * Service requests represent customer requests that go through a lifecycle:
- * pending → accepted → confirmed → in-progress → completed
+ *
+ * PROPOSAL PHASE:
+ * pending → accepted OR rejected
+ *
+ * PAYMENT PHASE (if accepted):
+ * accepted → confirmed (after payment) OR expired (if not paid in time)
+ *
+ * APPOINTMENT PHASE (if confirmed):
+ * confirmed → in-progress → completed
+ * OR
+ * confirmed → cancelled
  */
 
 import { CreateProposalFormData } from "@/lib/schemas/create-proposal";

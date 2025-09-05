@@ -3,6 +3,7 @@ import {
   differenceInHours,
   differenceInMinutes,
   format,
+  isPast,
   parseISO,
 } from "date-fns";
 // import { jwtDecode } from "jwt-decode";
@@ -45,7 +46,7 @@ export const formatDate = (dateString: string): string => {
     }
 
     return format(date, "do 'of' MMMM, yyyy");
-  } catch (error) {
+  } catch {
     // If parsing fails, return the original string
     return dateString;
   }
@@ -142,3 +143,71 @@ export function getTimeRemaining(endDate: string): string {
     return `Ends in ${diffInDays} days`;
   }
 }
+
+// Helper function to calculate time difference using date-fns
+export const getTimeDifference = (
+  scheduledDate: string,
+  timeRange: string
+): { text: string; color: string } => {
+  /**
+   * This logic is very wrong right now
+   * We need to work on a working logic for this
+   * Basically the day difference is not working as expected
+   * But the time difference isn't setup correctly
+   * We need to work on a working logic for this
+   */
+  const [startTime] = timeRange.split("-");
+
+  // Extract the date part from scheduledDate (which is timezone-aware)
+  const scheduledDateObj = new Date(scheduledDate);
+  const year = scheduledDateObj.getFullYear();
+  const month = String(scheduledDateObj.getMonth() + 1).padStart(2, "0");
+  const day = String(scheduledDateObj.getDate()).padStart(2, "0");
+
+  // Combine the date with the start time from timeRange
+  const scheduledDateTime = new Date(`${year}-${month}-${day}T${startTime}`);
+  const now = new Date();
+
+  const isOverdue = isPast(scheduledDateTime);
+  const days = Math.abs(differenceInDays(scheduledDateTime, now));
+  const hours = Math.abs(differenceInHours(scheduledDateTime, now));
+  const minutes = Math.abs(differenceInMinutes(scheduledDateTime, now));
+
+  if (isOverdue) {
+    // Past due
+    if (days > 0) {
+      return {
+        text: `${days} day${days > 1 ? "s" : ""} behind`,
+        color: "bg-red-100 text-red-700",
+      };
+    } else if (hours > 0) {
+      return {
+        text: `${hours} hr${hours > 1 ? "s" : ""} behind`,
+        color: "bg-red-100 text-red-700",
+      };
+    } else {
+      return {
+        text: `${minutes} min${minutes > 1 ? "s" : ""} behind`,
+        color: "bg-red-100 text-red-700",
+      };
+    }
+  } else {
+    // Upcoming
+    if (days > 0) {
+      return {
+        text: `${days} day${days > 1 ? "s" : ""} to go`,
+        color: "bg-blue-100 text-blue-700",
+      };
+    } else if (hours > 0) {
+      return {
+        text: `${hours} hr${hours > 1 ? "s" : ""} to go`,
+        color: "bg-blue-100 text-blue-700",
+      };
+    } else {
+      return {
+        text: `${minutes} min${minutes > 1 ? "s" : ""} to go`,
+        color: "bg-blue-100 text-blue-700",
+      };
+    }
+  }
+};

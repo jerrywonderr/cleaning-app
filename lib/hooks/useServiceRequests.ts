@@ -74,6 +74,30 @@ export function useServiceRequest(id: string) {
 }
 
 /**
+ * Hook to get a single service request with provider information
+ */
+export function useServiceRequestWithProvider(id: string) {
+  return useQuery({
+    queryKey: [...SERVICE_REQUEST_QUERY_KEY(id), "withProvider"],
+    queryFn: () => ServiceRequestService.getServiceRequestWithProvider(id),
+    enabled: !!id,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+  });
+}
+
+/**
+ * Hook to get a single service request with customer information
+ */
+export function useServiceRequestWithCustomer(id: string) {
+  return useQuery({
+    queryKey: [...SERVICE_REQUEST_QUERY_KEY(id), "withCustomer"],
+    queryFn: () => ServiceRequestService.getServiceRequestWithCustomer(id),
+    enabled: !!id,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+  });
+}
+
+/**
  * Hook to create a new service request
  */
 export function useCreateServiceRequest() {

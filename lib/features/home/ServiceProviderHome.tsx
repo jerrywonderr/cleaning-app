@@ -195,30 +195,18 @@ export default function ServiceProviderHome() {
               {ongoingAppointments.length > 0 ? (
                 <VStack className="gap-3">
                   {ongoingAppointments.slice(0, 5).map((request) => {
-                    const { serviceRequest, customer } = request;
-                    const scheduledDate = new Date(
-                      serviceRequest.scheduledDate
-                    );
-                    const [startTime] = serviceRequest.timeRange.split("-");
-                    const formattedTime = formatTime(startTime);
-
                     return (
                       <AppointmentItem
-                        key={serviceRequest.id}
-                        id={serviceRequest.id}
-                        date={scheduledDate.toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                        })}
-                        time={formattedTime}
-                        client={`${customer.firstName} ${customer.lastName}`}
-                        service={serviceRequest.serviceName}
-                        status={mapServiceRequestStatusToAppointmentStatus(
-                          serviceRequest.status
-                        )}
+                        key={request.serviceRequest.id}
+                        id={request.serviceRequest.id}
+                        date={request.serviceRequest.scheduledDate}
+                        time={request.serviceRequest.timeRange}
+                        client={`${request.customer.firstName} ${request.customer.lastName}`}
+                        service={request.serviceRequest.serviceName}
+                        status={request.serviceRequest.status}
                         onPress={() =>
                           router.push(
-                            `/service-provider/appointments/${serviceRequest.id}`
+                            `/service-provider/appointments/${request.serviceRequest.id}`
                           )
                         }
                       />

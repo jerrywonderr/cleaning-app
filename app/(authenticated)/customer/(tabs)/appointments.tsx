@@ -13,9 +13,9 @@ import { useState } from "react";
 import { RefreshControl } from "react-native";
 
 export default function AppointmentsScreen() {
-  const [activeTab, setActiveTab] = useState<"upcoming" | "ongoing" | "past">(
-    "upcoming"
-  );
+  const [activeTab, setActiveTab] = useState<
+    "scheduled" | "active" | "completed" | "cancelled"
+  >("scheduled");
   const router = useRouter();
   const { profile } = useUserType();
 
@@ -26,15 +26,17 @@ export default function AppointmentsScreen() {
     isRefetching,
   } = useCustomerServiceRequests(profile?.id || "");
 
-  // Filter service requests based on tab (only confirmed, in-progress, completed)
+  // Filter service requests based on tab
   const filteredAppointments = serviceRequests.filter((request) => {
     const status = request.serviceRequest.status;
-    if (activeTab === "upcoming") {
+    if (activeTab === "scheduled") {
       return status === "confirmed";
-    } else if (activeTab === "ongoing") {
+    } else if (activeTab === "active") {
       return status === "in-progress";
-    } else if (activeTab === "past") {
+    } else if (activeTab === "completed") {
       return status === "completed";
+    } else if (activeTab === "cancelled") {
+      return status === "cancelled";
     }
     return false;
   });
@@ -45,12 +47,14 @@ export default function AppointmentsScreen() {
 
   const getTabTitle = (tab: string) => {
     switch (tab) {
-      case "upcoming":
-        return "Upcoming";
-      case "ongoing":
-        return "Ongoing";
-      case "past":
-        return "Past";
+      case "scheduled":
+        return "Scheduled";
+      case "active":
+        return "Active";
+      case "completed":
+        return "Completed";
+      case "cancelled":
+        return "Cancelled";
       default:
         return tab;
     }
@@ -58,12 +62,14 @@ export default function AppointmentsScreen() {
 
   const getEmptyStateMessage = (tab: string) => {
     switch (tab) {
-      case "upcoming":
-        return "You don't have any upcoming appointments scheduled.";
-      case "ongoing":
+      case "scheduled":
+        return "You don't have any scheduled appointments.";
+      case "active":
         return "No appointments are currently in progress.";
-      case "past":
+      case "completed":
         return "No completed appointments yet.";
+      case "cancelled":
+        return "No cancelled appointments.";
       default:
         return "No appointments found.";
     }
@@ -71,12 +77,14 @@ export default function AppointmentsScreen() {
 
   const getEmptyStateSubtitle = (tab: string) => {
     switch (tab) {
-      case "upcoming":
+      case "scheduled":
         return "Book a cleaning service to get started.";
-      case "ongoing":
+      case "active":
         return "Your appointments will appear here once they start.";
-      case "past":
+      case "completed":
         return "Your completed appointments will appear here.";
+      case "cancelled":
+        return "Cancelled appointments will appear here.";
       default:
         return "";
     }
@@ -92,23 +100,25 @@ export default function AppointmentsScreen() {
       {/* Tab Navigation */}
       <Box className="bg-white border-b border-gray-100">
         <Box className="flex-row mx-6">
-          {(["upcoming", "ongoing", "past"] as const).map((tab) => (
-            <Pressable
-              key={tab}
-              className={`flex-1 py-4 ${
-                activeTab === tab ? "border-b-2 border-brand-500" : ""
-              }`}
-              onPress={() => setActiveTab(tab)}
-            >
-              <Text
-                className={`text-center font-semibold text-base ${
-                  activeTab === tab ? "text-brand-500" : "text-gray-500"
+          {(["scheduled", "active", "completed", "cancelled"] as const).map(
+            (tab) => (
+              <Pressable
+                key={tab}
+                className={`flex-1 py-4 ${
+                  activeTab === tab ? "border-b-2 border-brand-500" : ""
                 }`}
+                onPress={() => setActiveTab(tab)}
               >
-                {getTabTitle(tab)}
-              </Text>
-            </Pressable>
-          ))}
+                <Text
+                  className={`text-center font-semibold text-base ${
+                    activeTab === tab ? "text-brand-500" : "text-gray-500"
+                  }`}
+                >
+                  {getTabTitle(tab)}
+                </Text>
+              </Pressable>
+            )
+          )}
         </Box>
       </Box>
 
@@ -127,25 +137,29 @@ export default function AppointmentsScreen() {
             data={filteredAppointments}
             keyExtractor={(item) => item.serviceRequest.id}
             estimatedItemSize={100}
-            renderItem={({ item }) => {
-              const { serviceRequest, provider } = item;
-              const scheduledDate = new Date(serviceRequest.scheduledDate);
-              const [startTime] = serviceRequest.timeRange.split("-");
-
+            renderItem={({ item: { serviceRequest, provider } }) => {
               return (
                 <AppointmentItem
                   id={serviceRequest.id}
-                  date={scheduledDate.toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                  })}
-                  time={startTime}
-                  client={serviceRequest.serviceName}
-                  service={serviceRequest.serviceType}
-                  status={serviceRequest.status}
+                  date={serviceRequest.scheduledDate}
+                  time={serviceRequest.timeRange}
+                  client={`${provider.firstName} ${provider.lastName}`}
+                  service={serviceRequest.serviceName}
+                  status={
+                    serviceRequest.status === "confirmed"
+                      ? "confirmed"
+                      : serviceRequest.status === "in-progress"
+                      ? "in-progress"
+                      : serviceRequest.status === "completed"
+                      ? "completed"
+                      : serviceRequest.status === "cancelled"
+                      ? "cancelled"
+                      : "pending"
+                  }
                   onPress={() =>
                     router.push(`/customer/appointments/${serviceRequest.id}`)
                   }
+                  showTimeDifference={activeTab === "scheduled"}
                 />
               );
             }}

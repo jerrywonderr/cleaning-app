@@ -9,14 +9,14 @@ import { Box } from "@/lib/components/ui/box";
 import { Button } from "@/lib/components/ui/button";
 import { HStack } from "@/lib/components/ui/hstack";
 import { Icon } from "@/lib/components/ui/icon";
+import { useLoader } from "@/lib/components/ui/loader";
 import { Menu, MenuItem, MenuItemLabel } from "@/lib/components/ui/menu";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import {
-  useAppointment,
-  useUpdateAppointment,
-} from "@/lib/hooks/useAppointments";
-import { useUserProfile } from "@/lib/hooks/useOffers";
+  useServiceRequestWithCustomer,
+  useUpdateServiceRequest,
+} from "@/lib/hooks/useServiceRequests";
 import { formatNaira } from "@/lib/utils/formatNaira";
 import {
   handleCallProvider,
@@ -35,36 +35,40 @@ import {
   MessageCircle,
   MoreVertical,
   Phone,
-  Star,
   User,
 } from "lucide-react-native";
 import { Alert, ScrollView } from "react-native";
 
 export default function ProviderAppointmentDetailScreen() {
+  const { showLoader, hideLoader } = useLoader();
   const router = useRouter();
   const params = useLocalSearchParams<{ appointmentId: string }>();
   const appointmentId = params.appointmentId as string;
 
-  // Fetch appointment data
-  const { data: appointment, isLoading, error } = useAppointment(appointmentId);
-  const { data: customerProfile } = useUserProfile(
-    appointment?.customerId || ""
-  );
+  // Fetch service request data
+  const {
+    data: serviceRequestData,
+    isLoading,
+    error,
+  } = useServiceRequestWithCustomer(appointmentId);
 
-  const updateAppointmentMutation = useUpdateAppointment();
+  const updateServiceRequestMutation = useUpdateServiceRequest();
 
   const handleStatusUpdate = async (newStatus: string) => {
-    if (!appointment) return;
+    if (!serviceRequestData) return;
 
     try {
-      await updateAppointmentMutation.mutateAsync({
-        appointmentId: appointment.id,
+      showLoader();
+      await updateServiceRequestMutation.mutateAsync({
+        id: serviceRequestData.serviceRequest.id,
         data: { status: newStatus as any },
       });
 
       Alert.alert("Success", "Appointment status updated successfully!");
     } catch (error: any) {
       Alert.alert("Error", `Failed to update status: ${error.message}`);
+    } finally {
+      hideLoader();
     }
   };
 
@@ -106,20 +110,31 @@ export default function ProviderAppointmentDetailScreen() {
     }
   };
 
-  const handleViewCustomerInfo = () => {
-    if (!customerProfile) return;
-    Alert.alert(
-      "Provider Info",
-      `Provider: ${customerProfile.firstName} ${customerProfile.lastName}\nThis feature will be implemented soon.`,
-      [{ text: "OK" }]
-    );
+  const handleViewCustomerInfo = async () => {
+    if (!serviceRequestData?.customer) return;
+
+    try {
+      showLoader();
+      // TODO: Implement customer info view
+      await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate API call
+      Alert.alert(
+        "Customer Info",
+        `Customer: ${serviceRequestData.customer.firstName} ${serviceRequestData.customer.lastName}\nThis feature will be implemented soon.`,
+        [{ text: "OK" }]
+      );
+    } catch (error: any) {
+      Alert.alert("Error", `Failed to load customer info: ${error.message}`);
+    } finally {
+      hideLoader();
+    }
   };
 
-  const canMarkCompleted = appointment?.status === "in-progress";
-  const canConfirm = appointment?.status === "pending";
-  const canStart = appointment?.status === "confirmed";
+  const canMarkCompleted =
+    serviceRequestData?.serviceRequest.status === "in-progress";
+  const canConfirm = serviceRequestData?.serviceRequest.status === "pending";
+  const canStart = serviceRequestData?.serviceRequest.status === "confirmed";
   const canMarkNoShow = ["pending", "confirmed"].includes(
-    appointment?.status || ""
+    serviceRequestData?.serviceRequest.status || ""
   );
 
   if (isLoading) {
@@ -132,7 +147,7 @@ export default function ProviderAppointmentDetailScreen() {
     );
   }
 
-  if (error || !appointment) {
+  if (error || !serviceRequestData) {
     return (
       <FixedScreen addTopInset={false} addBottomInset={true}>
         <Box className="flex-1 items-center justify-center">
@@ -183,8 +198,8 @@ export default function ProviderAppointmentDetailScreen() {
           <PrimaryOutlineButton
             onPress={() =>
               handleCallProvider(
-                customerProfile?.phone ?? "",
-                customerProfile?.firstName
+                serviceRequestData.customer?.phone ?? "",
+                serviceRequestData.customer?.firstName
               )
             }
             icon={Phone}
@@ -193,8 +208,8 @@ export default function ProviderAppointmentDetailScreen() {
           <PrimaryOutlineButton
             onPress={() =>
               handleMessageProvider(
-                customerProfile?.phone ?? "",
-                customerProfile?.firstName
+                serviceRequestData.customer?.phone ?? "",
+                serviceRequestData.customer?.firstName
               )
             }
             icon={MessageCircle}
@@ -274,22 +289,20 @@ export default function ProviderAppointmentDetailScreen() {
         <VStack className="gap-2">
           <HStack className="items-center justify-between">
             <Text className="text-2xl font-inter-bold text-gray-900">
-              {appointment.serviceType
-                .replace("-", " ")
-                .replace(/\b\w/g, (l) => l.toUpperCase())}
+              {serviceRequestData.serviceRequest.serviceName}
             </Text>
             <Box
               className={`px-3 py-1 rounded-full ${getStatusColor(
-                appointment.status
+                serviceRequestData.serviceRequest.status
               )}`}
             >
               <Text className="text-sm font-medium">
-                {getStatusText(appointment.status)}
+                {getStatusText(serviceRequestData.serviceRequest.status)}
               </Text>
             </Box>
           </HStack>
           <Text className="text-xl font-inter-semibold text-brand-500">
-            {formatNaira(appointment.price)}
+            {formatNaira(serviceRequestData.serviceRequest.totalPrice)}
           </Text>
         </VStack>
 
@@ -297,33 +310,37 @@ export default function ProviderAppointmentDetailScreen() {
         <Section title="Service Details">
           <InfoRow
             icon={Calendar}
-            text={format(appointment.scheduledDate, "EEEE, MMMM d, yyyy")}
+            text={format(
+              new Date(serviceRequestData.serviceRequest.scheduledDate),
+              "EEEE, MMMM d, yyyy"
+            )}
           />
           <InfoRow
             icon={Clock}
-            text={format(appointment.scheduledTime, "h:mm a")}
+            text={serviceRequestData.serviceRequest.timeRange}
           />
           <InfoRow
             icon={ClockIcon}
-            text={`Duration: ${appointment.duration} hour${
-              appointment.duration !== 1 ? "s" : ""
+            text={`Duration: ${
+              serviceRequestData.serviceRequest.duration
+            } hour${
+              serviceRequestData.serviceRequest.duration !== 1 ? "s" : ""
             }`}
           />
-          <InfoRow icon={MapPin} text={appointment.address} />
+          <InfoRow
+            icon={MapPin}
+            text={serviceRequestData.serviceRequest.location.fullAddress}
+          />
         </Section>
 
         {/* Section: Customer */}
         <Section title="Customer Details">
           <InfoRow
             icon={User}
-            text={
-              customerProfile
-                ? `${customerProfile.firstName} ${customerProfile.lastName}`
-                : "Customer"
-            }
+            text={`${serviceRequestData.customer.firstName} ${serviceRequestData.customer.lastName}`}
           />
-          {customerProfile?.phone && (
-            <InfoRow icon={Phone} text={customerProfile.phone} />
+          {serviceRequestData.customer.phone && (
+            <InfoRow icon={Phone} text={serviceRequestData.customer.phone} />
           )}
         </Section>
 
@@ -333,57 +350,77 @@ export default function ProviderAppointmentDetailScreen() {
             <InfoRow icon={CreditCard} text="Payment Status" />
             <Box
               className={`px-3 py-1 rounded-full ${
-                appointment.isPaid
+                serviceRequestData.serviceRequest.status === "confirmed" ||
+                serviceRequestData.serviceRequest.status === "in-progress" ||
+                serviceRequestData.serviceRequest.status === "completed"
                   ? "text-green-600 bg-green-100"
                   : "text-yellow-600 bg-yellow-100"
               }`}
             >
               <Text className="text-sm font-medium">
-                {appointment.isPaid ? "Paid" : "Pending"}
+                {serviceRequestData.serviceRequest.status === "confirmed" ||
+                serviceRequestData.serviceRequest.status === "in-progress" ||
+                serviceRequestData.serviceRequest.status === "completed"
+                  ? "Paid"
+                  : "Pending"}
               </Text>
             </Box>
           </HStack>
           <InfoRow
             icon={FileText}
-            text={`Amount: ${formatNaira(appointment.price)}`}
+            text={`Amount: ${formatNaira(
+              serviceRequestData.serviceRequest.totalPrice
+            )}`}
           />
         </Section>
 
         {/* Notes */}
-        {appointment.notes && (
+        {serviceRequestData.serviceRequest.customerNotes && (
           <Section title="Special Instructions">
-            <Text className="text-base text-gray-700">{appointment.notes}</Text>
+            <Text className="text-base text-gray-700">
+              {serviceRequestData.serviceRequest.customerNotes}
+            </Text>
           </Section>
         )}
 
-        {/* Customer Review */}
-        {appointment.customerRating && (
-          <Section title="Customer Review">
-            <HStack className="items-center gap-2">
-              <Icon as={Star} className="text-yellow-400" size="sm" />
+        {/* Customer Rating */}
+        {serviceRequestData.serviceRequest.status === "completed" && (
+          <Section title="Customer Rating">
+            <VStack className="gap-2">
               <Text className="text-base text-gray-700">
-                {appointment.customerRating}/5 stars
+                This service has been completed. Customer rating will appear
+                here once submitted.
               </Text>
-            </HStack>
-            {appointment.customerReview && (
-              <Text className="text-base text-gray-700 italic">
-                “{appointment.customerReview}”
+              <Text className="text-sm text-gray-500">
+                Customers can rate your service after completion.
               </Text>
-            )}
+            </VStack>
           </Section>
         )}
 
         {/* Timeline */}
         <Section title="Timeline">
-          <TimelineItem label="Created" date={appointment.createdAt} />
-          {appointment.confirmedAt && (
-            <TimelineItem label="Confirmed" date={appointment.confirmedAt} />
+          <TimelineItem
+            label="Created"
+            date={new Date(serviceRequestData.serviceRequest.createdAt)}
+          />
+          {serviceRequestData.serviceRequest.confirmedAt && (
+            <TimelineItem
+              label="Confirmed"
+              date={new Date(serviceRequestData.serviceRequest.confirmedAt)}
+            />
           )}
-          {appointment.startedAt && (
-            <TimelineItem label="Started" date={appointment.startedAt} />
+          {serviceRequestData.serviceRequest.startedAt && (
+            <TimelineItem
+              label="Started"
+              date={new Date(serviceRequestData.serviceRequest.startedAt)}
+            />
           )}
-          {appointment.completedAt && (
-            <TimelineItem label="Completed" date={appointment.completedAt} />
+          {serviceRequestData.serviceRequest.completedAt && (
+            <TimelineItem
+              label="Completed"
+              date={new Date(serviceRequestData.serviceRequest.completedAt)}
+            />
           )}
         </Section>
       </ScrollView>

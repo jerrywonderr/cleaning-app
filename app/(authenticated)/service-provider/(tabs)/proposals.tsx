@@ -61,8 +61,9 @@ export default function ProposalsScreen() {
   };
 
   const handleViewServiceRequest = (serviceRequestId: string) => {
-    // TODO: Navigate to service request details for provider actions
-    console.log("View service request:", serviceRequestId);
+    router.push(
+      `/(authenticated)/service-provider/proposals/${serviceRequestId}`
+    );
   };
 
   return (

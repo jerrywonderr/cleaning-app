@@ -257,30 +257,20 @@ export default function CustomerHome() {
               {ongoingAppointments.length > 0 ? (
                 <VStack className="gap-3">
                   {ongoingAppointments.slice(0, 5).map((request) => {
-                    const { serviceRequest, provider } = request;
-                    const scheduledDate = new Date(
-                      serviceRequest.scheduledDate
-                    );
-                    const [startTime] = serviceRequest.timeRange.split("-");
-                    const formattedTime = formatTime(startTime);
-
                     return (
                       <AppointmentItem
-                        key={serviceRequest.id}
-                        id={serviceRequest.id}
-                        date={scheduledDate.toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                        })}
-                        time={formattedTime}
-                        client={`${provider.firstName} ${provider.lastName}`}
-                        service={serviceRequest.serviceName}
+                        key={request.serviceRequest.id}
+                        id={request.serviceRequest.id}
+                        date={request.serviceRequest.scheduledDate}
+                        time={request.serviceRequest.timeRange}
+                        client={`${request.provider.firstName} ${request.provider.lastName}`}
+                        service={request.serviceRequest.serviceName}
                         status={mapServiceRequestStatusToAppointmentStatus(
-                          serviceRequest.status
+                          request.serviceRequest.status
                         )}
                         onPress={() =>
                           router.push(
-                            `/customer/appointments/${serviceRequest.id}`
+                            `/customer/appointments/${request.serviceRequest.id}`
                           )
                         }
                       />

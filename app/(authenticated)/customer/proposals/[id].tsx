@@ -27,11 +27,7 @@ import { format } from "date-fns";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import {
   Calendar,
-  CheckCircle,
   Clock,
-  Clock as ClockIcon,
-  CreditCard,
-  FileText,
   MapPin,
   MessageCircle,
   MoreVertical,
@@ -42,75 +38,38 @@ import {
 } from "lucide-react-native";
 import { Alert, ScrollView } from "react-native";
 
-export default function CustomerAppointmentDetailScreen() {
+export default function CustomerProposalDetailScreen() {
   const { showLoader, hideLoader } = useLoader();
   const router = useRouter();
-  const params = useLocalSearchParams<{ appointmentId: string }>();
-  const appointmentId = params.appointmentId as string;
+  const params = useLocalSearchParams<{ id: string }>();
+  const proposalId = params.id as string;
 
   // Fetch service request data
   const {
     data: serviceRequestData,
     isLoading,
     error,
-  } = useServiceRequestWithProvider(appointmentId);
+  } = useServiceRequestWithProvider(proposalId);
 
-  // Mutations
+  // Update service request mutation
   const updateServiceRequestMutation = useUpdateServiceRequest();
-
-  const handleStatusUpdate = async (newStatus: string) => {
-    if (!serviceRequestData) return;
-
-    try {
-      showLoader();
-      await updateServiceRequestMutation.mutateAsync({
-        id: serviceRequestData.serviceRequest.id,
-        data: { status: newStatus as any },
-      });
-
-      Alert.alert("Success", "Appointment status updated successfully!");
-    } catch (error: any) {
-      Alert.alert("Error", `Failed to update status: ${error.message}`);
-    } finally {
-      hideLoader();
-    }
-  };
-
-  const handleMarkCompleted = async () => {
-    if (!serviceRequestData) return;
-
-    try {
-      showLoader();
-      await updateServiceRequestMutation.mutateAsync({
-        id: serviceRequestData.serviceRequest.id,
-        data: {
-          status: "completed",
-        },
-      });
-
-      Alert.alert("Success", "Appointment marked as completed!");
-      // TODO: Navigate to rating screen or show rating prompt
-    } catch (error: any) {
-      Alert.alert("Error", `Failed to mark as completed: ${error.message}`);
-    } finally {
-      hideLoader();
-    }
-  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
         return "text-yellow-600 bg-yellow-50";
-      case "confirmed":
+      case "accepted":
         return "text-blue-600 bg-blue-50";
+      case "rejected":
+        return "text-red-600 bg-red-50";
+      case "confirmed":
+        return "text-green-600 bg-green-50";
       case "in-progress":
         return "text-green-600 bg-green-50";
       case "completed":
         return "text-green-700 bg-green-50";
       case "cancelled":
         return "text-red-600 bg-red-50";
-      case "no-show":
-        return "text-red-700 bg-red-50";
       default:
         return "text-gray-600 bg-gray-50";
     }
@@ -119,7 +78,11 @@ export default function CustomerAppointmentDetailScreen() {
   const getStatusText = (status: string) => {
     switch (status) {
       case "pending":
-        return "Pending Confirmation";
+        return "Pending Provider Response";
+      case "accepted":
+        return "Accepted - Awaiting Payment";
+      case "rejected":
+        return "Rejected";
       case "confirmed":
         return "Confirmed";
       case "in-progress":
@@ -128,8 +91,6 @@ export default function CustomerAppointmentDetailScreen() {
         return "Completed";
       case "cancelled":
         return "Cancelled";
-      case "no-show":
-        return "No Show";
       default:
         return status;
     }
@@ -154,28 +115,75 @@ export default function CustomerAppointmentDetailScreen() {
     }
   };
 
-  // const handleAddReview = () => {
-  //   if (!offer) return;
-  //   Alert.alert(
-  //     "Add Review",
-  //     `Add a review for: ${offer.title}\nThis feature will be implemented soon.`,
-  //     [{ text: "OK" }]
-  //   );
-  // };
+  const handleCancelProposal = () => {
+    Alert.alert(
+      "Cancel Proposal",
+      "Are you sure you want to cancel this service request?",
+      [
+        { text: "No", style: "cancel" },
+        {
+          text: "Yes",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              showLoader();
+              // TODO: Implement cancel functionality
+              await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
+              Alert.alert("Success", "Service request cancelled successfully!");
+            } catch (error: any) {
+              Alert.alert(
+                "Error",
+                `Failed to cancel service request: ${error.message}`
+              );
+            } finally {
+              hideLoader();
+            }
+          },
+        },
+      ]
+    );
+  };
 
-  const canMarkCompleted =
-    serviceRequestData?.serviceRequest.status === "in-progress";
-  const canCancel = ["pending", "confirmed"].includes(
+  const handlePayment = async () => {
+    if (!serviceRequestData) return;
+
+    try {
+      showLoader();
+      await updateServiceRequestMutation.mutateAsync({
+        id: serviceRequestData.serviceRequest.id,
+        data: {
+          status: "confirmed",
+        },
+      });
+
+      Alert.alert(
+        "Payment Successful!",
+        "Your service request has been confirmed. The service provider will be notified.",
+        [
+          {
+            text: "OK",
+            onPress: () => router.back(),
+          },
+        ]
+      );
+    } catch (error: any) {
+      Alert.alert("Error", `Failed to confirm payment: ${error.message}`);
+    } finally {
+      hideLoader();
+    }
+  };
+
+  const canCancel = ["pending", "accepted"].includes(
     serviceRequestData?.serviceRequest.status || ""
   );
-  const canRate = serviceRequestData?.serviceRequest.status === "completed";
+  const canPay = serviceRequestData?.serviceRequest.status === "accepted";
 
   // Show loading state
   if (isLoading) {
     return (
       <FixedScreen addTopInset={false} addBottomInset={true}>
         <Box className="flex-1 items-center justify-center">
-          <Text>Loading appointment details...</Text>
+          <Text>Loading proposal details...</Text>
         </Box>
       </FixedScreen>
     );
@@ -186,9 +194,7 @@ export default function CustomerAppointmentDetailScreen() {
     return (
       <FixedScreen addTopInset={false} addBottomInset={true}>
         <Box className="flex-1 items-center justify-center">
-          <Text className="text-red-500">
-            Failed to load appointment details
-          </Text>
+          <Text className="text-red-500">Failed to load proposal details</Text>
           <PrimaryButton onPress={() => router.back()} className="mt-4">
             Go Back
           </PrimaryButton>
@@ -196,6 +202,11 @@ export default function CustomerAppointmentDetailScreen() {
       </FixedScreen>
     );
   }
+
+  const { serviceRequest, provider } = serviceRequestData;
+  const scheduledDate = new Date(serviceRequest.scheduledDate);
+  const formattedTime = new Date(scheduledDate);
+  const timeString = format(formattedTime, "HH:mm");
 
   return (
     <FootedScrollableScreen
@@ -205,51 +216,30 @@ export default function CustomerAppointmentDetailScreen() {
       footer={
         <HStack className="gap-3">
           <Box className="flex-1">
-            {canMarkCompleted && (
-              <PrimaryButton onPress={handleMarkCompleted} icon={CheckCircle}>
-                Mark as Completed
-              </PrimaryButton>
-            )}
-
-            {canRate && (
-              <PrimaryButton
-                onPress={() =>
-                  router.push(
-                    `/(authenticated)/customer/rate/${serviceRequestData.serviceRequest.providerId}`
-                  )
-                }
-                icon={Star}
-              >
-                Rate Service Provider
-              </PrimaryButton>
+            {canPay && (
+              <PrimaryButton onPress={handlePayment}>Pay Now</PrimaryButton>
             )}
 
             {canCancel && (
               <DangerOutlineButton
-                onPress={() => handleStatusUpdate("cancelled")}
+                onPress={handleCancelProposal}
                 icon={XCircle}
               >
-                Cancel Appointment
+                Cancel Request
               </DangerOutlineButton>
             )}
           </Box>
 
           <PrimaryOutlineButton
             onPress={() => {
-              handleCallProvider(
-                serviceRequestData.provider?.phone ?? "",
-                serviceRequestData.provider?.firstName
-              );
+              handleCallProvider(provider?.phone ?? "", provider?.firstName);
             }}
             icon={Phone}
           />
 
           <PrimaryOutlineButton
             onPress={() =>
-              handleMessageProvider(
-                serviceRequestData.provider?.phone ?? "",
-                serviceRequestData.provider?.firstName
-              )
+              handleMessageProvider(provider?.phone ?? "", provider?.firstName)
             }
             icon={MessageCircle}
           />
@@ -258,11 +248,11 @@ export default function CustomerAppointmentDetailScreen() {
     >
       <Stack.Screen
         options={{
-          title: "Appointment Details",
+          title: "Proposal Details",
           header: ({ navigation }) => (
             <ScreenHeader
               navigation={navigation}
-              title="Appointment Details"
+              title="Proposal Details"
               rightContent={
                 <Menu
                   trigger={({ ...triggerProps }) => (
@@ -289,15 +279,6 @@ export default function CustomerAppointmentDetailScreen() {
                     <Icon as={User} size="sm" className="mr-2 text-gray-600" />
                     <MenuItemLabel>Provider Profile</MenuItemLabel>
                   </MenuItem>
-
-                  <MenuItem
-                    key="AddReview"
-                    textValue="Add Review"
-                    // onPress={handleAddReview}
-                  >
-                    <Icon as={Star} size="sm" className="mr-2 text-gray-600" />
-                    <MenuItemLabel>Add Review</MenuItemLabel>
-                  </MenuItem>
                 </Menu>
               }
             />
@@ -313,20 +294,20 @@ export default function CustomerAppointmentDetailScreen() {
         <VStack className="gap-2 px-4">
           <HStack className="items-center justify-between">
             <Text className="text-2xl font-inter-bold text-gray-900">
-              {serviceRequestData.serviceRequest.serviceName}
+              {serviceRequest.serviceName}
             </Text>
             <Box
               className={`px-3 py-1 rounded-full ${getStatusColor(
-                serviceRequestData.serviceRequest.status
+                serviceRequest.status
               )}`}
             >
               <Text className="text-sm font-medium">
-                {getStatusText(serviceRequestData.serviceRequest.status)}
+                {getStatusText(serviceRequest.status)}
               </Text>
             </Box>
           </HStack>
           <Text className="text-xl font-inter-semibold text-brand-500">
-            {formatNaira(serviceRequestData.serviceRequest.totalPrice)}
+            {formatNaira(serviceRequest.totalPrice)}
           </Text>
         </VStack>
 
@@ -334,78 +315,91 @@ export default function CustomerAppointmentDetailScreen() {
         <Section title="Service Details">
           <InfoRow
             icon={Calendar}
-            text={format(
-              new Date(serviceRequestData.serviceRequest.scheduledDate),
-              "EEEE, MMMM d, yyyy"
-            )}
+            text={format(scheduledDate, "EEEE, MMMM d, yyyy")}
           />
+          <InfoRow icon={Clock} text={timeString} />
           <InfoRow
             icon={Clock}
-            text={serviceRequestData.serviceRequest.timeRange}
-          />
-          <InfoRow
-            icon={ClockIcon}
-            text={`Duration: ${
-              serviceRequestData.serviceRequest.duration
-            } hour${
-              serviceRequestData.serviceRequest.duration !== 1 ? "s" : ""
+            text={`Duration: ${serviceRequest.duration} hour${
+              serviceRequest.duration !== 1 ? "s" : ""
             }`}
           />
-          <InfoRow
-            icon={MapPin}
-            text={serviceRequestData.serviceRequest.location.fullAddress}
-          />
+          <InfoRow icon={MapPin} text={serviceRequest.location.fullAddress} />
         </Section>
 
         {/* Section: Provider */}
-        <Section title="Provider Details">
+        <Section title="Service Provider">
           <InfoRow
             icon={User}
-            text={`${serviceRequestData.provider.firstName} ${serviceRequestData.provider.lastName}`}
+            text={`${provider.firstName} ${provider.lastName}`}
           />
-          {serviceRequestData.provider.phone && (
-            <InfoRow icon={Phone} text={serviceRequestData.provider.phone} />
+          {provider.phone && <InfoRow icon={Phone} text={provider.phone} />}
+          {provider.rating && (
+            <HStack className="items-center gap-2">
+              <Icon as={Star} className="text-yellow-400" size="sm" />
+              <Text className="text-base text-gray-700">
+                {provider.rating}/5 stars
+              </Text>
+            </HStack>
           )}
         </Section>
 
-        {/* Section: Payment */}
-        <Section title="Payment">
+        {/* Section: Pricing Breakdown */}
+        <Section title="Pricing Breakdown">
           <HStack className="items-center justify-between">
-            <InfoRow icon={CreditCard} text="Payment Status" />
-            <Box
-              className={`px-3 py-1 rounded-full ${
-                serviceRequestData.serviceRequest.status === "confirmed" ||
-                serviceRequestData.serviceRequest.status === "in-progress" ||
-                serviceRequestData.serviceRequest.status === "completed"
-                  ? "text-green-600 bg-green-100"
-                  : "text-yellow-600 bg-yellow-100"
-              }`}
-            >
-              <Text className="text-sm font-medium">
-                {serviceRequestData.serviceRequest.status === "confirmed" ||
-                serviceRequestData.serviceRequest.status === "in-progress" ||
-                serviceRequestData.serviceRequest.status === "completed"
-                  ? "Paid"
-                  : "Pending"}
-              </Text>
-            </Box>
+            <Text className="text-base text-gray-700">Base Service</Text>
+            <Text className="text-base font-medium text-gray-900">
+              {formatNaira(serviceRequest.basePrice)}
+            </Text>
           </HStack>
-          <InfoRow
-            icon={FileText}
-            text={`Amount: ${formatNaira(
-              serviceRequestData.serviceRequest.totalPrice
-            )}`}
-          />
+          {serviceRequest.extrasPrice > 0 && (
+            <HStack className="items-center justify-between">
+              <Text className="text-base text-gray-700">Extra Services</Text>
+              <Text className="text-base font-medium text-gray-900">
+                {formatNaira(serviceRequest.extrasPrice)}
+              </Text>
+            </HStack>
+          )}
+          <HStack className="items-center justify-between border-t border-gray-200 pt-2">
+            <Text className="text-lg font-semibold text-gray-900">Total</Text>
+            <Text className="text-lg font-bold text-brand-500">
+              {formatNaira(serviceRequest.totalPrice)}
+            </Text>
+          </HStack>
         </Section>
 
-        {/* Notes */}
-        {serviceRequestData.serviceRequest.customerNotes && (
+        {/* Section: Extra Services */}
+        {serviceRequest.extraOptions &&
+          serviceRequest.extraOptions.length > 0 && (
+            <Section title="Extra Services">
+              <Text className="text-base text-gray-700">
+                {serviceRequest.extraOptions.length} extra service
+                {serviceRequest.extraOptions.length !== 1 ? "s" : ""} selected
+              </Text>
+              <Text className="text-sm text-gray-500">
+                Extra services: {serviceRequest.extraOptions.join(", ")}
+              </Text>
+            </Section>
+          )}
+
+        {/* Section: Special Instructions */}
+        {serviceRequest.customerNotes && (
           <Section title="Special Instructions">
             <Text className="text-base text-gray-700">
-              {serviceRequestData.serviceRequest.customerNotes}
+              {serviceRequest.customerNotes}
             </Text>
           </Section>
         )}
+
+        {/* Section: Rejection Reason (if rejected) */}
+        {serviceRequest.status === "rejected" &&
+          serviceRequest.rejectionReason && (
+            <Section title="Rejection Reason">
+              <Text className="text-base text-red-600">
+                {serviceRequest.rejectionReason}
+              </Text>
+            </Section>
+          )}
       </ScrollView>
     </FootedScrollableScreen>
   );

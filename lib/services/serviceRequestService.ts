@@ -90,6 +90,90 @@ export class ServiceRequestService {
   }
 
   /**
+   * Get a single service request with provider information
+   */
+  static async getServiceRequestWithProvider(
+    id: string
+  ): Promise<ServiceRequestWithProvider | null> {
+    try {
+      const serviceRequest = await this.getServiceRequest(id);
+      if (!serviceRequest) return null;
+
+      // Get provider profile data from users collection
+      const providerUserDoc = await getDoc(
+        doc(db, USERS_COLLECTION, serviceRequest.providerId)
+      );
+
+      // Get provider business data from serviceProviders collection
+      const providerBusinessDoc = await getDoc(
+        doc(db, SERVICE_PROVIDERS_COLLECTION, serviceRequest.providerId)
+      );
+
+      if (providerUserDoc.exists()) {
+        const providerUserData = providerUserDoc.data();
+        const providerBusinessData = providerBusinessDoc.exists()
+          ? providerBusinessDoc.data()
+          : {};
+
+        return {
+          serviceRequest,
+          provider: {
+            id: serviceRequest.providerId,
+            firstName: providerUserData.firstName || "",
+            lastName: providerUserData.lastName || "",
+            profileImage: providerUserData.profileImage,
+            phone: providerUserData.phone || "",
+            rating: providerBusinessData.rating,
+            totalJobs: providerBusinessData.totalJobs,
+          },
+        };
+      }
+
+      return null;
+    } catch (error) {
+      console.error("Error getting service request with provider:", error);
+      throw new Error("Failed to get service request with provider");
+    }
+  }
+
+  /**
+   * Get a single service request with customer information
+   */
+  static async getServiceRequestWithCustomer(
+    id: string
+  ): Promise<ServiceRequestWithCustomer | null> {
+    try {
+      const serviceRequest = await this.getServiceRequest(id);
+      if (!serviceRequest) return null;
+
+      // Get customer profile data from users collection
+      const customerUserDoc = await getDoc(
+        doc(db, USERS_COLLECTION, serviceRequest.customerId)
+      );
+
+      if (customerUserDoc.exists()) {
+        const customerUserData = customerUserDoc.data();
+
+        return {
+          serviceRequest,
+          customer: {
+            id: serviceRequest.customerId,
+            firstName: customerUserData.firstName || "",
+            lastName: customerUserData.lastName || "",
+            profileImage: customerUserData.profileImage,
+            phone: customerUserData.phone || "",
+          },
+        };
+      }
+
+      return null;
+    } catch (error) {
+      console.error("Error getting service request with customer:", error);
+      throw new Error("Failed to get service request with customer");
+    }
+  }
+
+  /**
    * Update a service request
    */
   static async updateServiceRequest(
