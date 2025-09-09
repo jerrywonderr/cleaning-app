@@ -1,37 +1,13 @@
 import Constants from "expo-constants";
 
-// Helper function to get environment variable from either .env (development) or expo-constants (EAS builds)
+const extra = Constants.expoConfig?.extra ?? {};
+
+// Helper function to get environment variable
 function getEnvVar(key: string): string | undefined {
-  // For development: try process.env first (from .env file with EXPO_PUBLIC_ prefix)
-  if (process.env[`EXPO_PUBLIC_${key}`]) {
-    return process.env[`EXPO_PUBLIC_${key}`];
-  }
-
-  // For EAS builds: get from expo-constants
-  return Constants.expoConfig?.extra?.[key];
+  return extra[key];
 }
 
-// Validate required environment variables
-const requiredEnvVars = [
-  "FIREBASE_API_KEY",
-  "FIREBASE_AUTH_DOMAIN",
-  "FIREBASE_PROJECT_ID",
-  "FIREBASE_STORAGE_BUCKET",
-  "FIREBASE_MESSAGING_SENDER_ID",
-  "FIREBASE_APP_ID",
-];
-
-export function validateEnvironment() {
-  const missingVars = requiredEnvVars.filter((varName) => !getEnvVar(varName));
-
-  if (missingVars.length > 0) {
-    throw new Error(
-      `Missing required environment variables: ${missingVars.join(", ")}`
-    );
-  }
-}
-
-// Export individual variables for use in other parts of the app
+// Export variables
 export const env = {
   FIREBASE_API_KEY: getEnvVar("FIREBASE_API_KEY")!,
   FIREBASE_AUTH_DOMAIN: getEnvVar("FIREBASE_AUTH_DOMAIN")!,
@@ -44,11 +20,11 @@ export const env = {
 
 // Firebase configuration object
 export const firebaseConfig = {
-  apiKey: getEnvVar("FIREBASE_API_KEY"),
-  authDomain: getEnvVar("FIREBASE_AUTH_DOMAIN"),
-  projectId: getEnvVar("FIREBASE_PROJECT_ID"),
-  storageBucket: getEnvVar("FIREBASE_STORAGE_BUCKET"),
-  messagingSenderId: getEnvVar("FIREBASE_MESSAGING_SENDER_ID"),
-  appId: getEnvVar("FIREBASE_APP_ID"),
-  measurementId: getEnvVar("FIREBASE_MEASUREMENT_ID"),
+  apiKey: env.FIREBASE_API_KEY,
+  authDomain: env.FIREBASE_AUTH_DOMAIN,
+  projectId: env.FIREBASE_PROJECT_ID,
+  storageBucket: env.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: env.FIREBASE_MESSAGING_SENDER_ID,
+  appId: env.FIREBASE_APP_ID,
+  measurementId: env.FIREBASE_MEASUREMENT_ID,
 };

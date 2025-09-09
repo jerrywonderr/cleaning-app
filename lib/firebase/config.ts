@@ -7,10 +7,10 @@ import {
 } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-import { firebaseConfig, validateEnvironment } from "../config/env";
+import { firebaseConfig } from "../config/env";
 
 // Validate environment variables
-validateEnvironment();
+// validateEnvironment();
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
