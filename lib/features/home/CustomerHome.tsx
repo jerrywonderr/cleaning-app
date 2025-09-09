@@ -32,37 +32,6 @@ export default function CustomerHome() {
     (request) => request.serviceRequest.status === "in-progress"
   );
 
-  // Map ServiceRequestStatus to AppointmentStatus
-  const mapServiceRequestStatusToAppointmentStatus = (status: string) => {
-    switch (status) {
-      case "pending":
-        return "pending";
-      case "accepted":
-        return "pending"; // Map accepted to pending for display
-      case "confirmed":
-        return "confirmed";
-      case "in-progress":
-        return "in-progress";
-      case "completed":
-        return "completed";
-      case "cancelled":
-        return "cancelled";
-      default:
-        return "pending";
-    }
-  };
-
-  // Format time using Date constructor and date-fns
-  const formatTime = (timeString: string) => {
-    try {
-      const date = new Date(timeString);
-      return format(date, "HH:mm");
-    } catch (error) {
-      console.warn("Failed to parse time string:", timeString, error);
-      return timeString;
-    }
-  };
-
   return (
     <FixedScreen addTopInset={true} addBottomInset={false}>
       <Box className="mb-4 flex-1">
@@ -265,9 +234,7 @@ export default function CustomerHome() {
                         time={request.serviceRequest.timeRange}
                         client={`${request.provider.firstName} ${request.provider.lastName}`}
                         service={request.serviceRequest.serviceName}
-                        status={mapServiceRequestStatusToAppointmentStatus(
-                          request.serviceRequest.status
-                        )}
+                        status={request.serviceRequest.status}
                         onPress={() =>
                           router.push(
                             `/customer/appointments/${request.serviceRequest.id}`
@@ -296,30 +263,18 @@ export default function CustomerHome() {
               {upcomingAppointments.length > 0 ? (
                 <VStack className="gap-3">
                   {upcomingAppointments.slice(0, 5).map((request) => {
-                    const { serviceRequest, provider } = request;
-                    const scheduledDate = new Date(
-                      serviceRequest.scheduledDate
-                    );
-                    const [startTime] = serviceRequest.timeRange.split("-");
-                    const formattedTime = formatTime(startTime);
-
                     return (
                       <AppointmentItem
-                        key={serviceRequest.id}
-                        id={serviceRequest.id}
-                        date={scheduledDate.toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                        })}
-                        time={formattedTime}
-                        client={`${provider.firstName} ${provider.lastName}`}
-                        service={serviceRequest.serviceName}
-                        status={mapServiceRequestStatusToAppointmentStatus(
-                          serviceRequest.status
-                        )}
+                        key={request.serviceRequest.id}
+                        id={request.serviceRequest.id}
+                        date={request.serviceRequest.scheduledDate}
+                        time={request.serviceRequest.timeRange.split("-")[0]}
+                        client={`${request.provider.firstName} ${request.provider.lastName}`}
+                        service={request.serviceRequest.serviceName}
+                        status={request.serviceRequest.status}
                         onPress={() =>
                           router.push(
-                            `/customer/appointments/${serviceRequest.id}`
+                            `/customer/appointments/${request.serviceRequest.id}`
                           )
                         }
                       />
