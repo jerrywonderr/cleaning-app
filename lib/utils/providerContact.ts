@@ -1,4 +1,5 @@
-import { Alert, Platform } from "react-native";
+import * as Linking from "expo-linking";
+import { Alert } from "react-native";
 
 // Lazy import Linking only when needed
 export const handleCallProvider = (phone: string, name?: string) => {
@@ -7,21 +8,22 @@ export const handleCallProvider = (phone: string, name?: string) => {
     return;
   }
 
-  Alert.alert("Call Provider", `Do you want to call ${name ?? "this provider"}?`, [
-    { text: "Cancel", style: "cancel" },
-    {
-      text: "Call",
-      onPress: () => {
-        const phoneUrl = Platform.OS === "ios" ? `telprompt:${phone}` : `tel:${phone}`;
-
-        import("react-native").then(({ Linking }) => {
-          Linking.openURL(phoneUrl).catch(() =>
-            Alert.alert("Error", "Unable to open phone dialer")
-          );
-        });
+  Alert.alert(
+    "Call Provider",
+    `Do you want to call ${name ?? "this provider"}?`,
+    [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Call",
+        onPress: () => {
+          Linking.openURL(`tel:${phone}`).catch((err) => {
+            console.error("Error opening phone dialer:", err);
+            Alert.alert("Error", "Unable to open phone dialer");
+          });
+        },
       },
-    },
-  ]);
+    ]
+  );
 };
 
 export const handleMessageProvider = (phone: string, name?: string) => {
@@ -30,14 +32,15 @@ export const handleMessageProvider = (phone: string, name?: string) => {
     return;
   }
 
-  Alert.alert("Message Provider", `Do you want to message ${name ?? "this provider"}?`, [
-    { text: "Cancel", style: "cancel" },
-    {
-      text: "Message",
-      onPress: () => {
-        const smsUrl = `sms:${phone}`;
-
-        import("react-native").then(({ Linking }) => {
+  Alert.alert(
+    "Message Provider",
+    `Do you want to message ${name ?? "this provider"}?`,
+    [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Message",
+        onPress: () => {
+          const smsUrl = `sms:${phone}`;
           Linking.canOpenURL(smsUrl)
             .then((supported) => {
               if (supported) {
@@ -47,8 +50,8 @@ export const handleMessageProvider = (phone: string, name?: string) => {
               }
             })
             .catch((err) => console.error("Error opening messaging app:", err));
-        });
+        },
       },
-    },
-  ]);
+    ]
+  );
 };
