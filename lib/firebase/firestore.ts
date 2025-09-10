@@ -98,6 +98,7 @@ export class FirebaseFirestoreService {
         const data = userSnap.data();
         return {
           ...data,
+          dob: "2025-09-08T13:48:16.000Z", // Fix this later, we have to change the way dob is saved on the db
           createdAt: data.createdAt?.toDate() || new Date(),
           updatedAt: data.updatedAt?.toDate() || new Date(),
         } as UserProfile;
