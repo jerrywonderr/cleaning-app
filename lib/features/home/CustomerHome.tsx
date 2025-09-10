@@ -8,7 +8,6 @@ import { VStack } from "@/lib/components/ui/vstack";
 import AppointmentItem from "@/lib/features/appointments/AppointmentItem";
 import { useUserType } from "@/lib/hooks/useAuth";
 import { useCustomerServiceRequests } from "@/lib/hooks/useServiceRequests";
-import { format } from "date-fns";
 import { useRouter } from "expo-router";
 import { Bell, Calendar, ChevronRight, Info, Send } from "lucide-react-native";
 import React from "react";

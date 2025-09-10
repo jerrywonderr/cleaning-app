@@ -10,7 +10,6 @@ import AppointmentItem from "@/lib/features/appointments/AppointmentItem";
 import { useUserType } from "@/lib/hooks/useAuth";
 import { useProviderServiceRequests } from "@/lib/hooks/useServiceRequests";
 import { useAppStore } from "@/lib/store/useAppStore";
-import { format } from "date-fns";
 import { useRouter } from "expo-router";
 import {
   Bell,
@@ -42,37 +41,6 @@ export default function ServiceProviderHome() {
   const ongoingAppointments = serviceRequests.filter(
     (request) => request.serviceRequest.status === "in-progress"
   );
-
-  // Map ServiceRequestStatus to AppointmentStatus
-  const mapServiceRequestStatusToAppointmentStatus = (status: string) => {
-    switch (status) {
-      case "pending":
-        return "pending";
-      case "accepted":
-        return "pending"; // Map accepted to pending for display
-      case "confirmed":
-        return "confirmed";
-      case "in-progress":
-        return "in-progress";
-      case "completed":
-        return "completed";
-      case "cancelled":
-        return "cancelled";
-      default:
-        return "pending";
-    }
-  };
-
-  // Format time using Date constructor and date-fns
-  const formatTime = (timeString: string) => {
-    try {
-      const date = new Date(timeString);
-      return format(date, "HH:mm");
-    } catch (error) {
-      console.warn("Failed to parse time string:", timeString, error);
-      return timeString;
-    }
-  };
 
   const formatNaira = (amount: number): string => {
     return new Intl.NumberFormat("en-NG", {
@@ -200,7 +168,7 @@ export default function ServiceProviderHome() {
                         key={request.serviceRequest.id}
                         id={request.serviceRequest.id}
                         date={request.serviceRequest.scheduledDate}
-                        time={request.serviceRequest.timeRange}
+                        time={request.serviceRequest.timeRange.split("-")[0]}
                         client={`${request.customer.firstName} ${request.customer.lastName}`}
                         service={request.serviceRequest.serviceName}
                         status={request.serviceRequest.status}
@@ -232,30 +200,18 @@ export default function ServiceProviderHome() {
               {upcomingAppointments.length > 0 ? (
                 <VStack className="gap-3">
                   {upcomingAppointments.slice(0, 5).map((request) => {
-                    const { serviceRequest, customer } = request;
-                    const scheduledDate = new Date(
-                      serviceRequest.scheduledDate
-                    );
-                    const [startTime] = serviceRequest.timeRange.split("-");
-                    const formattedTime = formatTime(startTime);
-
                     return (
                       <AppointmentItem
-                        key={serviceRequest.id}
-                        id={serviceRequest.id}
-                        date={scheduledDate.toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                        })}
-                        time={formattedTime}
-                        client={`${customer.firstName} ${customer.lastName}`}
-                        service={serviceRequest.serviceName}
-                        status={mapServiceRequestStatusToAppointmentStatus(
-                          serviceRequest.status
-                        )}
+                        key={request.serviceRequest.id}
+                        id={request.serviceRequest.id}
+                        date={request.serviceRequest.scheduledDate}
+                        time={request.serviceRequest.timeRange.split("-")[0]}
+                        client={`${request.customer.firstName} ${request.customer.lastName}`}
+                        service={request.serviceRequest.serviceName}
+                        status={request.serviceRequest.status}
                         onPress={() =>
                           router.push(
-                            `/service-provider/appointments/${serviceRequest.id}`
+                            `/service-provider/appointments/${request.serviceRequest.id}`
                           )
                         }
                       />
