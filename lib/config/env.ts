@@ -1,30 +1,10 @@
-import Constants from "expo-constants";
-
-const extra = Constants.expoConfig?.extra ?? {};
-
-// Helper function to get environment variable
-function getEnvVar(key: string): string | undefined {
-  return extra[key];
-}
-
-// Export variables
-export const env = {
-  FIREBASE_API_KEY: getEnvVar("FIREBASE_API_KEY")!,
-  FIREBASE_AUTH_DOMAIN: getEnvVar("FIREBASE_AUTH_DOMAIN")!,
-  FIREBASE_PROJECT_ID: getEnvVar("FIREBASE_PROJECT_ID")!,
-  FIREBASE_STORAGE_BUCKET: getEnvVar("FIREBASE_STORAGE_BUCKET")!,
-  FIREBASE_MESSAGING_SENDER_ID: getEnvVar("FIREBASE_MESSAGING_SENDER_ID")!,
-  FIREBASE_APP_ID: getEnvVar("FIREBASE_APP_ID")!,
-  FIREBASE_MEASUREMENT_ID: getEnvVar("FIREBASE_MEASUREMENT_ID"),
-};
-
 // Firebase configuration object
 export const firebaseConfig = {
-  apiKey: env.FIREBASE_API_KEY,
-  authDomain: env.FIREBASE_AUTH_DOMAIN,
-  projectId: env.FIREBASE_PROJECT_ID,
-  storageBucket: env.FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: env.FIREBASE_MESSAGING_SENDER_ID,
-  appId: env.FIREBASE_APP_ID,
-  measurementId: env.FIREBASE_MEASUREMENT_ID,
+  apiKey: "AIzaSyDfsnYfeRcFbcHnvb4Q5pORQtrEXG6pZ70",
+  authDomain: "rehoboth-app-2e303.firebaseapp.com",
+  projectId: "rehoboth-app-2e303",
+  storageBucket: "rehoboth-app-2e303.firebasestorage.app",
+  messagingSenderId: "1011480572572",
+  appId: "1:1011480572572:web:48a25654a874ae7819f359",
+  measurementId: "G-2JESNEGEZB",
 };
