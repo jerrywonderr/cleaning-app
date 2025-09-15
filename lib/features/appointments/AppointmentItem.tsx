@@ -116,9 +116,6 @@ export default function AppointmentItem({
     }
   };
 
-  console.log("date", date);
-  console.log("time", time);
-
   // Calculate time difference if needed
   const timeInfo =
     showTimeDifference && date && time ? getTimeDifference(date, time) : null;
