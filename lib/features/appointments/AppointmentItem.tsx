@@ -11,7 +11,6 @@ import {
   AlertCircle,
   Calendar,
   CheckCircle,
-  ChevronRight,
   Clock,
   Clock as ClockIcon,
   User,
@@ -155,7 +154,7 @@ export default function AppointmentItem({
           </Box>
 
           {/* Right side - Date & Time */}
-          <Box className="items-col items-end justify-between">
+          <Box className="items-col items-end justify-between gap-1">
             <Box className="flex-row justify-end items-center gap-2 mb-1">
               <Icon as={Calendar} size="sm" className="text-gray-400 mr-1" />
               <Text className="text-sm font-inter-medium text-gray-700">
@@ -168,20 +167,19 @@ export default function AppointmentItem({
                 {time}
               </Text>
             </Box>
-            <Icon as={ChevronRight} size="sm" className="text-gray-300" />
+
+            {/* Time difference tag */}
+            {timeInfo && (
+              <HStack className="items-center gap-1">
+                <Icon as={Clock} size="sm" className="text-gray-400 mr-1" />
+                <Box className={`px-2 py-1 rounded-full ${timeInfo.color}`}>
+                  <Text className="text-xs font-medium">{timeInfo.text}</Text>
+                </Box>
+              </HStack>
+            )}
           </Box>
         </Box>
       </Pressable>
-
-      {/* Time difference tag */}
-      {timeInfo && (
-        <HStack className="items-center mt-2 ml-4">
-          <Icon as={Clock} size="sm" className="text-gray-500 mr-1" />
-          <Box className={`px-2 py-1 rounded-full ${timeInfo.color}`}>
-            <Text className="text-xs font-medium">{timeInfo.text}</Text>
-          </Box>
-        </HStack>
-      )}
     </Box>
   );
 }

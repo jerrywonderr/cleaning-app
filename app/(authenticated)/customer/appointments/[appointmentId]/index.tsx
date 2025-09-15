@@ -154,14 +154,19 @@ export default function CustomerAppointmentDetailScreen() {
     }
   };
 
-  // const handleAddReview = () => {
-  //   if (!offer) return;
-  //   Alert.alert(
-  //     "Add Review",
-  //     `Add a review for: ${offer.title}\nThis feature will be implemented soon.`,
-  //     [{ text: "OK" }]
-  //   );
-  // };
+  const handleAddReview = () => {
+    if (!serviceRequestData) return;
+    if (!canRate) {
+      Alert.alert(
+        "Error",
+        "You can only add review for completed appointments"
+      );
+      return;
+    }
+    router.push(
+      `/(authenticated)/customer/rate/${serviceRequestData.serviceRequest.providerId}`
+    );
+  };
 
   const canMarkCompleted =
     serviceRequestData?.serviceRequest.status === "in-progress";
@@ -212,22 +217,16 @@ export default function CustomerAppointmentDetailScreen() {
             )}
 
             {canRate && (
-              <PrimaryButton
-                onPress={() =>
-                  router.push(
-                    `/(authenticated)/customer/rate/${serviceRequestData.serviceRequest.providerId}`
-                  )
-                }
-                icon={Star}
-              >
+              <PrimaryButton onPress={handleAddReview} icon={Star}>
                 Rate Service Provider
               </PrimaryButton>
             )}
 
-            {canCancel && (
+            {!canMarkCompleted && !canRate && (
               <DangerOutlineButton
                 onPress={() => handleStatusUpdate("cancelled")}
                 icon={XCircle}
+                disabled={!canCancel}
               >
                 Cancel Appointment
               </DangerOutlineButton>
@@ -293,7 +292,8 @@ export default function CustomerAppointmentDetailScreen() {
                   <MenuItem
                     key="AddReview"
                     textValue="Add Review"
-                    // onPress={handleAddReview}
+                    // disabled={!canRate}
+                    onPress={handleAddReview}
                   >
                     <Icon as={Star} size="sm" className="mr-2 text-gray-600" />
                     <MenuItemLabel>Add Review</MenuItemLabel>
@@ -315,6 +315,11 @@ export default function CustomerAppointmentDetailScreen() {
             <Text className="text-2xl font-inter-bold text-gray-900">
               {serviceRequestData.serviceRequest.serviceName}
             </Text>
+            <Text className="text-xl font-inter-semibold text-brand-500">
+              {formatNaira(serviceRequestData.serviceRequest.totalPrice)}
+            </Text>
+          </HStack>
+          <HStack>
             <Box
               className={`px-3 py-1 rounded-full ${getStatusColor(
                 serviceRequestData.serviceRequest.status
@@ -325,9 +330,6 @@ export default function CustomerAppointmentDetailScreen() {
               </Text>
             </Box>
           </HStack>
-          <Text className="text-xl font-inter-semibold text-brand-500">
-            {formatNaira(serviceRequestData.serviceRequest.totalPrice)}
-          </Text>
         </VStack>
 
         {/* Section: Service Details */}

@@ -26,7 +26,10 @@ export const ProviderItem = ({
   return (
     <Pressable onPress={onSelect}>
       <VStack
-        className={cn("gap-5 p-4", isSelected ? "bg-brand-50" : "bg-white")}
+        className={cn(
+          "gap-5 p-4 bg-white",
+          isSelected && "border border-brand-50 rounded-2xl"
+        )}
       >
         <HStack className="gap-4">
           <VStack className="items-center">
@@ -59,7 +62,7 @@ export const ProviderItem = ({
             </Avatar>
           </VStack>
 
-          <VStack className="flex-1 gap-3">
+          <VStack className="flex-1 gap-3 bg-red-900">
             <HStack className="items-center justify-between">
               <VStack className="gap-1">
                 <Text className="text-gray-900 font-inter-bold text-lg">

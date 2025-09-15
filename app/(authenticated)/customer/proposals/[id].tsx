@@ -214,36 +214,39 @@ export default function CustomerProposalDetailScreen() {
       addBottomInset={true}
       contentContainerClassName="px-0"
       footer={
-        <HStack className="gap-3">
-          <Box className="flex-1">
-            {canPay && (
-              <PrimaryButton onPress={handlePayment}>Pay Now</PrimaryButton>
-            )}
-
-            {canCancel && (
+        <VStack className="gap-3">
+          {canPay && (
+            <PrimaryButton onPress={handlePayment}>Pay Now</PrimaryButton>
+          )}
+          <HStack className="gap-3">
+            <Box className="flex-1">
               <DangerOutlineButton
                 onPress={handleCancelProposal}
                 icon={XCircle}
+                disabled={!canCancel}
               >
                 Cancel Request
               </DangerOutlineButton>
-            )}
-          </Box>
+            </Box>
 
-          <PrimaryOutlineButton
-            onPress={() => {
-              handleCallProvider(provider?.phone ?? "", provider?.firstName);
-            }}
-            icon={Phone}
-          />
+            <PrimaryOutlineButton
+              onPress={() => {
+                handleCallProvider(provider?.phone ?? "", provider?.firstName);
+              }}
+              icon={Phone}
+            />
 
-          <PrimaryOutlineButton
-            onPress={() =>
-              handleMessageProvider(provider?.phone ?? "", provider?.firstName)
-            }
-            icon={MessageCircle}
-          />
-        </HStack>
+            <PrimaryOutlineButton
+              onPress={() =>
+                handleMessageProvider(
+                  provider?.phone ?? "",
+                  provider?.firstName
+                )
+              }
+              icon={MessageCircle}
+            />
+          </HStack>
+        </VStack>
       }
     >
       <Stack.Screen
@@ -296,6 +299,11 @@ export default function CustomerProposalDetailScreen() {
             <Text className="text-2xl font-inter-bold text-gray-900">
               {serviceRequest.serviceName}
             </Text>
+            <Text className="text-xl font-inter-semibold text-brand-500">
+              {formatNaira(serviceRequest.totalPrice)}
+            </Text>
+          </HStack>
+          <HStack>
             <Box
               className={`px-3 py-1 rounded-full ${getStatusColor(
                 serviceRequest.status
@@ -306,9 +314,6 @@ export default function CustomerProposalDetailScreen() {
               </Text>
             </Box>
           </HStack>
-          <Text className="text-xl font-inter-semibold text-brand-500">
-            {formatNaira(serviceRequest.totalPrice)}
-          </Text>
         </VStack>
 
         {/* Section: Service Details */}

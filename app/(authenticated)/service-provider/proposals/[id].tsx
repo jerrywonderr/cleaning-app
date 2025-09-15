@@ -197,38 +197,41 @@ export default function ServiceProviderProposalDetailScreen() {
       addBottomInset={true}
       contentContainerClassName="px-0"
       footer={
-        <HStack className="gap-3">
-          <Box className="flex-1">
-            {canAccept && (
-              <PrimaryButton onPress={handleAcceptProposal} icon={CheckCircle}>
-                Accept Request
-              </PrimaryButton>
-            )}
-
-            {canReject && (
+        <VStack className="gap-3">
+          {canAccept && (
+            <PrimaryButton onPress={handleAcceptProposal} icon={CheckCircle}>
+              Accept Request
+            </PrimaryButton>
+          )}
+          <HStack className="gap-3">
+            <Box className="flex-1">
               <DangerOutlineButton
                 onPress={() => setShowRejectModal(true)}
                 icon={XCircle}
+                disabled={!canReject}
               >
                 Reject Request
               </DangerOutlineButton>
-            )}
-          </Box>
+            </Box>
 
-          <PrimaryOutlineButton
-            onPress={() => {
-              handleCallProvider(customer?.phone ?? "", customer?.firstName);
-            }}
-            icon={Phone}
-          />
+            <PrimaryOutlineButton
+              onPress={() => {
+                handleCallProvider(customer?.phone ?? "", customer?.firstName);
+              }}
+              icon={Phone}
+            />
 
-          <PrimaryOutlineButton
-            onPress={() =>
-              handleMessageProvider(customer?.phone ?? "", customer?.firstName)
-            }
-            icon={MessageCircle}
-          />
-        </HStack>
+            <PrimaryOutlineButton
+              onPress={() =>
+                handleMessageProvider(
+                  customer?.phone ?? "",
+                  customer?.firstName
+                )
+              }
+              icon={MessageCircle}
+            />
+          </HStack>
+        </VStack>
       }
     >
       <Stack.Screen
@@ -281,6 +284,11 @@ export default function ServiceProviderProposalDetailScreen() {
             <Text className="text-2xl font-inter-bold text-gray-900">
               {serviceRequest.serviceName}
             </Text>
+            <Text className="text-xl font-inter-semibold text-brand-500">
+              {formatNaira(serviceRequest.totalPrice)}
+            </Text>
+          </HStack>
+          <HStack>
             <Box
               className={`px-3 py-1 rounded-full ${getStatusColor(
                 serviceRequest.status
@@ -291,9 +299,6 @@ export default function ServiceProviderProposalDetailScreen() {
               </Text>
             </Box>
           </HStack>
-          <Text className="text-xl font-inter-semibold text-brand-500">
-            {formatNaira(serviceRequest.totalPrice)}
-          </Text>
         </VStack>
 
         {/* Section: Service Details */}
