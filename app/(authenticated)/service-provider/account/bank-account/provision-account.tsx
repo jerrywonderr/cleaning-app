@@ -6,30 +6,14 @@ import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import { useBankAccount } from "@/lib/hooks/useBankAccount";
 import { useUserStore } from "@/lib/store/useUserStore";
-import { yupResolver } from "@hookform/resolvers/yup";
 import { useRouter } from "expo-router";
 import { Banknote, Wallet } from "lucide-react-native";
-import { useForm } from "react-hook-form";
 import { Alert } from "react-native";
-import * as yup from "yup";
-
-const schema = yup.object().shape({
-  // No validation needed since we're using dummy values
-});
-
-type FormData = {
-  // Empty since we don't need user input
-};
 
 export default function ProvisionAccountScreen() {
   const router = useRouter();
   const userId = useUserStore((state) => state.profile?.id);
   const { createBankAccount, isCreatingBankAccount } = useBankAccount();
-
-  const methods = useForm<FormData>({
-    mode: "all",
-    resolver: yupResolver(schema),
-  });
 
   const handleProvisionAccount = async () => {
     if (!userId) return;
