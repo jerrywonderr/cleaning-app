@@ -7,7 +7,6 @@ import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import { useBankAccount } from "@/lib/hooks/useBankAccount";
-import { useUserStore } from "@/lib/store/useUserStore";
 import { PayoutAccount } from "@/lib/types/bank-account";
 import { useRouter } from "expo-router";
 import {
@@ -28,7 +27,7 @@ type BankAccountRoute =
 
 export default function BankAccountScreen() {
   const router = useRouter();
-  const userId = useUserStore((state) => state.profile?.id);
+  // const userId = useUserStore((state) => state.profile?.id);
   const {
     bankAccount,
     payoutAccounts,
@@ -39,6 +38,9 @@ export default function BankAccountScreen() {
   } = useBankAccount();
 
   const handleNavigate = (route: BankAccountRoute) => {
+    if (route === "provision-account" && bankAccount) {
+      return;
+    }
     router.push(`/service-provider/account/bank-account/${route}` as any);
   };
 
@@ -77,7 +79,10 @@ export default function BankAccountScreen() {
             </Text>
 
             {/* Provision Account */}
-            <Pressable onPress={() => handleNavigate("provision-account")}>
+            <Pressable
+              disabled={isLoadingBankAccount}
+              onPress={() => handleNavigate("provision-account")}
+            >
               <HStack className="bg-white rounded-lg border border-gray-200 p-4 justify-between items-center">
                 <HStack className="gap-4 items-center">
                   <Box className="w-10 h-10 bg-blue-100 rounded-lg items-center justify-center">
@@ -100,7 +105,10 @@ export default function BankAccountScreen() {
             </Pressable>
 
             {/* Transaction PIN */}
-            <Pressable onPress={() => handleNavigate("transaction-pin")}>
+            <Pressable
+              disabled={isLoadingTransactionPin}
+              onPress={() => handleNavigate("transaction-pin")}
+            >
               <HStack className="bg-white rounded-lg border border-gray-200 p-4 justify-between items-center">
                 <HStack className="gap-4 items-center">
                   <Box className="w-10 h-10 bg-purple-100 rounded-lg items-center justify-center">
@@ -144,7 +152,7 @@ export default function BankAccountScreen() {
                   size="sm"
                   variant="outline"
                   onPress={() => handleNavigate("create-payout-account")}
-                  disabled={!transactionPin}
+                  disabled={!transactionPin || isLoadingPayoutAccounts}
                 >
                   <ButtonIcon as={Plus} />
                   <ButtonText>Add</ButtonText>
