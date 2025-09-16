@@ -73,6 +73,24 @@ export default function ProviderAppointmentDetailScreen() {
     }
   };
 
+  const handleMarkNoShow = async () => {
+    if (!serviceRequestData) return;
+
+    try {
+      showLoader();
+      await updateServiceRequestMutation.mutateAsync({
+        id: serviceRequestData.serviceRequest.id,
+        data: { status: "no-show", noShowReason: "No show" },
+      });
+
+      Alert.alert("Success", "Appointment marked as no show successfully!");
+    } catch (error: any) {
+      Alert.alert("Error", `Failed to mark as no show: ${error.message}`);
+    } finally {
+      hideLoader();
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
@@ -261,10 +279,10 @@ export default function ProviderAppointmentDetailScreen() {
                     <MenuItem
                       key="MarkNoShow"
                       textValue="Mark as no show"
-                      onPress={() => handleStatusUpdate("no-show")}
+                      onPress={handleMarkNoShow}
                     >
                       <Icon
-                        as={User}
+                        as={XCircle}
                         size="sm"
                         className="mr-2 text-gray-600"
                       />
