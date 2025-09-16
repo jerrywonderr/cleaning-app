@@ -54,6 +54,8 @@ const Signup = () => {
     },
   });
 
+  const isServiceProvider = methods.watch("isServiceProvider");
+
   // Clear error when component mounts or when form changes
   useEffect(() => {
     setError(null);
@@ -124,7 +126,7 @@ const Signup = () => {
           )}
 
           <FormProvider {...methods}>
-            <VStack className="gap-4">
+            <VStack className="gap-6">
               <TextField
                 name="firstName"
                 label="First name"
@@ -137,6 +139,29 @@ const Signup = () => {
                 placeholder="Adegboyega"
                 textContentType="familyName"
               />
+
+              <VStack className="bg-brand-50 p-4 rounded-xl gap-4">
+                <SwitchField
+                  labelComponent={
+                    <Box>
+                      <Text className="text-lg font-inter-medium">
+                        Are you a service provider?
+                      </Text>
+                    </Box>
+                  }
+                  name="isServiceProvider"
+                />
+                <HStack className="justify-center">
+                  <Box className="bg-brand-100 p-3 px-6 rounded-full">
+                    <Text className="text-brand-500 text-center font-inter-extrabold">
+                      {isServiceProvider
+                        ? "You are signing up as a service provider"
+                        : "You are signing up as a regular customer"}
+                    </Text>
+                  </Box>
+                </HStack>
+              </VStack>
+
               <PhoneField
                 name="phone"
                 label="Phone"
@@ -180,15 +205,6 @@ const Signup = () => {
                 autoCorrect={false}
                 textContentType="password"
                 returnKeyType="done"
-              />
-
-              <SwitchField
-                labelComponent={
-                  <Text className="text-base font-medium text-gray-900">
-                    I&apos;m a service provider
-                  </Text>
-                }
-                name="isServiceProvider"
               />
             </VStack>
           </FormProvider>
