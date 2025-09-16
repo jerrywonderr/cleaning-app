@@ -2,7 +2,6 @@ import {
   PrimaryButton,
   PrimaryOutlineButton,
 } from "@/lib/components/custom-buttons";
-import ScreenHeader from "@/lib/components/ScreenHeader";
 import FixedScreen from "@/lib/components/screens/FixedScreen";
 import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
@@ -16,7 +15,7 @@ import { useCreateRating } from "@/lib/hooks/useServiceRequests";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Star } from "lucide-react-native";
 import { useState } from "react";
-import { Alert, Pressable, ScrollView, TextInput } from "react-native";
+import { Alert, Pressable, TextInput } from "react-native";
 
 export default function RateServiceProviderScreen() {
   const { showLoader, hideLoader } = useLoader();
@@ -45,9 +44,8 @@ export default function RateServiceProviderScreen() {
       await createRatingMutation.mutateAsync({
         customerId: profile.id,
         providerId: serviceProviderId,
-        serviceRequestId: "", // We don't need this for rating the provider
         rating,
-        review: review.trim() || undefined,
+        review: review.trim() || "",
       });
 
       Alert.alert(
@@ -109,17 +107,7 @@ export default function RateServiceProviderScreen() {
         </HStack>
       }
     >
-      <ScreenHeader
-        navigation={router}
-        title="Rate Service Provider"
-        onBackPress={() => router.back()}
-      />
-
-      <ScrollView
-        className="flex-1 py-4"
-        showsVerticalScrollIndicator={false}
-        contentContainerClassName="gap-6"
-      >
+      <VStack className="flex-1 py-4 gap-6">
         {/* Header */}
         <VStack className="gap-2 px-4">
           <Text className="text-2xl font-inter-bold text-gray-900">
@@ -216,7 +204,7 @@ export default function RateServiceProviderScreen() {
             </HStack>
           </VStack>
         </Box>
-      </ScrollView>
+      </VStack>
     </FootedScrollableScreen>
   );
 }

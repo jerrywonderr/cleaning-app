@@ -124,7 +124,6 @@ export interface Rating {
 export interface CreateRatingData {
   customerId: string;
   providerId: string;
-  serviceRequestId: string;
   rating: number;
   review?: string;
 }
