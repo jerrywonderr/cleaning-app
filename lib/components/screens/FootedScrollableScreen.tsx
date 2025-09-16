@@ -34,9 +34,11 @@ export default function FootedScrollableScreen({
           paddingBottom: addBottomInset ? bottom : 0,
         }}
       >
-        <Box className={cn("px-4 flex-1", contentContainerClassName)}>
+        <Box
+          style={{ flex: 1 }}
+          className={cn("px-4", contentContainerClassName)}
+        >
           <ScrollView
-            contentContainerStyle={{ flexGrow: 1 }}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
