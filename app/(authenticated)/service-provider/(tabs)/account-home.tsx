@@ -1,25 +1,26 @@
-import { DangerButton } from "@/lib/components/custom-buttons";
 import ScreenHeader from "@/lib/components/ScreenHeader";
 import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
 import { Avatar, AvatarImage } from "@/lib/components/ui/avatar";
 import { Box } from "@/lib/components/ui/box";
 import { Button, ButtonIcon } from "@/lib/components/ui/button";
 import { HStack } from "@/lib/components/ui/hstack";
-import { Icon } from "@/lib/components/ui/icon";
-import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
+import { SettingsItem } from "@/lib/features/account/settings-item";
+import {
+  EmailSupportCTA,
+  PhoneSupportCTA,
+  WhatsappSupportCTA,
+} from "@/lib/features/account/support-cta";
 import { useSignOut } from "@/lib/hooks/useAuth";
 import { useUserStore } from "@/lib/store/useUserStore";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { Href, router, useNavigation } from "expo-router";
+import { router, useNavigation } from "expo-router";
 import {
-  ChevronRight,
+  Calendar,
   CircleX,
-  Clock,
   FileText,
   LogOutIcon,
-  MessageSquare,
   Settings,
   Shield,
   User,
@@ -27,44 +28,6 @@ import {
 } from "lucide-react-native";
 import { useCallback, useEffect } from "react";
 import { Alert } from "react-native";
-
-const menuItems: { icon: any; label: string; route: Href }[] = [
-  {
-    icon: User,
-    label: "Profile",
-    route: "/service-provider/account/view-profile",
-  },
-  {
-    icon: Settings,
-    label: "Services Settings",
-    route: "/service-provider/account/services-settings",
-  },
-  {
-    icon: Wallet,
-    label: "Bank Account",
-    route: "/service-provider/account/bank-account",
-  },
-  {
-    icon: Clock,
-    label: "Working Preferences",
-    route: "/service-provider/account/working-preferences",
-  },
-  {
-    icon: MessageSquare,
-    label: "Customer Support",
-    route: "/service-provider/account/support",
-  },
-  {
-    icon: Shield,
-    label: "Privacy Policy",
-    route: "/service-provider/account/privacy-policy",
-  },
-  {
-    icon: FileText,
-    label: "Terms of Service",
-    route: "/service-provider/account/terms-of-service",
-  },
-];
 
 export default function AccountScreen() {
   const firstName = useUserStore((state) => state.profile?.firstName);
@@ -151,31 +114,72 @@ export default function AccountScreen() {
         </VStack>
 
         <VStack className="gap-4">
-          {menuItems.map((item, index) => (
-            <Pressable key={item.label} onPress={() => router.push(item.route)}>
-              <HStack
-                className={`justify-between items-center py-3 px-2 ${
-                  index !== menuItems.length - 1
-                    ? "border-b border-gray-200"
-                    : ""
-                }`}
-              >
-                <HStack className="gap-4 items-center">
-                  <Icon as={item.icon} className="text-black" size="xl" />
-                  <Text className="text-black font-inter-medium">
-                    {item.label}
-                  </Text>
-                </HStack>
-                <Icon as={ChevronRight} className="text-gray-400" size="xl" />
-              </HStack>
-            </Pressable>
-          ))}
+          <SettingsItem
+            label="Profile"
+            icon={User}
+            onPress={() =>
+              router.push("/service-provider/account/view-profile")
+            }
+          />
+          <SettingsItem
+            label="Services Settings"
+            icon={Settings}
+            onPress={() =>
+              router.push("/service-provider/account/services-settings")
+            }
+          />
+          <SettingsItem
+            label="Bank Account"
+            icon={Wallet}
+            onPress={() =>
+              router.push("/service-provider/account/bank-account")
+            }
+          />
+          <SettingsItem
+            label="Working Preferences"
+            icon={Calendar}
+            onPress={() =>
+              router.push("/service-provider/account/working-preferences")
+            }
+          />
+        </VStack>
 
-          <Box className="mt-8">
-            <DangerButton onPress={confirmDeleteAccount} icon={CircleX}>
-              Delete Account
-            </DangerButton>
-          </Box>
+        <VStack className="gap-3 my-8 bg-brand-500/10 rounded-lg p-4">
+          <VStack>
+            <Text className="text-lg font-inter-semibold text-gray-900">
+              We are here to help
+            </Text>
+            <Text className="text-gray-600 text-sm">
+              Choose your preferred way to get in touch with our support team.
+            </Text>
+          </VStack>
+          <HStack className="py-2 px-2 gap-4">
+            <WhatsappSupportCTA />
+            <EmailSupportCTA />
+            <PhoneSupportCTA />
+          </HStack>
+        </VStack>
+
+        <VStack className="gap-4">
+          <SettingsItem
+            label="Privacy Policy"
+            icon={Shield}
+            onPress={() =>
+              router.push("/service-provider/account/privacy-policy")
+            }
+          />
+          <SettingsItem
+            label="Terms of Service"
+            icon={FileText}
+            onPress={() =>
+              router.push("/service-provider/account/terms-of-service")
+            }
+          />
+          <SettingsItem
+            label="Delete Account"
+            icon={CircleX}
+            onPress={confirmDeleteAccount}
+          />
         </VStack>
       </Box>
     </ScrollableScreen>

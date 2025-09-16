@@ -2,50 +2,29 @@ import ScreenHeader from "@/lib/components/ScreenHeader";
 import FixedScreen from "@/lib/components/screens/FixedScreen";
 import { Avatar, AvatarImage } from "@/lib/components/ui/avatar";
 import { Box } from "@/lib/components/ui/box";
-import { Button, ButtonIcon, ButtonText } from "@/lib/components/ui/button";
+import { Button, ButtonIcon } from "@/lib/components/ui/button";
 import { HStack } from "@/lib/components/ui/hstack";
-import { Icon } from "@/lib/components/ui/icon";
-import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
+import { SettingsItem } from "@/lib/features/account/settings-item";
+import {
+  EmailSupportCTA,
+  PhoneSupportCTA,
+  WhatsappSupportCTA,
+} from "@/lib/features/account/support-cta";
 import { useSignOut } from "@/lib/hooks/useAuth";
 import { useUserStore } from "@/lib/store/useUserStore";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { Href, router, useNavigation } from "expo-router";
+import { router, useNavigation } from "expo-router";
 import {
-  ChevronRight,
   CircleX,
   FileText,
   LogOutIcon,
-  MessageSquare,
   Shield,
   User,
 } from "lucide-react-native";
 import { useCallback, useEffect } from "react";
 import { Alert } from "react-native";
-
-const menuItems: { icon: any; label: string; route: Href }[] = [
-  {
-    icon: User,
-    label: "Profile",
-    route: "/customer/account/view-profile",
-  },
-  {
-    icon: MessageSquare,
-    label: "Customer Support",
-    route: "/customer/account/support",
-  },
-  {
-    icon: Shield,
-    label: "Privacy Policy",
-    route: "/customer/account/privacy-policy",
-  },
-  {
-    icon: FileText,
-    label: "Terms of Service",
-    route: "/customer/account/terms-of-service",
-  },
-];
 
 export default function AccountScreen() {
   const firstName = useUserStore((state) => state.profile?.firstName);
@@ -133,36 +112,42 @@ export default function AccountScreen() {
         </VStack>
 
         <VStack className="gap-4">
-          {menuItems.map((item, index) => (
-            <Pressable key={item.label} onPress={() => router.push(item.route)}>
-              <HStack
-                className={`justify-between items-center py-3 px-2 ${
-                  index !== menuItems.length - 1
-                    ? "border-b border-gray-200"
-                    : ""
-                }`}
-              >
-                <HStack className="gap-4 items-center">
-                  <Icon as={item.icon} className="text-black" size="xl" />
-                  <Text className="text-black font-inter-medium">
-                    {item.label}
-                  </Text>
-                </HStack>
-                <Icon as={ChevronRight} className="text-gray-400" size="xl" />
-              </HStack>
-            </Pressable>
-          ))}
-
-          <Button
+          <SettingsItem
+            label="Profile"
+            icon={User}
+            onPress={() => router.push("/customer/account/view-profile")}
+          />
+          <SettingsItem
+            label="Privacy Policy"
+            icon={Shield}
+            onPress={() => router.push("/customer/account/privacy-policy")}
+          />
+          <SettingsItem
+            label="Terms of Service"
+            icon={FileText}
+            onPress={() => router.push("/customer/account/terms-of-service")}
+          />
+          <SettingsItem
+            label="Delete Account"
+            icon={CircleX}
             onPress={confirmDeleteAccount}
-            variant="solid"
-            action="negative"
-            size="lg"
-            className="mt-8 bg-red-600 rounded-lg h-16"
-          >
-            <ButtonIcon as={CircleX} className="h-6 w-6" />
-            <ButtonText>Delete Account</ButtonText>
-          </Button>
+          />
+        </VStack>
+
+        <VStack className="gap-3 my-8 bg-brand-500/10 rounded-lg p-4">
+          <VStack>
+            <Text className="text-lg font-inter-semibold text-gray-900">
+              We are here to help
+            </Text>
+            <Text className="text-gray-600 text-sm">
+              Choose your preferred way to get in touch with our support team.
+            </Text>
+          </VStack>
+          <HStack className="py-2 px-2 gap-4">
+            <WhatsappSupportCTA />
+            <EmailSupportCTA />
+            <PhoneSupportCTA />
+          </HStack>
         </VStack>
       </Box>
     </FixedScreen>
