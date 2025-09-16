@@ -200,6 +200,9 @@ export class ServiceRequestService {
         updateData.cancelledAt = new Date();
       } else if (data.status === "expired") {
         updateData.expiredAt = new Date();
+      } else if (data.status === "no-show") {
+        updateData.noShowAt = new Date();
+        updateData.noShowReason = data.noShowReason;
       }
 
       await updateDoc(docRef, updateData);
@@ -251,6 +254,8 @@ export class ServiceRequestService {
           completedAt: data.completedAt?.toDate(),
           cancelledAt: data.cancelledAt?.toDate(),
           expiredAt: data.expiredAt?.toDate(),
+          noShowAt: data.noShowAt?.toDate(),
+          noShowReason: data.noShowReason,
         } as ServiceRequest);
       });
 

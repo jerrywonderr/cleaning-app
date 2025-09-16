@@ -36,6 +36,7 @@ import {
   MoreVertical,
   Phone,
   User,
+  XCircle,
 } from "lucide-react-native";
 import { Alert, ScrollView } from "react-native";
 
@@ -131,11 +132,13 @@ export default function ProviderAppointmentDetailScreen() {
 
   const canMarkCompleted =
     serviceRequestData?.serviceRequest.status === "in-progress";
-  const canConfirm = serviceRequestData?.serviceRequest.status === "pending";
+  // const canConfirm = serviceRequestData?.serviceRequest.status === "pending";
   const canStart = serviceRequestData?.serviceRequest.status === "confirmed";
-  const canMarkNoShow = ["pending", "confirmed"].includes(
+  const canMarkNoShow = ["confirmed"].includes(
     serviceRequestData?.serviceRequest.status || ""
   );
+  const isComplete = serviceRequestData?.serviceRequest.status === "completed";
+  const isNoShow = serviceRequestData?.serviceRequest.status === "no-show";
 
   if (isLoading) {
     return (
@@ -170,15 +173,6 @@ export default function ProviderAppointmentDetailScreen() {
       footer={
         <HStack className="gap-3">
           <Box className="flex-1">
-            {canConfirm && (
-              <PrimaryButton
-                onPress={() => handleStatusUpdate("confirmed")}
-                icon={CheckCircle}
-              >
-                Confirm Appointment
-              </PrimaryButton>
-            )}
-
             {canStart && (
               <PrimaryButton
                 onPress={() => handleStatusUpdate("in-progress")}
@@ -191,6 +185,18 @@ export default function ProviderAppointmentDetailScreen() {
             {canMarkCompleted && (
               <PrimaryButton disabled icon={ClockIcon}>
                 Service in Progress
+              </PrimaryButton>
+            )}
+
+            {isComplete && (
+              <PrimaryButton disabled icon={CheckCircle}>
+                Service Completed
+              </PrimaryButton>
+            )}
+
+            {isNoShow && (
+              <PrimaryButton disabled icon={XCircle}>
+                Service No Show
               </PrimaryButton>
             )}
           </Box>
@@ -291,6 +297,11 @@ export default function ProviderAppointmentDetailScreen() {
             <Text className="text-2xl font-inter-bold text-gray-900">
               {serviceRequestData.serviceRequest.serviceName}
             </Text>
+            <Text className="text-xl font-inter-semibold text-brand-500">
+              {formatNaira(serviceRequestData.serviceRequest.totalPrice)}
+            </Text>
+          </HStack>
+          <HStack>
             <Box
               className={`px-3 py-1 rounded-full ${getStatusColor(
                 serviceRequestData.serviceRequest.status
@@ -301,9 +312,6 @@ export default function ProviderAppointmentDetailScreen() {
               </Text>
             </Box>
           </HStack>
-          <Text className="text-xl font-inter-semibold text-brand-500">
-            {formatNaira(serviceRequestData.serviceRequest.totalPrice)}
-          </Text>
         </VStack>
 
         {/* Section: Service Details */}

@@ -29,6 +29,7 @@ export type ServiceRequestStatus =
   | "in-progress"
   | "completed"
   | "cancelled"
+  | "no-show"
   | "expired";
 
 export interface ServiceRequest {
@@ -67,11 +68,13 @@ export interface ServiceRequest {
   startedAt?: Date;
   completedAt?: Date;
   cancelledAt?: Date;
+  noShowAt?: Date;
   expiredAt?: Date;
 
   // Additional fields
   rejectionReason?: string;
   cancellationReason?: string;
+  noShowReason?: string;
   paymentId?: string;
   paymentMethod?: string;
   customerNotes?: string;
@@ -98,6 +101,8 @@ export interface UpdateServiceRequestData {
   status?: ServiceRequestStatus;
   rejectionReason?: string;
   cancellationReason?: string;
+  noShowReason?: string;
+  noShowAt?: Date;
   paymentId?: string;
   paymentMethod?: string;
   providerNotes?: string;

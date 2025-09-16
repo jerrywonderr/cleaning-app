@@ -36,7 +36,7 @@ export default function AppointmentsScreen() {
     } else if (activeTab === "completed") {
       return status === "completed";
     } else if (activeTab === "cancelled") {
-      return status === "cancelled";
+      return status === "cancelled" || status === "no-show";
     }
     return false;
   });
@@ -154,6 +154,8 @@ export default function AppointmentsScreen() {
                       ? "completed"
                       : serviceRequest.status === "cancelled"
                       ? "cancelled"
+                      : serviceRequest.status === "no-show"
+                      ? "no-show"
                       : "pending"
                   }
                   onPress={() =>

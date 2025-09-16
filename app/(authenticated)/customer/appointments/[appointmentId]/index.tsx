@@ -174,6 +174,8 @@ export default function CustomerAppointmentDetailScreen() {
     serviceRequestData?.serviceRequest.status || ""
   );
   const canRate = serviceRequestData?.serviceRequest.status === "completed";
+  const markedAsNoShow =
+    serviceRequestData?.serviceRequest.status === "no-show";
 
   // Show loading state
   if (isLoading) {
@@ -222,7 +224,13 @@ export default function CustomerAppointmentDetailScreen() {
               </PrimaryButton>
             )}
 
-            {!canMarkCompleted && !canRate && (
+            {markedAsNoShow && (
+              <PrimaryButton disabled icon={XCircle}>
+                Service No Show
+              </PrimaryButton>
+            )}
+
+            {!canMarkCompleted && !canRate && !markedAsNoShow && (
               <DangerOutlineButton
                 onPress={() => handleStatusUpdate("cancelled")}
                 icon={XCircle}

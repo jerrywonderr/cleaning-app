@@ -18,6 +18,81 @@ import {
 } from "lucide-react-native";
 import React from "react";
 
+const getStatusIcon = (status: ServiceRequestStatus) => {
+  switch (status) {
+    case "pending":
+      return <Icon as={ClockIcon} size="sm" className="text-yellow-500" />;
+    case "accepted":
+      return <Icon as={CheckCircle} size="sm" className="text-blue-500" />;
+    case "rejected":
+      return <Icon as={XCircle} size="sm" className="text-red-500" />;
+    case "confirmed":
+      return <Icon as={CheckCircle} size="sm" className="text-blue-600" />;
+    case "in-progress":
+      return <Icon as={ClockIcon} size="sm" className="text-green-500" />;
+    case "completed":
+      return <Icon as={CheckCircle} size="sm" className="text-green-600" />;
+    case "cancelled":
+      return <Icon as={XCircle} size="sm" className="text-red-500" />;
+    case "no-show":
+      return <Icon as={AlertCircle} size="sm" className="text-red-600" />;
+    case "expired":
+      return <Icon as={AlertCircle} size="sm" className="text-red-600" />;
+    default:
+      return <Icon as={ClockIcon} size="sm" className="text-gray-400" />;
+  }
+};
+
+const getStatusText = (status: ServiceRequestStatus) => {
+  switch (status) {
+    case "pending":
+      return "Pending";
+    case "accepted":
+      return "Accepted";
+    case "rejected":
+      return "Rejected";
+    case "confirmed":
+      return "Confirmed";
+    case "in-progress":
+      return "In Progress";
+    case "completed":
+      return "Completed";
+    case "cancelled":
+      return "Cancelled";
+    case "no-show":
+      return "No Show";
+    case "expired":
+      return "Expired";
+    default:
+      return status;
+  }
+};
+
+const getStatusColor = (status: ServiceRequestStatus) => {
+  switch (status) {
+    case "pending":
+      return "text-yellow-600 bg-yellow-50";
+    case "accepted":
+      return "text-blue-600 bg-blue-50";
+    case "rejected":
+      return "text-red-600 bg-red-50";
+    case "confirmed":
+      return "text-blue-700 bg-blue-50";
+    case "in-progress":
+      return "text-green-600 bg-green-50";
+    case "completed":
+      return "text-green-700 bg-green-50";
+    case "cancelled":
+      return "text-red-600 bg-red-50";
+    case "no-show":
+      return "text-red-700 bg-red-50";
+    case "expired":
+      return "text-red-700 bg-red-50";
+    default:
+      return "text-gray-600 bg-gray-50";
+  }
+};
+
 interface AppointmentItemProps {
   id: string;
   date: string;
@@ -46,75 +121,6 @@ export default function AppointmentItem({
   // timeRange,
   showTimeDifference = false,
 }: AppointmentItemProps) {
-  const getStatusIcon = (status: ServiceRequestStatus) => {
-    switch (status) {
-      case "pending":
-        return <Icon as={ClockIcon} size="sm" className="text-yellow-500" />;
-      case "accepted":
-        return <Icon as={CheckCircle} size="sm" className="text-blue-500" />;
-      case "rejected":
-        return <Icon as={XCircle} size="sm" className="text-red-500" />;
-      case "confirmed":
-        return <Icon as={CheckCircle} size="sm" className="text-blue-600" />;
-      case "in-progress":
-        return <Icon as={ClockIcon} size="sm" className="text-green-500" />;
-      case "completed":
-        return <Icon as={CheckCircle} size="sm" className="text-green-600" />;
-      case "cancelled":
-        return <Icon as={XCircle} size="sm" className="text-red-500" />;
-      case "expired":
-        return <Icon as={AlertCircle} size="sm" className="text-red-600" />;
-      default:
-        return <Icon as={ClockIcon} size="sm" className="text-gray-400" />;
-    }
-  };
-
-  const getStatusText = (status: ServiceRequestStatus) => {
-    switch (status) {
-      case "pending":
-        return "Pending";
-      case "accepted":
-        return "Accepted";
-      case "rejected":
-        return "Rejected";
-      case "confirmed":
-        return "Confirmed";
-      case "in-progress":
-        return "In Progress";
-      case "completed":
-        return "Completed";
-      case "cancelled":
-        return "Cancelled";
-      case "expired":
-        return "Expired";
-      default:
-        return status;
-    }
-  };
-
-  const getStatusColor = (status: ServiceRequestStatus) => {
-    switch (status) {
-      case "pending":
-        return "text-yellow-600 bg-yellow-50";
-      case "accepted":
-        return "text-blue-600 bg-blue-50";
-      case "rejected":
-        return "text-red-600 bg-red-50";
-      case "confirmed":
-        return "text-blue-700 bg-blue-50";
-      case "in-progress":
-        return "text-green-600 bg-green-50";
-      case "completed":
-        return "text-green-700 bg-green-50";
-      case "cancelled":
-        return "text-red-600 bg-red-50";
-      case "expired":
-        return "text-red-700 bg-red-50";
-      default:
-        return "text-gray-600 bg-gray-50";
-    }
-  };
-
   // Calculate time difference if needed
   const timeInfo =
     showTimeDifference && date && time ? getTimeDifference(date, time) : null;
