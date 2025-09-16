@@ -3,7 +3,7 @@ import { DateField, PasswordField, TextField } from "@/lib/components/form";
 import { PhoneField } from "@/lib/components/form/PhoneField";
 import { SwitchField } from "@/lib/components/form/SwitchField";
 import Link from "@/lib/components/Link";
-import FixedScreen from "@/lib/components/screens/FixedScreen";
+import FootedScrollableScreen from "@/lib/components/screens/FootedScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
 import { HStack } from "@/lib/components/ui/hstack";
 import { Text } from "@/lib/components/ui/text";
@@ -11,9 +11,9 @@ import { VStack } from "@/lib/components/ui/vstack";
 import { useSignUp } from "@/lib/hooks/useAuth";
 import { getAuthErrorMessage } from "@/lib/utils/errorHandling";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { Image } from "expo-image";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { ScrollView } from "react-native";
 import * as yup from "yup";
 
 const schema = yup.object().shape({
@@ -83,103 +83,118 @@ const Signup = () => {
   };
 
   return (
-    <FixedScreen>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <Text className="text-2xl font-inter-bold mt-8 mb-6 text-left">
-          Create account
-        </Text>
+    <FootedScrollableScreen
+      footer={
+        <VStack className="gap-4">
+          <PrimaryButton
+            onPress={methods.handleSubmit(handleSignUp)}
+            isLoading={signUpMutation.isPending}
+            disabled={!methods.formState.isValid || signUpMutation.isPending}
+          >
+            Confirm
+          </PrimaryButton>
 
-        {error && (
-          <Box className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            <Text className="text-red-700">{error}</Text>
-          </Box>
-        )}
+          <HStack className="justify-center items-center">
+            <Text className="font-inter-medium">Already have an account? </Text>
+            <Link href="/login">Log in</Link>
+          </HStack>
+        </VStack>
+      }
+    >
+      <VStack className="gap-6 mb-8">
+        <Image
+          source={require("@/assets/app-images/sign-up.png")}
+          style={{
+            width: "100%",
+            height: 220,
+            marginTop: 48,
+          }}
+          contentFit="contain"
+        />
 
-        <FormProvider {...methods}>
-          <VStack className="flex-1 gap-4">
-            <TextField
-              name="firstName"
-              label="First name"
-              placeholder="Kay"
-              textContentType="givenName"
-            />
-            <TextField
-              name="lastName"
-              label="Last name"
-              placeholder="Adegboyega"
-              textContentType="familyName"
-            />
-            <PhoneField
-              name="phone"
-              label="Phone"
-              placeholder="874875048"
-              keyboardType="phone-pad"
-              textContentType="telephoneNumber"
-            />
+        <Box>
+          <Text className="text-2xl font-inter-bold mb-6 text-left">
+            Create account
+          </Text>
 
-            <DateField
-              name="dob"
-              label="Date of Birth"
-              placeholder="Select your date of birth"
-              // methods={methods}
-              // maximumDate={new Date()}
-            />
+          {error && (
+            <Box className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+              <Text className="text-red-700">{error}</Text>
+            </Box>
+          )}
 
-            <TextField
-              name="email"
-              label="Email"
-              placeholder="email@domain.com"
-              autoCapitalize="none"
-              autoCorrect={false}
-              keyboardType="email-address"
-              textContentType="emailAddress"
-              returnKeyType="next"
-            />
-            <PasswordField
-              name="password"
-              label="Password"
-              placeholder="******"
-              autoCorrect={false}
-              autoCapitalize="none"
-              textContentType="newPassword"
-              returnKeyType="next"
-            />
-            <PasswordField
-              name="cPassword"
-              label="Confirm Password"
-              placeholder="******"
-              autoCapitalize="none"
-              autoCorrect={false}
-              textContentType="password"
-              returnKeyType="done"
-            />
+          <FormProvider {...methods}>
+            <VStack className="gap-4">
+              <TextField
+                name="firstName"
+                label="First name"
+                placeholder="Kay"
+                textContentType="givenName"
+              />
+              <TextField
+                name="lastName"
+                label="Last name"
+                placeholder="Adegboyega"
+                textContentType="familyName"
+              />
+              <PhoneField
+                name="phone"
+                label="Phone"
+                placeholder="874875048"
+                keyboardType="phone-pad"
+                textContentType="telephoneNumber"
+              />
 
-            <SwitchField
-              labelComponent={
-                <Text className="text-base font-medium text-gray-900">
-                  I&apos;m a service provider
-                </Text>
-              }
-              name="isServiceProvider"
-            />
-          </VStack>
-        </FormProvider>
-      </ScrollView>
-      <VStack className="gap-4 mt-4">
-        <PrimaryButton
-          onPress={methods.handleSubmit(handleSignUp)}
-          isLoading={signUpMutation.isPending}
-          disabled={!methods.formState.isValid || signUpMutation.isPending}
-        >
-          Confirm
-        </PrimaryButton>
+              <DateField
+                name="dob"
+                label="Date of Birth"
+                placeholder="Select your date of birth"
+                // methods={methods}
+                // maximumDate={new Date()}
+              />
 
-        <HStack className="justify-center items-center">
-          <Text className="font-inter-medium">Already have an account? </Text>
-          <Link href="/login">Log in</Link>
-        </HStack>
+              <TextField
+                name="email"
+                label="Email"
+                placeholder="email@domain.com"
+                autoCapitalize="none"
+                autoCorrect={false}
+                keyboardType="email-address"
+                textContentType="emailAddress"
+                returnKeyType="next"
+              />
+              <PasswordField
+                name="password"
+                label="Password"
+                placeholder="******"
+                autoCorrect={false}
+                autoCapitalize="none"
+                textContentType="newPassword"
+                returnKeyType="next"
+              />
+              <PasswordField
+                name="cPassword"
+                label="Confirm Password"
+                placeholder="******"
+                autoCapitalize="none"
+                autoCorrect={false}
+                textContentType="password"
+                returnKeyType="done"
+              />
+
+              <SwitchField
+                labelComponent={
+                  <Text className="text-base font-medium text-gray-900">
+                    I&apos;m a service provider
+                  </Text>
+                }
+                name="isServiceProvider"
+              />
+            </VStack>
+          </FormProvider>
+        </Box>
       </VStack>
-    </FixedScreen>
+    </FootedScrollableScreen>
   );
 };
 
