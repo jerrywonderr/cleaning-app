@@ -10,7 +10,7 @@ import { useUserType } from "@/lib/hooks/useAuth";
 import { useProviderServiceRequests } from "@/lib/hooks/useServiceRequests";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { Bell, Calendar, ChevronRight, Info } from "lucide-react-native";
+import { Bell, Calendar, ChevronRight } from "lucide-react-native";
 import React from "react";
 import { ScrollView } from "react-native";
 
@@ -79,32 +79,41 @@ export default function ServiceProviderHome() {
     <FixedScreen addTopInset={true} addBottomInset={false}>
       <Box className="flex-1">
         {/* Header */}
-        <HStack className="flex-row justify-between items-center mb-4 pt-4">
+        <HStack className="flex-row justify-between items-center mb-4 pt-4 mt-8">
           <Text className="text-xl font-inter-bold">
             Hello, {profile.firstName || "Service Provider"}!
           </Text>
           <HStack className="flex-row gap-3">
             <Pressable>
               <Box className="relative">
-                <Box className="bg-[#e3e5f4] p-2.5 rounded-xl">
-                  <Icon as={Bell} />
+                <Box className="bg-brand-500 p-3 rounded-2xl">
+                  <Icon as={Bell} size="xl" className="text-white" />
                 </Box>
                 {hasNotification && (
-                  <Box className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full" />
+                  <Box
+                    className="bg-white rounded-full"
+                    style={{
+                      position: "absolute",
+                      top: 8,
+                      right: 14,
+                      width: 8,
+                      height: 8,
+                    }}
+                  />
                 )}
               </Box>
             </Pressable>
-            <Pressable>
+            {/* <Pressable>
               <Box className="bg-[#e3e5f4] p-2.5 rounded-xl">
                 <Icon as={Info} />
               </Box>
-            </Pressable>
+            </Pressable> */}
           </HStack>
         </HStack>
 
         {/* Quick Stats Dashboard */}
         <LinearGradient
-          colors={["#3B82F6", "#8B5CF6"]} // blue-500 to purple-600
+          colors={["#3B82F6", "#454EB0"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           className="px-6 py-5 mb-6 rounded-xl"
