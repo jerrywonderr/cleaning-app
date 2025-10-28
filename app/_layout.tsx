@@ -14,11 +14,7 @@ import {
   Inter_900Black,
 } from "@expo-google-fonts/inter";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
+import { DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
@@ -30,7 +26,6 @@ import { AuthGuard } from "../lib/components/AuthGuard";
 import { useAuthSync } from "../lib/hooks/useAuth";
 
 import { LoaderProvider } from "@/lib/components/ui/loader";
-import { useColorScheme } from "@/lib/hooks/useColorScheme";
 import { NotificationProvider } from "@/lib/contexts/NotificationContext";
 
 /**
@@ -48,7 +43,7 @@ import { NotificationProvider } from "@/lib/contexts/NotificationContext";
  * 5. No loading states or API calls needed for basic auth checks
  */
 function AppContent() {
-  const colorScheme = useColorScheme();
+  // const colorScheme = useColorScheme();
 
   useEffect(() => {
     const notificationService = new NotificationService();
@@ -65,12 +60,10 @@ function AppContent() {
   useAuthSync();
 
   return (
-    <GluestackUIProvider mode={colorScheme === "dark" ? "dark" : "light"}>
+    <GluestackUIProvider mode="light">
       <NotificationProvider>
         <AuthGuard>
-          <ThemeProvider
-            value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-          >
+          <ThemeProvider value={DefaultTheme}>
             <Stack>
               <Stack.Screen name="(auth)" options={{ headerShown: false }} />
               <Stack.Screen
