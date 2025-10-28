@@ -12,6 +12,7 @@ import {
 } from "@/lib/constants/service-config";
 import { useServiceProvider } from "@/lib/hooks/useServiceProvider";
 import { useUserStore } from "@/lib/store/useUserStore";
+import { formatCurrency } from "@/lib/utils/formatNaira";
 import { useEffect, useState } from "react";
 import { Alert } from "react-native";
 
@@ -150,7 +151,7 @@ export default function ServicesSettingsScreen() {
                   {localServiceConfigs.length}
                 </Text>
                 <Text className="text-sm font-inter-medium text-brand-800">
-                  ₦{getTotalPotentialEarnings()}/hr potential
+                  {formatCurrency(getTotalPotentialEarnings())}/hr potential
                 </Text>
               </HStack>
               <HStack className="justify-between">

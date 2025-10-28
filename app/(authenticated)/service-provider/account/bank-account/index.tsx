@@ -11,7 +11,6 @@ import {
   Banknote,
   CheckCircle,
   ChevronRight,
-  Shield,
   Wallet,
 } from "lucide-react-native";
 
@@ -135,7 +134,7 @@ export default function BankAccountScreen() {
             </Pressable>
 
             {/* Transaction PIN */}
-            <Pressable
+            {/* <Pressable
               disabled={isLoadingTransactionPin}
               onPress={() => handleNavigate("transaction-pin")}
             >
@@ -155,7 +154,7 @@ export default function BankAccountScreen() {
                   {getStatusIcon(!!transactionPin)}
                 </HStack>
               </HStack>
-            </Pressable>
+            </Pressable> */}
           </VStack>
 
           <Box className="bg-blue-50 rounded-lg p-4 border border-blue-200">
@@ -166,16 +165,16 @@ export default function BankAccountScreen() {
               <Text className="text-xs text-blue-700 leading-4">
                 • Stripe Connect: Your payment processing account
               </Text>
-              <Text className="text-xs text-blue-700 leading-4">
+              {/* <Text className="text-xs text-blue-700 leading-4">
                 • Transaction PIN: Required for all payout account operations
-              </Text>
-              <Text className="text-xs text-blue-700 leading-4">
+              </Text> */}
+              {/* <Text className="text-xs text-blue-700 leading-4">
                 • Payout Accounts: Your real bank accounts for receiving
                 payments
               </Text>
               <Text className="text-xs text-blue-700 leading-4">
                 • You can have multiple payout accounts but only one default
-              </Text>
+              </Text> */}
             </VStack>
           </Box>
         </VStack>

@@ -174,7 +174,7 @@ export default function EditOfferScreen() {
           {/* Price */}
           <FormControl>
             <Text className="text-base font-inter-semibold text-gray-900 mb-2">
-              Price (₦)
+              Price ($)
             </Text>
             <Input>
               <InputField

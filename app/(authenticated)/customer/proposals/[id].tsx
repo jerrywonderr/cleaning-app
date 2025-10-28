@@ -15,7 +15,7 @@ import { Menu, MenuItem, MenuItemLabel } from "@/lib/components/ui/menu";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import { useServiceRequestWithProvider } from "@/lib/hooks/useServiceRequests";
-import { formatNaira } from "@/lib/utils/formatNaira";
+import { formatCurrency } from "@/lib/utils/formatNaira";
 import {
   handleCallProvider,
   handleMessageProvider,
@@ -364,7 +364,7 @@ function CustomerProposalDetailContent({ proposalId }: { proposalId: string }) {
               {serviceRequest.serviceName}
             </Text>
             <Text className="text-xl font-inter-semibold text-brand-500">
-              {formatNaira(serviceRequest.totalPrice)}
+              {formatCurrency(serviceRequest.totalPrice)}
             </Text>
           </HStack>
           <HStack>
@@ -418,21 +418,21 @@ function CustomerProposalDetailContent({ proposalId }: { proposalId: string }) {
           <HStack className="items-center justify-between">
             <Text className="text-base text-gray-700">Base Service</Text>
             <Text className="text-base font-medium text-gray-900">
-              {formatNaira(serviceRequest.basePrice)}
+              {formatCurrency(serviceRequest.basePrice)}
             </Text>
           </HStack>
           {serviceRequest.extrasPrice > 0 && (
             <HStack className="items-center justify-between">
               <Text className="text-base text-gray-700">Extra Services</Text>
               <Text className="text-base font-medium text-gray-900">
-                {formatNaira(serviceRequest.extrasPrice)}
+                {formatCurrency(serviceRequest.extrasPrice)}
               </Text>
             </HStack>
           )}
           <HStack className="items-center justify-between border-t border-gray-200 pt-2">
             <Text className="text-lg font-semibold text-gray-900">Total</Text>
             <Text className="text-lg font-bold text-brand-500">
-              {formatNaira(serviceRequest.totalPrice)}
+              {formatCurrency(serviceRequest.totalPrice)}
             </Text>
           </HStack>
         </Section>

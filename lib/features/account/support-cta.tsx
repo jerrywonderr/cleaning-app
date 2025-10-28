@@ -7,9 +7,9 @@ import { Mail, MessageSquare, Phone } from "lucide-react-native";
 import { ReactNode } from "react";
 import { Alert } from "react-native";
 
-const phoneNumber = "+2347057570146";
-const emailAddress = "support@example.com";
-const whatsappNumber = "2347057570146"; // Use international format without '+'
+const phoneNumber = "07957645683";
+const emailAddress = "olawell1@gmail.com";
+const whatsappNumber = "07957645683"; // Use international format without '+'
 
 const openDialer = () => {
   Linking.openURL(`tel:${phoneNumber}`);

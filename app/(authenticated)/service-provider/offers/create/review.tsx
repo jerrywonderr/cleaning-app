@@ -12,6 +12,7 @@ import serviceCategoryOptions from "@/lib/constants/service-category";
 import { useCurrentUser } from "@/lib/hooks/useAuth";
 import { useCreateOffer, useUpdateOffer } from "@/lib/hooks/useOffers";
 import { StorageService } from "@/lib/services/storageService";
+import { formatCurrency } from "@/lib/utils/formatNaira";
 import { router } from "expo-router";
 
 import { useFormContext } from "react-hook-form";
@@ -180,8 +181,8 @@ export default function ReviewStep() {
             <Box className="bg-gray-50 p-4 rounded-lg">
               <VStack className="gap-2">
                 <Text className="text-base font-inter-medium">
-                  <Text className="text-gray-600">Price: </Text>₦
-                  {formData.price}
+                  <Text className="text-gray-600">Price: </Text>
+                  {formatCurrency(formData.price)}
                 </Text>
                 <Text className="text-base font-inter-medium">
                   <Text className="text-gray-600">Duration: </Text>

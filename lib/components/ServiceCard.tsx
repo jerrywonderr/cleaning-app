@@ -1,5 +1,6 @@
 import { Image } from "react-native";
 import { ServiceConfig } from "../types/service-config";
+import { formatCurrency } from "../utils/formatNaira";
 import FormSwitch from "./form/FormSwitch";
 import { Box } from "./ui/box";
 import { HStack } from "./ui/hstack";
@@ -47,7 +48,7 @@ export default function ServiceCard({
           <HStack className="justify-between items-center pt-2">
             <Text className="text-sm text-gray-500">Per Hour Rate</Text>
             <Text className="text-lg font-inter-bold text-brand-600">
-              ₦{service.perHourPrice}
+              {formatCurrency(service.perHourPrice)}
             </Text>
           </HStack>
         )}

@@ -18,7 +18,7 @@ import {
   useServiceRequestWithProvider,
   useUpdateServiceRequest,
 } from "@/lib/hooks/useServiceRequests";
-import { formatNaira } from "@/lib/utils/formatNaira";
+import { formatCurrency } from "@/lib/utils/formatNaira";
 import {
   handleCallProvider,
   handleMessageProvider,
@@ -324,7 +324,7 @@ export default function CustomerAppointmentDetailScreen() {
               {serviceRequestData.serviceRequest.serviceName}
             </Text>
             <Text className="text-xl font-inter-semibold text-brand-500">
-              {formatNaira(serviceRequestData.serviceRequest.totalPrice)}
+              {formatCurrency(serviceRequestData.serviceRequest.totalPrice)}
             </Text>
           </HStack>
           <HStack>
@@ -402,7 +402,7 @@ export default function CustomerAppointmentDetailScreen() {
           </HStack>
           <InfoRow
             icon={FileText}
-            text={`Amount: ${formatNaira(
+            text={`Amount: ${formatCurrency(
               serviceRequestData.serviceRequest.totalPrice
             )}`}
           />

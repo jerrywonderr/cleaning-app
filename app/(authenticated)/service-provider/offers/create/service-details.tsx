@@ -59,10 +59,10 @@ export default function ServiceDetailsStep() {
         <VStack className="gap-4">
           <TextField
             name="price"
-            label="Price (₦) *"
+            label="Price ($) *"
             placeholder="Enter price"
             keyboardType="numeric"
-            helperText="Enter the price in Nigerian Naira"
+            helperText="Enter the price in US Dollars"
           />
 
           <PickerField

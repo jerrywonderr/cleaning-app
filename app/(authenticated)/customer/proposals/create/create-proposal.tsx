@@ -10,6 +10,7 @@ import { serviceConfigs } from "@/lib/constants/service-config";
 import { CreateProposalFormData } from "@/lib/schemas/create-proposal";
 import { searchServiceProviders } from "@/lib/services/cloudFunctionsService";
 import { ServiceProviderResult } from "@/lib/types";
+import { formatCurrency } from "@/lib/utils/formatNaira";
 import { format } from "date-fns";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
@@ -223,7 +224,7 @@ export default function CreateProposalPage() {
               {selectedService?.description}
             </Text>
             <Text className="text-sm text-gray-500 mt-1">
-              ₦{selectedService?.perHourPrice}/hour
+              {formatCurrency(selectedService?.perHourPrice)}/hour
             </Text>
           </Box>
 

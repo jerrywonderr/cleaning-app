@@ -1,5 +1,6 @@
 import { Pressable } from "react-native";
 import { ExtraServiceOption } from "../types/service-config";
+import { formatCurrency } from "../utils/formatNaira";
 import FormSwitch from "./form/FormSwitch";
 import { Box } from "./ui/box";
 import { HStack } from "./ui/hstack";
@@ -47,7 +48,7 @@ export default function ExtraServiceOptionCard({
         <HStack className="justify-between items-center pt-1">
           <Text className="text-sm text-gray-500">Additional Cost</Text>
           <Text className="text-base font-inter-semibold text-brand-600">
-            +₦{option.additionalPrice}
+            +{formatCurrency(option.additionalPrice ?? 0)}
           </Text>
         </HStack>
       )}

@@ -14,6 +14,7 @@ import { useCreateServiceRequest } from "@/lib/hooks/useServiceRequests";
 import { CreateProposalFormData } from "@/lib/schemas/create-proposal";
 import { searchServiceProviders } from "@/lib/services/cloudFunctionsService";
 import { ServiceProviderResult } from "@/lib/types";
+import { formatCurrency } from "@/lib/utils/formatNaira";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
@@ -239,7 +240,8 @@ export default function FinalProposalPage() {
                 Duration: {duration} hour{duration > 1 ? "s" : ""}
               </Text>
               <Text className="text-sm font-inter-bold text-brand-500">
-                ₦{selectedService?.perHourPrice}/hour
+                {formatCurrency(selectedService?.perHourPrice ?? 0)}
+                /hour
               </Text>
             </HStack>
           </Box>
@@ -282,7 +284,13 @@ export default function FinalProposalPage() {
                           • {option?.name}
                         </Text>
                         <Text className="text-sm font-inter-bold text-brand-500">
-                          +₦{option?.additionalPrice}
+                          +
+                          {option?.additionalPrice
+                            ? formatCurrency(option.additionalPrice).replace(
+                                "$",
+                                ""
+                              )
+                            : "0"}
                         </Text>
                       </HStack>
                     );
@@ -302,13 +310,15 @@ export default function FinalProposalPage() {
                   {selectedService?.name} ({duration} hour
                   {duration > 1 ? "s" : ""})
                 </Text>
-                <Text className="font-inter-medium">₦{pricing.basePrice}</Text>
+                <Text className="font-inter-medium">
+                  {formatCurrency(pricing.basePrice)}
+                </Text>
               </HStack>
               {pricing.extrasPrice > 0 && (
                 <HStack className="justify-between">
                   <Text className="text-gray-600">Extra Services</Text>
                   <Text className="font-inter-medium">
-                    ₦{pricing.extrasPrice}
+                    {formatCurrency(pricing.extrasPrice)}
                   </Text>
                 </HStack>
               )}
@@ -317,7 +327,7 @@ export default function FinalProposalPage() {
                   Total
                 </Text>
                 <Text className="text-lg font-inter-bold text-brand-600">
-                  ₦{pricing.total}
+                  {formatCurrency(pricing.total)}
                 </Text>
               </HStack>
             </VStack>

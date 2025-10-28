@@ -18,7 +18,7 @@ import {
   useServiceRequestWithCustomer,
   useUpdateServiceRequest,
 } from "@/lib/hooks/useServiceRequests";
-import { formatNaira } from "@/lib/utils/formatNaira";
+import { formatCurrency } from "@/lib/utils/formatNaira";
 import {
   handleCallProvider,
   handleMessageProvider,
@@ -148,7 +148,7 @@ export default function ServiceProviderProposalDetailScreen() {
       await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate API call
       Alert.alert(
         "Customer Info",
-        `Customer: ${serviceRequestData.customer.firstName} ${serviceRequestData.customer.lastName}\nThis feature will be implemented soon.`,
+        `Customer: ${serviceRequestData.customer.firstName} ${serviceRequestData.customer.lastName}`,
         [{ text: "OK" }]
       );
     } catch (error: any) {
@@ -285,7 +285,7 @@ export default function ServiceProviderProposalDetailScreen() {
               {serviceRequest.serviceName}
             </Text>
             <Text className="text-xl font-inter-semibold text-brand-500">
-              {formatNaira(serviceRequest.totalPrice)}
+              {formatCurrency(serviceRequest.totalPrice)}
             </Text>
           </HStack>
           <HStack>
@@ -331,21 +331,21 @@ export default function ServiceProviderProposalDetailScreen() {
           <HStack className="items-center justify-between">
             <Text className="text-base text-gray-700">Base Service</Text>
             <Text className="text-base font-medium text-gray-900">
-              {formatNaira(serviceRequest.basePrice)}
+              {formatCurrency(serviceRequest.basePrice)}
             </Text>
           </HStack>
           {serviceRequest.extrasPrice > 0 && (
             <HStack className="items-center justify-between">
               <Text className="text-base text-gray-700">Extra Services</Text>
               <Text className="text-base font-medium text-gray-900">
-                {formatNaira(serviceRequest.extrasPrice)}
+                {formatCurrency(serviceRequest.extrasPrice)}
               </Text>
             </HStack>
           )}
           <HStack className="items-center justify-between border-t border-gray-200 pt-2">
             <Text className="text-lg font-semibold text-gray-900">Total</Text>
             <Text className="text-lg font-bold text-brand-500">
-              {formatNaira(serviceRequest.totalPrice)}
+              {formatCurrency(serviceRequest.totalPrice)}
             </Text>
           </HStack>
         </Section>

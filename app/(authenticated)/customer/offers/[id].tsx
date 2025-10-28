@@ -13,7 +13,7 @@ import { Menu, MenuItem, MenuItemLabel } from "@/lib/components/ui/menu";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import { useOffer, useUserProfile } from "@/lib/hooks/useOffers";
-import { formatNaira } from "@/lib/utils/formatNaira";
+import { formatCurrency } from "@/lib/utils/formatNaira";
 import {
   handleCallProvider,
   handleMessageProvider,
@@ -197,7 +197,7 @@ export default function CustomerOfferDetailsScreen() {
               {offer.title}
             </Text>
             <Text className="text-xl font-inter-semibold text-brand-600">
-              {formatNaira(offer.price)}
+              {formatCurrency(offer.price)}
             </Text>
           </VStack>
 

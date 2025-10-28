@@ -8,6 +8,7 @@ import { VStack } from "@/lib/components/ui/vstack";
 import AppointmentItem from "@/lib/features/appointments/AppointmentItem";
 import { useUserType } from "@/lib/hooks/useAuth";
 import { useProviderServiceRequests } from "@/lib/hooks/useServiceRequests";
+import { formatCurrency } from "@/lib/utils/formatNaira";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { Bell, Calendar, ChevronRight } from "lucide-react-native";
@@ -154,7 +155,7 @@ export default function ServiceProviderHome() {
             </VStack>
             <VStack className="flex-1 items-center">
               <Text className="text-2xl font-inter-bold text-white">
-                ${getMonthlyEarnings().toFixed(2)}
+                {formatCurrency(getMonthlyEarnings())}
               </Text>
               <Text className="text-xs text-blue-100">Monthly Earnings</Text>
             </VStack>
