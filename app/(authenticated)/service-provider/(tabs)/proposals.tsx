@@ -115,6 +115,12 @@ export default function ProposalsScreen() {
               return (
                 <ProposalCard
                   key={serviceRequest.id}
+                  type={
+                    serviceRequest.serviceType as
+                      | "classic-cleaning"
+                      | "deep-cleaning"
+                      | "end-of-tenancy"
+                  }
                   title={serviceRequest.serviceName}
                   price={serviceRequest.totalPrice}
                   client={`${customer.firstName} ${customer.lastName}`}

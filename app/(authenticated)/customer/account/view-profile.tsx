@@ -65,12 +65,13 @@ const ViewProfileScreen = () => {
         {/* Profile Header */}
         <VStack className="items-center gap-4 mb-6">
           <Box className="relative">
-            <Avatar size="xl" className="rounded-full overflow-hidden">
+            <Avatar
+              size="xl"
+              className="border-4 rounded-full shadow-sm active:opacity-60 overflow-hidden"
+            >
               <AvatarImage
-                source={{
-                  uri: dummyProfileData.avatar,
-                }}
-                alt="Profile"
+                source={require("@/assets/app-images/profile.png")}
+                alt="Profile Image"
               />
             </Avatar>
           </Box>

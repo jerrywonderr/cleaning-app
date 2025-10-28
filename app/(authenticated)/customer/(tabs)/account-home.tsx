@@ -98,12 +98,10 @@ export default function AccountScreen() {
         <VStack className="items-center my-6 gap-3">
           <Avatar
             size="xl"
-            className="border-4 border-brand-500 rounded-full shadow-sm active:opacity-60 overflow-hidden"
+            className="border-4 rounded-full shadow-sm active:opacity-60 overflow-hidden"
           >
             <AvatarImage
-              source={{
-                uri: "https://images.unsplash.com/photo-1548142813-c348350df52b?&w=150&h=150&dpr=2&q=80",
-              }}
+              source={require("@/assets/app-images/profile.png")}
               alt="Profile Image"
             />
           </Avatar>

@@ -159,8 +159,8 @@ const ProfileScreen = () => {
                 <DateField
                   name={fieldName}
                   label=""
-                  value={localValue}
-                  onChange={setLocalValue}
+                  // value={localValue}
+                  // onChange={setLocalValue}
                   maximumDate={new Date()}
                 />
               ) : (
@@ -240,8 +240,14 @@ const ProfileScreen = () => {
         {/* Profile Header */}
         <VStack className="items-center gap-4 mb-6">
           <Box className="relative">
-            <Avatar size="xl" className="rounded-full overflow-hidden">
-              <AvatarImage source={{ uri: values.avatar }} alt="Profile" />
+            <Avatar
+              size="xl"
+              className="border-4 rounded-full shadow-sm active:opacity-60 overflow-hidden"
+            >
+              <AvatarImage
+                source={require("@/assets/app-images/profile.png")}
+                alt="Profile Image"
+              />
             </Avatar>
           </Box>
 
@@ -266,10 +272,10 @@ const ProfileScreen = () => {
           <VStack className="px-4">
             <EditableRow label="First Name" fieldName="firstName" />
             <EditableRow label="Last Name" fieldName="lastName" />
-            <EditableRow label="Email Address" fieldName="email" />
-            <EditableRow label="Phone Number" fieldName="phone" />
-            <EditableRow label="Address" fieldName="address" />
-            <EditableRow label="Date of Birth" fieldName="dob" isDate />
+            {/* <EditableRow label="Email Address" fieldName="email" /> */}
+            {/* <EditableRow label="Phone Number" fieldName="phone" /> */}
+            {/* <EditableRow label="Address" fieldName="address" /> */}
+            {/* <EditableRow label="Date of Birth" fieldName="dob" isDate /> */}
           </VStack>
         </VStack>
       </Box>

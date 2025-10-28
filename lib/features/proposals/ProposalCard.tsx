@@ -4,8 +4,14 @@ import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import { formatNaira } from "@/lib/utils/formatNaira";
+import { Image } from "expo-image";
 import { ChevronRight } from "lucide-react-native";
-import { Image } from "react-native";
+
+const images = {
+  "classic-cleaning": require("@/assets/app-images/classic-cleaning.png"),
+  "deep-cleaning": require("@/assets/app-images/deep-cleaning.png"),
+  "end-of-tenancy": require("@/assets/app-images/end-of-tenancy.png"),
+};
 
 export interface ProposalCardProps {
   title: string;
@@ -14,6 +20,7 @@ export interface ProposalCardProps {
   description: string;
   image?: string;
   status: "pending" | "accepted";
+  type: "classic-cleaning" | "deep-cleaning" | "end-of-tenancy";
   onPress?: () => void;
 }
 
@@ -24,21 +31,23 @@ export default function ProposalCard({
   description,
   image,
   status,
+  type,
   onPress,
 }: ProposalCardProps) {
   return (
     <Pressable onPress={onPress} className="px-2">
       <HStack className="items-center justify-between rounded-xl shadow-sm bg-white p-4">
         <HStack className="gap-5 flex-1">
-          {image ? (
+          {images[type] ? (
             <Image
-              source={{ uri: image }}
+              source={images[type]}
               style={{
                 width: 72,
                 height: 72,
                 borderRadius: 16,
                 backgroundColor: "#f0f0f0",
               }}
+              contentFit="cover"
             />
           ) : (
             <HStack className="w-[72px] h-[72px] rounded-2xl bg-gray-100 items-center justify-center">
