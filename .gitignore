@@ -44,3 +44,6 @@ yarn-error.*
 *.tsbuildinfo
 
 app-example
+
+# rehoboth-google-services.json
+rehoboth-service-account.json

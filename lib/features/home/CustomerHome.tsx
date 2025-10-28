@@ -9,7 +9,7 @@ import AppointmentItem from "@/lib/features/appointments/AppointmentItem";
 import { useUserType } from "@/lib/hooks/useAuth";
 import { useCustomerServiceRequests } from "@/lib/hooks/useServiceRequests";
 import { useRouter } from "expo-router";
-import { Bell, Calendar, ChevronRight, Info, Send } from "lucide-react-native";
+import { Bell, Calendar, ChevronRight, Info } from "lucide-react-native";
 import React from "react";
 import { Image as RNImage, ScrollView } from "react-native";
 
@@ -62,7 +62,7 @@ export default function CustomerHome() {
         </HStack>
 
         {/* Address Card */}
-        <Box className="bg-brand-500 p-3 rounded-xl mb-4">
+        {/* <Box className="bg-brand-500 p-3 rounded-xl mb-4">
           <HStack className="flex-row items-center gap-3">
             <Box className="bg-white p-2 rounded-full">
               <Icon className="" as={Send} />
@@ -74,7 +74,7 @@ export default function CustomerHome() {
               </Text>
             </VStack>
           </HStack>
-        </Box>
+        </Box> */}
 
         {/* Hero Section */}
         <Box className="mb-6 rounded-xl overflow-hidden relative">

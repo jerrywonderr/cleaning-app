@@ -25,6 +25,8 @@ export type ServiceRequestStatus =
   | "pending"
   | "accepted"
   | "rejected"
+  | "pending_payment"
+  | "payment_failed"
   | "confirmed"
   | "in-progress"
   | "completed"
@@ -55,6 +57,7 @@ export interface ServiceRequest {
   basePrice: number;
   extrasPrice: number;
   totalPrice: number;
+  currency: string;
   extraOptions: string[]; // Array of extra service IDs
 
   // Status & lifecycle

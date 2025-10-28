@@ -14,7 +14,8 @@
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "This app accesses your photos to create profile pictures and services display pictures.",
         "NSLocationWhenInUseUsageDescription": "This app uses your location to help you find nearby service providers and set your service area.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app uses your location to help you find nearby service providers and set your service area."
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app uses your location to help you find nearby service providers and set your service area.",
+        "NSUserNotificationsUsageDescription": "This app sends notifications to keep you updated about your cleaning appointments and service requests."
       }
     },
     "android": {
@@ -24,7 +25,8 @@
       },
       "edgeToEdgeEnabled": true,
       "package": "com.rehoboth.app",
-      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"]
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"],
+      "googleServicesFile": "./rehoboth-google-services.json"
     },
     "web": {
       "bundler": "metro",
@@ -33,6 +35,7 @@
     },
     "plugins": [
       "expo-router",
+      "expo-notifications",
       [
         "expo-splash-screen",
         {

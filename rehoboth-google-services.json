@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1011480572572",
+    "project_id": "rehoboth-app-2e303",
+    "storage_bucket": "rehoboth-app-2e303.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1011480572572:android:3f9c389d8db3931119f359",
+        "android_client_info": {
+          "package_name": "com.rehoboth.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5dA9DJgSQvXK1GieaxZ9K--SckqDyt3g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

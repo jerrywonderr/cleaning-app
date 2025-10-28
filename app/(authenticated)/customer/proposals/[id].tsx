@@ -14,17 +14,17 @@ import { useLoader } from "@/lib/components/ui/loader";
 import { Menu, MenuItem, MenuItemLabel } from "@/lib/components/ui/menu";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
-import {
-  useServiceRequestWithProvider,
-  useUpdateServiceRequest,
-} from "@/lib/hooks/useServiceRequests";
+import { useServiceRequestWithProvider } from "@/lib/hooks/useServiceRequests";
 import { formatNaira } from "@/lib/utils/formatNaira";
 import {
   handleCallProvider,
   handleMessageProvider,
 } from "@/lib/utils/providerContact";
+import { StripeProvider, useStripe } from "@stripe/stripe-react-native";
 import { format } from "date-fns";
+import * as Linking from "expo-linking";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { getFunctions, httpsCallable } from "firebase/functions";
 import {
   Calendar,
   Clock,
@@ -38,11 +38,31 @@ import {
 } from "lucide-react-native";
 import { Alert, ScrollView } from "react-native";
 
+interface CreatePaymentSheetResponse {
+  paymentIntent: string;
+  ephemeralKey: string;
+  customer: string;
+  publishableKey: string;
+}
+
 export default function CustomerProposalDetailScreen() {
-  const { showLoader, hideLoader } = useLoader();
-  const router = useRouter();
   const params = useLocalSearchParams<{ id: string }>();
   const proposalId = params.id as string;
+  const publishableKey =
+    "pk_test_51SGUjMBVWDFs3OyAoLNyohoWszrjce91XA9W8sJHxWhV2y26C2x0W7Q2eOJ36kqdwtD0K6I0Osl20F5HMtoDIt9I00vcRLXxRc";
+
+  return (
+    <StripeProvider publishableKey={publishableKey}>
+      <CustomerProposalDetailContent proposalId={proposalId} />
+    </StripeProvider>
+  );
+}
+
+function CustomerProposalDetailContent({ proposalId }: { proposalId: string }) {
+  const { showLoader, hideLoader } = useLoader();
+  const router = useRouter();
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
+  const functions = getFunctions();
 
   // Fetch service request data
   const {
@@ -50,9 +70,6 @@ export default function CustomerProposalDetailScreen() {
     isLoading,
     error,
   } = useServiceRequestWithProvider(proposalId);
-
-  // Update service request mutation
-  const updateServiceRequestMutation = useUpdateServiceRequest();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -81,6 +98,10 @@ export default function CustomerProposalDetailScreen() {
         return "Pending Provider Response";
       case "accepted":
         return "Accepted - Awaiting Payment";
+      case "pending_payment":
+        return "Payment Required";
+      case "payment_failed":
+        return "Payment Failed - Retry Required";
       case "rejected":
         return "Rejected";
       case "confirmed":
@@ -91,6 +112,10 @@ export default function CustomerProposalDetailScreen() {
         return "Completed";
       case "cancelled":
         return "Cancelled";
+      case "no-show":
+        return "No Show";
+      case "expired":
+        return "Expired";
       default:
         return status;
     }
@@ -105,7 +130,7 @@ export default function CustomerProposalDetailScreen() {
       await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate API call
       Alert.alert(
         "Provider Info",
-        `Provider: ${serviceRequestData.provider.firstName} ${serviceRequestData.provider.lastName}\nThis feature will be implemented soon.`,
+        `Provider: ${serviceRequestData.provider.firstName} ${serviceRequestData.provider.lastName}`,
         [{ text: "OK" }]
       );
     } catch (error: any) {
@@ -149,13 +174,49 @@ export default function CustomerProposalDetailScreen() {
 
     try {
       showLoader();
-      await updateServiceRequestMutation.mutateAsync({
-        id: serviceRequestData.serviceRequest.id,
-        data: {
-          status: "confirmed",
-        },
+
+      // Call your Cloud Function to create payment sheet
+      const createPaymentSheet = httpsCallable(functions, "createPaymentSheet");
+      const result = await createPaymentSheet({
+        serviceRequestId: proposalId,
       });
 
+      const { paymentIntent, ephemeralKey, customer } =
+        result.data as CreatePaymentSheetResponse;
+
+      // Initialize the payment sheet
+      const { error: initError } = await initPaymentSheet({
+        merchantDisplayName: "Rehoboth Cleaning Services",
+        paymentIntentClientSecret: paymentIntent,
+        customerId: customer,
+        customerEphemeralKeySecret: ephemeralKey,
+        allowsDelayedPaymentMethods: true,
+        returnURL: Linking.createURL(`/customer/proposals/${proposalId}`),
+      });
+
+      if (initError) {
+        console.error("Payment sheet initialization failed:", initError);
+        Alert.alert("Error", "Failed to initialize payment. Please try again.");
+        return;
+      }
+
+      // Present the payment sheet
+      const { error: presentError } = await presentPaymentSheet();
+
+      if (presentError) {
+        console.error("Payment failed:", presentError);
+        if (presentError.code === "Canceled") {
+          // User canceled, no need to show error
+          return;
+        }
+        Alert.alert(
+          "Payment Failed",
+          presentError.message || "Payment could not be completed."
+        );
+        return;
+      }
+
+      // Payment successful
       Alert.alert(
         "Payment Successful!",
         "Your service request has been confirmed. The service provider will be notified.",
@@ -167,7 +228,8 @@ export default function CustomerProposalDetailScreen() {
         ]
       );
     } catch (error: any) {
-      Alert.alert("Error", `Failed to confirm payment: ${error.message}`);
+      console.error("Payment error:", error);
+      Alert.alert("Error", `Payment failed: ${error.message}`);
     } finally {
       hideLoader();
     }
@@ -176,7 +238,9 @@ export default function CustomerProposalDetailScreen() {
   const canCancel = ["pending", "accepted"].includes(
     serviceRequestData?.serviceRequest.status || ""
   );
-  const canPay = serviceRequestData?.serviceRequest.status === "accepted";
+  const canPay = ["accepted", "payment_failed"].includes(
+    serviceRequestData?.serviceRequest.status || ""
+  );
 
   // Show loading state
   if (isLoading) {

@@ -9,6 +9,63 @@ export interface BankAccount {
   updatedAt: Date;
 }
 
+export interface StripeConnectAccount {
+  id: string;
+  userId: string;
+  stripeConnectAccountId: string;
+  stripeAccountStatus:
+    | "pending"
+    | "active"
+    | "completed"
+    | "restricted"
+    | "rejected";
+  accountSetupData?: {
+    address: AddressData;
+    createdAt: Date;
+  };
+  onboardingUrl?: string;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface AddressData {
+  line1: string;
+  line2?: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+}
+
+export interface StripeAccountSetupData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  address: AddressData;
+}
+
+export interface StripeAccountStatusResponse {
+  success: boolean;
+  accountId: string;
+  status: "pending" | "active" | "restricted" | "completed";
+  needsOnboarding: boolean;
+  chargesEnabled: boolean;
+  payoutsEnabled: boolean;
+  detailsSubmitted: boolean;
+  onboardingUrl?: string | null;
+  message?: string;
+  requirements?: any;
+}
+
+export interface StripeAccountSetupResponse {
+  success: boolean;
+  accountId: string;
+  onboardingUrl: string;
+  message: string;
+}
+
 export interface PayoutAccount {
   id: string;
   userId: string;

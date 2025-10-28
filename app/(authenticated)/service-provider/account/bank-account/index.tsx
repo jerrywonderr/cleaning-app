@@ -1,47 +1,42 @@
 import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
-import { Button, ButtonIcon, ButtonText } from "@/lib/components/ui/button";
 import { HStack } from "@/lib/components/ui/hstack";
 import { Icon } from "@/lib/components/ui/icon";
 import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import { useBankAccount } from "@/lib/hooks/useBankAccount";
-import { PayoutAccount } from "@/lib/types/bank-account";
 import { useRouter } from "expo-router";
 import {
   Banknote,
   CheckCircle,
   ChevronRight,
-  CreditCard,
-  Plus,
   Shield,
   Wallet,
 } from "lucide-react-native";
 
-type BankAccountRoute =
-  | "provision-account"
-  | "transaction-pin"
-  | "create-payout-account"
-  | "payout-account";
+type BankAccountRoute = "provision-account" | "transaction-pin";
 
 export default function BankAccountScreen() {
   const router = useRouter();
-  // const userId = useUserStore((state) => state.profile?.id);
   const {
-    bankAccount,
-    payoutAccounts,
+    stripeConnectAccount,
+    isLoadingStripeAccount,
     transactionPin,
-    isLoadingBankAccount,
-    isLoadingPayoutAccounts,
     isLoadingTransactionPin,
   } = useBankAccount();
 
   const handleNavigate = (route: BankAccountRoute) => {
-    if (route === "provision-account" && bankAccount) {
+    // Only block navigation if account is fully active/completed
+    if (
+      route === "provision-account" &&
+      stripeConnectAccount &&
+      (stripeConnectAccount.stripeAccountStatus === "active" ||
+        stripeConnectAccount.stripeAccountStatus === "completed")
+    ) {
       return;
     }
-    router.push(`/service-provider/account/bank-account/${route}` as any);
+    router.push(`/service-provider/account/bank-account tick/${route}` as any);
   };
 
   const getStatusIcon = (isSet: boolean) => {
@@ -52,8 +47,46 @@ export default function BankAccountScreen() {
     );
   };
 
-  const getStatusText = (isSet: boolean, defaultText: string) => {
-    return isSet ? defaultText : "Set up now";
+  const getTransactionPinStatusText = () => {
+    if (!transactionPin || isLoadingTransactionPin) return "Set up now";
+    return "Active";
+  };
+
+  const getStripeStatusText = () => {
+    if (!stripeConnectAccount) return "Set up now";
+
+    switch (stripeConnectAccount.stripeAccountStatus) {
+      case "pending":
+        return "Onboarding required";
+      case "active":
+      case "completed":
+        return "Active - receiving payments";
+      case "restricted":
+        return "Restricted - contact support";
+      case "rejected":
+        return "Rejected - contact support";
+      default:
+        return "Set up now";
+    }
+  };
+
+  const getStripeStatusIcon = () => {
+    if (!stripeConnectAccount) {
+      return <Icon as={ChevronRight} className="text-gray-400" />;
+    }
+
+    switch (stripeConnectAccount.stripeAccountStatus) {
+      case "active":
+      case "completed":
+        return <Icon as={CheckCircle} className="text-green-500" />;
+      case "pending":
+        return <Icon as={ChevronRight} className="text-yellow-500" />;
+      case "restricted":
+      case "rejected":
+        return <Icon as={ChevronRight} className="text-red-500" />;
+      default:
+        return <Icon as={ChevronRight} className="text-gray-400" />;
+    }
   };
 
   return (
@@ -78,9 +111,9 @@ export default function BankAccountScreen() {
               Account Status
             </Text>
 
-            {/* Provision Account */}
+            {/* Stripe Connect Account */}
             <Pressable
-              disabled={isLoadingBankAccount}
+              disabled={isLoadingStripeAccount}
               onPress={() => handleNavigate("provision-account")}
             >
               <HStack className="bg-white rounded-lg border border-gray-200 p-4 justify-between items-center">
@@ -90,16 +123,13 @@ export default function BankAccountScreen() {
                   </Box>
                   <VStack className="flex-1">
                     <Text className="font-inter-semibold text-black">
-                      Provision Account
+                      Stripe Connect Account
                     </Text>
                     <Text className="text-sm text-gray-600">
-                      {getStatusText(
-                        !!bankAccount,
-                        "Internal account provisioned"
-                      )}
+                      {getStripeStatusText()}
                     </Text>
                   </VStack>
-                  {getStatusIcon(!!bankAccount)}
+                  {getStripeStatusIcon()}
                 </HStack>
               </HStack>
             </Pressable>
@@ -119,106 +149,13 @@ export default function BankAccountScreen() {
                       Transaction PIN
                     </Text>
                     <Text className="text-sm text-gray-600">
-                      {getStatusText(
-                        !!transactionPin,
-                        "4-digit PIN set for security"
-                      )}
+                      {getTransactionPinStatusText()}
                     </Text>
                   </VStack>
                   {getStatusIcon(!!transactionPin)}
                 </HStack>
               </HStack>
             </Pressable>
-
-            {/* Payout Accounts */}
-            <Box className="bg-white rounded-lg border border-gray-200 p-4">
-              <HStack className="gap-4 items-center mb-4">
-                <Box className="w-10 h-10 bg-green-100 rounded-lg items-center justify-center">
-                  <Icon as={CreditCard} className="text-green-600" />
-                </Box>
-                <VStack className="flex-1">
-                  <Text className="font-inter-semibold text-black">
-                    Payout Accounts
-                  </Text>
-                  <Text className="text-sm text-gray-600">
-                    {payoutAccounts && payoutAccounts.length > 0
-                      ? `${payoutAccounts.length} account${
-                          payoutAccounts.length > 1 ? "s" : ""
-                        } configured`
-                      : "No payout accounts set up"}
-                  </Text>
-                </VStack>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onPress={() => handleNavigate("create-payout-account")}
-                  disabled={!transactionPin || isLoadingPayoutAccounts}
-                >
-                  <ButtonIcon as={Plus} />
-                  <ButtonText>Add</ButtonText>
-                </Button>
-              </HStack>
-
-              {payoutAccounts && payoutAccounts.length > 0 ? (
-                <VStack className="gap-3">
-                  {payoutAccounts.map((account: PayoutAccount) => (
-                    <Box
-                      key={account.id}
-                      className="bg-gray-50 rounded-lg p-3 border border-gray-100"
-                    >
-                      <HStack className="justify-between items-center">
-                        <VStack className="flex-1">
-                          <HStack className="items-center gap-2">
-                            <Text className="font-inter-medium text-black">
-                              {account.accountName}
-                            </Text>
-                            {account.isDefault && (
-                              <Box className="bg-green-100 px-2 py-1 rounded-full">
-                                <Text className="text-xs text-green-700 font-inter-medium">
-                                  Default
-                                </Text>
-                              </Box>
-                            )}
-                          </HStack>
-                          <Text className="text-sm text-gray-600">
-                            {account.bankName} • {account.accountNumber}
-                          </Text>
-                          <Text className="text-xs text-gray-500 capitalize">
-                            {account.accountType} Account
-                          </Text>
-                        </VStack>
-                        <HStack className="gap-2">
-                          {!account.isDefault && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onPress={() => handleNavigate("payout-account")}
-                            >
-                              <ButtonText>Set Default</ButtonText>
-                            </Button>
-                          )}
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onPress={() => handleNavigate("payout-account")}
-                          >
-                            <ButtonText>Manage</ButtonText>
-                          </Button>
-                        </HStack>
-                      </HStack>
-                    </Box>
-                  ))}
-                </VStack>
-              ) : (
-                <Box className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
-                  <Text className="text-sm text-yellow-800 text-center">
-                    {!transactionPin
-                      ? "Set up your transaction PIN first to add payout accounts"
-                      : "Add your first payout account to receive payments"}
-                  </Text>
-                </Box>
-              )}
-            </Box>
           </VStack>
 
           <Box className="bg-blue-50 rounded-lg p-4 border border-blue-200">
@@ -227,7 +164,7 @@ export default function BankAccountScreen() {
                 How it works
               </Text>
               <Text className="text-xs text-blue-700 leading-4">
-                • Provision Account: Internal account we manage for you
+                • Stripe Connect: Your payment processing account
               </Text>
               <Text className="text-xs text-blue-700 leading-4">
                 • Transaction PIN: Required for all payout account operations

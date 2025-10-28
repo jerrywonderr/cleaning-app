@@ -18,6 +18,7 @@ import {
   DeletePayoutAccountData,
   PayoutAccount,
   SetDefaultPayoutAccountData,
+  StripeConnectAccount,
   TransactionPin,
   UpdateTransactionPinData,
 } from "../types/bank-account";
@@ -65,6 +66,7 @@ export class FirebaseFirestoreService {
   private static readonly BANK_ACCOUNTS_COLLECTION = "bankAccounts";
   private static readonly PAYOUT_ACCOUNTS_COLLECTION = "payoutAccounts";
   private static readonly TRANSACTION_PINS_COLLECTION = "transactionPins";
+  private static readonly STRIPE_ACCOUNTS_COLLECTION = "stripeAccounts";
 
   // Create a new user profile
   static async createUserProfile(
@@ -272,6 +274,54 @@ export class FirebaseFirestoreService {
       return bankAccount;
     } catch (error: any) {
       throw new Error(`Failed to create bank account: ${error.message}`);
+    }
+  }
+
+  static async getStripeConnectAccount(
+    userId: string
+  ): Promise<StripeConnectAccount | null> {
+    try {
+      // First, get the stripeConnectAccountId from the user document
+      const userRef = doc(db, this.USERS_COLLECTION, userId);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        return null;
+      }
+
+      const stripeConnectAccountId = userSnap.data()?.stripeConnectAccountId;
+      if (!stripeConnectAccountId) {
+        return null;
+      }
+
+      // Then, get the account details from stripeAccounts collection
+      const accountRef = doc(
+        db,
+        this.STRIPE_ACCOUNTS_COLLECTION,
+        stripeConnectAccountId
+      );
+      const accountSnap = await getDoc(accountRef);
+
+      if (accountSnap.exists()) {
+        const accountData = accountSnap.data();
+        return {
+          id: stripeConnectAccountId,
+          userId: userId,
+          stripeConnectAccountId: stripeConnectAccountId,
+          stripeAccountStatus:
+            userSnap.data()?.stripeAccountStatus || "pending", // Use status from user document
+          accountSetupData: userSnap.data()?.accountSetupData,
+          onboardingUrl: userSnap.data()?.onboardingUrl,
+          isActive: accountData.isActive || false,
+          createdAt: accountData.createdAt?.toDate() || new Date(),
+          updatedAt: accountData.updatedAt?.toDate() || new Date(),
+        } as StripeConnectAccount;
+      }
+
+      return null;
+    } catch (error) {
+      console.error("Error getting Stripe Connect account:", error);
+      throw error;
     }
   }
 

@@ -83,7 +83,9 @@
     "yup": "^1.6.1",
     "zustand": "^5.0.5",
     "expo-linear-gradient": "~14.1.5",
-    "@stripe/stripe-react-native": "0.45.0"
+    "@stripe/stripe-react-native": "0.45.0",
+    "expo-notifications": "~0.31.4",
+    "expo-device": "~7.1.4"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

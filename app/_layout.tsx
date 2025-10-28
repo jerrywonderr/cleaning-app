@@ -1,5 +1,6 @@
 import "@/global.css";
 import { GluestackUIProvider } from "@/lib/components/ui/gluestack-ui-provider";
+import { NotificationService } from "@/lib/firebase/notificationService";
 import { queryClient } from "@/lib/query/queryClient";
 import {
   Inter_100Thin,
@@ -22,6 +23,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "react-native-reanimated";
 import { AuthGuard } from "../lib/components/AuthGuard";
@@ -29,6 +31,7 @@ import { useAuthSync } from "../lib/hooks/useAuth";
 
 import { LoaderProvider } from "@/lib/components/ui/loader";
 import { useColorScheme } from "@/lib/hooks/useColorScheme";
+import { NotificationProvider } from "@/lib/contexts/NotificationContext";
 
 /**
  * Main App Content Component
@@ -47,27 +50,39 @@ import { useColorScheme } from "@/lib/hooks/useColorScheme";
 function AppContent() {
   const colorScheme = useColorScheme();
 
+  useEffect(() => {
+    const notificationService = new NotificationService();
+    notificationService.initialize();
+
+    // Cleanup on unmount
+    return () => {
+      notificationService.removeToken();
+    };
+  }, []);
+
   // Synchronize Firebase authentication state with Zustand store
   // This hook runs on every app start and when auth state changes
   useAuthSync();
 
   return (
     <GluestackUIProvider mode={colorScheme === "dark" ? "dark" : "light"}>
-      <AuthGuard>
-        <ThemeProvider
-          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-        >
-          <Stack>
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="(authenticated)"
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen name="+not-found" />
-          </Stack>
-          <StatusBar style="auto" />
-        </ThemeProvider>
-      </AuthGuard>
+      <NotificationProvider>
+        <AuthGuard>
+          <ThemeProvider
+            value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+          >
+            <Stack>
+              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="(authenticated)"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen name="+not-found" />
+            </Stack>
+            <StatusBar style="auto" />
+          </ThemeProvider>
+        </AuthGuard>
+      </NotificationProvider>
     </GluestackUIProvider>
   );
 }
