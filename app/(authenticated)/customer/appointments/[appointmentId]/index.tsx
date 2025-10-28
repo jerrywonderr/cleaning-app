@@ -144,7 +144,7 @@ export default function CustomerAppointmentDetailScreen() {
       await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate API call
       Alert.alert(
         "Provider Info",
-        `Provider: ${serviceRequestData.provider.firstName} ${serviceRequestData.provider.lastName}\nThis feature will be implemented soon.`,
+        `Provider: ${serviceRequestData.provider.firstName} ${serviceRequestData.provider.lastName}`,
         [{ text: "OK" }]
       );
     } catch (error: any) {

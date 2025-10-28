@@ -9,7 +9,7 @@ import AppointmentItem from "@/lib/features/appointments/AppointmentItem";
 import { useUserType } from "@/lib/hooks/useAuth";
 import { useCustomerServiceRequests } from "@/lib/hooks/useServiceRequests";
 import { useRouter } from "expo-router";
-import { Bell, Calendar, ChevronRight, Info } from "lucide-react-native";
+import { Bell, Calendar, ChevronRight } from "lucide-react-native";
 import React from "react";
 import { Image as RNImage, ScrollView } from "react-native";
 
@@ -44,20 +44,28 @@ export default function CustomerHome() {
           <HStack className="flex-row gap-3">
             <Pressable>
               <Box className="relative">
-                <Box className="bg-[#e3e5f4] p-2.5 rounded-xl">
-                  <Icon className="" as={Bell} />
+                <Box className="bg-brand-500 p-3 rounded-2xl">
+                  <Icon as={Bell} size="xl" className="text-white" />
                 </Box>
-
                 {hasNotification && (
-                  <Box className="absolute top-2 right-2 w-2 h-2 bg-red-500" />
+                  <Box
+                    className="bg-white rounded-full"
+                    style={{
+                      position: "absolute",
+                      top: 8,
+                      right: 14,
+                      width: 8,
+                      height: 8,
+                    }}
+                  />
                 )}
               </Box>
             </Pressable>
-            <Pressable>
+            {/* <Pressable>
               <Box className="bg-[#e3e5f4] p-2.5 rounded-xl">
                 <Icon className="" as={Info} />
               </Box>
-            </Pressable>
+            </Pressable> */}
           </HStack>
         </HStack>
 

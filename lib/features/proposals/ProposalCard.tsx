@@ -3,7 +3,7 @@ import { Icon } from "@/lib/components/ui/icon";
 import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
-import { formatNaira } from "@/lib/utils/formatNaira";
+import { formatCurrency } from "@/lib/utils/formatNaira";
 import { Image } from "expo-image";
 import { ChevronRight } from "lucide-react-native";
 
@@ -63,7 +63,7 @@ export default function ProposalCard({
             {/* Price + Client */}
             {price !== undefined && (
               <Text className="text-sm font-inter-medium text-gray-700">
-                {formatNaira(price)} • {client}
+                {formatCurrency(price)} • {client}
               </Text>
             )}
             {!price && (

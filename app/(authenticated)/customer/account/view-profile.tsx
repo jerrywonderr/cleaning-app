@@ -7,9 +7,8 @@ import { Icon } from "@/lib/components/ui/icon";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import { useUserStore } from "@/lib/store/useUserStore";
-import { formatDate } from "@/lib/utils/date-helper";
 import { router } from "expo-router";
-import { Calendar, Edit, Mail, MapPin, Phone, User } from "lucide-react-native";
+import { Edit, Mail, Phone, User } from "lucide-react-native";
 import { ScrollView } from "react-native";
 
 const ViewProfileScreen = () => {
@@ -107,16 +106,16 @@ const ViewProfileScreen = () => {
               label="Phone Number"
               value={profileData.phone.replace(/^\+/, "0")}
             />
-            <ProfileInfoRow
+            {/* <ProfileInfoRow
               icon={MapPin}
               label="Address"
               value={dummyProfileData.address}
-            />
-            <ProfileInfoRow
+            /> */}
+            {/* <ProfileInfoRow
               icon={Calendar}
               label="Date of Birth"
               value={formatDate(profileData.dob)}
-            />
+            /> */}
           </VStack>
         </VStack>
       </ScrollView>
