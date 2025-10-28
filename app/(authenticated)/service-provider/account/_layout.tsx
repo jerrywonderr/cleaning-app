@@ -48,6 +48,12 @@ export default function AccountLayout() {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="balance"
+        options={{
+          title: "Balance & Transactions",
+        }}
+      />
     </Stack>
   );
 }

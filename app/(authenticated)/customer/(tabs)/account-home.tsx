@@ -18,6 +18,7 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { router, useNavigation } from "expo-router";
 import {
   CircleX,
+  CreditCard,
   FileText,
   LogOutIcon,
   Shield,
@@ -116,6 +117,11 @@ export default function AccountScreen() {
             label="Profile"
             icon={User}
             onPress={() => router.push("/customer/account/view-profile")}
+          />
+          <SettingsItem
+            label="Payment History"
+            icon={CreditCard}
+            onPress={() => router.push("/customer/account/payment-history")}
           />
           <SettingsItem
             label="Privacy Policy"

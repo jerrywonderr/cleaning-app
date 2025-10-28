@@ -17,6 +17,7 @@ import {
 export const useBankAccount = () => {
   const queryClient = useQueryClient();
   const profile = useUserStore((state) => state.profile);
+  const functions = getFunctions();
 
   // Stripe Connect Account queries
   const {
@@ -69,7 +70,6 @@ export const useBankAccount = () => {
     isPending: isSettingUpStripeAccount,
   } = useMutation({
     mutationFn: async (data: StripeAccountSetupData) => {
-      const functions = getFunctions();
       const setupStripeConnect = httpsCallable(
         functions,
         "setupStripeConnectAccount"
@@ -90,7 +90,6 @@ export const useBankAccount = () => {
   const { mutateAsync: getOnboardingUrl, isPending: isLoadingOnboardingUrl } =
     useMutation({
       mutationFn: async () => {
-        const functions = getFunctions();
         const getOnboarding = httpsCallable(functions, "getOnboardingUrl");
         const result = await getOnboarding({
           userId: profile?.id,
@@ -102,7 +101,6 @@ export const useBankAccount = () => {
   const { mutateAsync: checkStripeAccountStatus, isPending: isCheckingStatus } =
     useMutation({
       mutationFn: async () => {
-        const functions = getFunctions();
         const checkStatus = httpsCallable(
           functions,
           "checkStripeAccountStatus"
@@ -118,6 +116,53 @@ export const useBankAccount = () => {
         });
       },
     });
+
+  // Customer Payment History
+  const {
+    mutateAsync: getCustomerPaymentHistory,
+    isPending: isLoadingPaymentHistory,
+  } = useMutation({
+    mutationFn: async (params?: { limit?: number; startAfterId?: string }) => {
+      const getHistory = httpsCallable(functions, "getCustomerPaymentHistory");
+      const result = await getHistory(params || {});
+      return result.data;
+    },
+  });
+
+  // Provider Stripe Balance
+  const {
+    mutateAsync: getProviderStripeBalance,
+    isPending: isLoadingProviderBalance,
+  } = useMutation({
+    mutationFn: async () => {
+      const getBalance = httpsCallable(functions, "getProviderStripeBalance");
+      // Don't pass any data - authentication comes from Firebase context
+      const result = await getBalance();
+      return result.data;
+    },
+  });
+
+  // Provider Balance Transactions
+  const {
+    mutateAsync: getProviderBalanceTransactions,
+    isPending: isLoadingBalanceTransactions,
+  } = useMutation({
+    mutationFn: async (params?: {
+      limit?: number;
+      startingAfter?: string;
+      endingBefore?: string;
+    }) => {
+      const getTransactions = httpsCallable(
+        functions,
+        "getProviderBalanceTransactions"
+      );
+      // Pass data only if there are parameters
+      const result = await getTransactions(
+        params && Object.keys(params).length > 0 ? params : undefined
+      );
+      return result.data;
+    },
+  });
 
   // Bank Account mutations (legacy)
   const { mutateAsync: createBankAccount, isPending: isCreatingBankAccount } =
@@ -209,6 +254,12 @@ export const useBankAccount = () => {
     isLoadingOnboardingUrl,
     checkStripeAccountStatus,
     isCheckingStatus,
+    getCustomerPaymentHistory,
+    isLoadingPaymentHistory,
+    getProviderStripeBalance,
+    isLoadingProviderBalance,
+    getProviderBalanceTransactions,
+    isLoadingBalanceTransactions,
 
     // Bank Account (legacy)
     bankAccount,

@@ -1,6 +1,5 @@
 import FixedScreen from "@/lib/components/screens/FixedScreen";
 import { Box } from "@/lib/components/ui/box";
-import { Button, ButtonText } from "@/lib/components/ui/button";
 import { HStack } from "@/lib/components/ui/hstack";
 import { Icon } from "@/lib/components/ui/icon";
 import { Pressable } from "@/lib/components/ui/pressable";
@@ -9,25 +8,17 @@ import { VStack } from "@/lib/components/ui/vstack";
 import AppointmentItem from "@/lib/features/appointments/AppointmentItem";
 import { useUserType } from "@/lib/hooks/useAuth";
 import { useProviderServiceRequests } from "@/lib/hooks/useServiceRequests";
-import { useAppStore } from "@/lib/store/useAppStore";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import {
-  Bell,
-  Calendar,
-  ChevronRight,
-  Eye,
-  EyeOff,
-  Info,
-} from "lucide-react-native";
+import { Bell, Calendar, ChevronRight, Info } from "lucide-react-native";
 import React from "react";
-import { ScrollView, TouchableOpacity } from "react-native";
+import { ScrollView } from "react-native";
 
 export default function ServiceProviderHome() {
   const { profile } = useUserType();
   const router = useRouter();
 
   const hasNotification = true;
-  const { balanceVisibile, toggleBalanceVisibility } = useAppStore();
 
   // Fetch service requests for this provider
   const { data: serviceRequests = [] } = useProviderServiceRequests(
@@ -42,12 +33,36 @@ export default function ServiceProviderHome() {
     (request) => request.serviceRequest.status === "in-progress"
   );
 
-  const formatNaira = (amount: number): string => {
-    return new Intl.NumberFormat("en-NG", {
-      style: "currency",
-      currency: "NGN",
-      minimumFractionDigits: 2,
-    }).format(amount);
+  // Calculate monthly earnings from paid jobs in the last month
+  const getMonthlyEarnings = (): number => {
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+    // Statuses where payment has NOT been made yet
+    const unpaidStatuses = [
+      "pending",
+      "accepted",
+      "rejected",
+      "pending_payment",
+      "payment_failed",
+    ];
+
+    return serviceRequests
+      .filter((request) => {
+        const status = request.serviceRequest.status;
+        const hasBeenPaid = !unpaidStatuses.includes(status);
+
+        // For paid jobs, check if they were paid within the last month
+        // Use confirmedAt (when payment was made) or completedAt as fallback
+        const paymentDate =
+          request.serviceRequest.confirmedAt ||
+          request.serviceRequest.completedAt;
+        const isWithinLastMonth =
+          paymentDate && new Date(paymentDate) >= oneMonthAgo;
+
+        return hasBeenPaid && isWithinLastMonth;
+      })
+      .reduce((total, request) => total + request.serviceRequest.totalPrice, 0);
   };
 
   if (!profile) {
@@ -87,45 +102,55 @@ export default function ServiceProviderHome() {
           </HStack>
         </HStack>
 
-        {/* Balance Card */}
-        <Box className="bg-brand-500 px-6 py-4 mb-6 gap-3 rounded-xl">
-          <HStack className="justify-between items-center gap-4 mb-2">
-            <HStack className="gap-3">
-              <Text className="text-white text-sm font-inter-semibold">
-                Available Balance
-              </Text>
-              <TouchableOpacity
-                activeOpacity={0.7}
-                onPress={toggleBalanceVisibility}
-              >
-                <Icon
-                  as={balanceVisibile ? EyeOff : Eye}
-                  size="lg"
-                  className="text-white"
-                />
-              </TouchableOpacity>
-            </HStack>
-
-            <Pressable>
+        {/* Quick Stats Dashboard */}
+        <LinearGradient
+          colors={["#3B82F6", "#8B5CF6"]} // blue-500 to purple-600
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          className="px-6 py-5 mb-6 rounded-xl"
+          style={{
+            borderRadius: 16,
+            paddingHorizontal: 24,
+            paddingVertical: 20,
+          }}
+        >
+          <HStack className="justify-between items-center mb-4">
+            <Text className="text-white text-lg font-inter-semibold">
+              Today&apos;s Overview
+            </Text>
+            <Pressable
+              onPress={() => router.push("/service-provider/account/balance")}
+            >
               <HStack className="items-center gap-1">
-                <Text className="text-sm font-bold text-white">
-                  Transaction History
+                <Text className="text-sm font-medium text-white">
+                  View Details
                 </Text>
                 <Icon as={ChevronRight} size="sm" className="text-white" />
               </HStack>
             </Pressable>
           </HStack>
-          <HStack className="justify-between items-center gap-1 mb-2">
-            <Text className="text-2xl font-inter-bold text-white">
-              {balanceVisibile ? formatNaira(85000) : "****"}
-            </Text>
-            <Button className="bg-white rounded-full">
-              <ButtonText className="text-brand-500 text-sm">
-                Cashout
-              </ButtonText>
-            </Button>
+
+          <HStack className="justify-between items-center gap-4">
+            <VStack className="flex-1 items-center">
+              <Text className="text-2xl font-inter-bold text-white">
+                {upcomingAppointments.length}
+              </Text>
+              <Text className="text-xs text-blue-100">Upcoming</Text>
+            </VStack>
+            <VStack className="flex-1 items-center">
+              <Text className="text-2xl font-inter-bold text-white">
+                {ongoingAppointments.length}
+              </Text>
+              <Text className="text-xs text-blue-100">In Progress</Text>
+            </VStack>
+            <VStack className="flex-1 items-center">
+              <Text className="text-2xl font-inter-bold text-white">
+                ${getMonthlyEarnings().toFixed(2)}
+              </Text>
+              <Text className="text-xs text-blue-100">Monthly Earnings</Text>
+            </VStack>
           </HStack>
-        </Box>
+        </LinearGradient>
 
         {/* Appointments Section */}
         <HStack className="flex-row justify-between items-center mb-4">

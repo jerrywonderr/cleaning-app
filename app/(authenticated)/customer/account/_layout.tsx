@@ -30,6 +30,12 @@ export default function AccountLayout() {
           title: "Support",
         }}
       />
+      <Stack.Screen
+        name="payment-history"
+        options={{
+          title: "Payment History",
+        }}
+      />
     </Stack>
   );
 }

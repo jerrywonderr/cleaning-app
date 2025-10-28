@@ -19,6 +19,7 @@ import { router, useNavigation } from "expo-router";
 import {
   Calendar,
   CircleX,
+  DollarSign,
   FileText,
   LogOutIcon,
   Settings,
@@ -134,6 +135,11 @@ export default function AccountScreen() {
             onPress={() =>
               router.push("/service-provider/account/bank-account")
             }
+          />
+          <SettingsItem
+            label="Balance & Transactions"
+            icon={DollarSign}
+            onPress={() => router.push("/service-provider/account/balance")}
           />
           <SettingsItem
             label="Working Preferences"
