@@ -35,7 +35,7 @@ export default function BankAccountScreen() {
     ) {
       return;
     }
-    router.push(`/service-provider/account/bank-account tick/${route}` as any);
+    router.push(`/service-provider/account/bank-account/${route}` as any);
   };
 
   const getStatusIcon = (isSet: boolean) => {
