@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1011480572572:android:3f9c389d8db3931119f359",
+        "mobilesdk_app_id": "1:1011480572572:android:7edf232459f8a54b19f359",
         "android_client_info": {
-          "package_name": "com.rehoboth.app"
+          "package_name": "com.rehoboth.org"
         }
       },
       "oauth_client": [],

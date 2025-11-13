@@ -6,16 +6,17 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "rehoboth",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.rehoboth.app",
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "This app accesses your photos to create profile pictures and services display pictures.",
         "NSLocationWhenInUseUsageDescription": "This app uses your location to help you find nearby service providers and set your service area.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "This app uses your location to help you find nearby service providers and set your service area.",
-        "NSUserNotificationsUsageDescription": "This app sends notifications to keep you updated about your cleaning appointments and service requests."
+        "NSUserNotificationsUsageDescription": "This app sends notifications to keep you updated about your cleaning appointments and service requests.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -24,8 +25,11 @@
         "backgroundColor": "#000000"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.rehoboth.app",
-      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"],
+      "package": "com.rehoboth.org",
+      "permissions": [
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION"
+      ],
       "googleServicesFile": "./rehoboth-google-services.json"
     },
     "web": {
@@ -45,7 +49,12 @@
           "backgroundColor": "#000000"
         }
       ],
-      ["expo-web-browser", { "experimentalLauncherActivity": true }],
+      [
+        "expo-web-browser",
+        {
+          "experimentalLauncherActivity": true
+        }
+      ],
       [
         "expo-image-picker",
         {
@@ -68,6 +77,12 @@
         "projectId": "5f07ef35-5d3d-416e-a835-27eb262f4395"
       }
     },
-    "owner": "rehoboth-app"
+    "owner": "rehoboth-app",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/5f07ef35-5d3d-416e-a835-27eb262f4395"
+    }
   }
 }
