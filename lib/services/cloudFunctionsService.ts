@@ -95,6 +95,17 @@ export class CloudFunctionsService {
       throw error;
     }
   }
+
+  static async deleteUserAccount() {
+    try {
+      const deleteUserAccountFn = httpsCallable(functions, "deleteUserAccount");
+      const result = await deleteUserAccountFn();
+      return result.data;
+    } catch (error) {
+      console.error("Error deleting user account via function:", error);
+      throw error;
+    }
+  }
 }
 
 // Export individual functions for convenience
@@ -105,3 +116,4 @@ export const searchServiceProviders =
 export const updateServiceProviderSettings =
   CloudFunctionsService.updateServiceProviderSettings;
 export const healthCheck = CloudFunctionsService.healthCheck;
+export const deleteUserAccount = CloudFunctionsService.deleteUserAccount;

@@ -15,7 +15,7 @@ export default function WorkingPreferencesLayout() {
       <Stack.Screen
         name="index"
         options={{
-          title: "",
+          title: "Working Preferences",
         }}
       />
       <Stack.Screen

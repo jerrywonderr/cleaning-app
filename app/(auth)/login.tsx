@@ -7,7 +7,12 @@ import { Box } from "@/lib/components/ui/box";
 import { HStack } from "@/lib/components/ui/hstack";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
+import {
+  PRIVACY_POLICY_URL,
+  TERMS_OF_SERVICE_URL,
+} from "@/lib/constants/legal";
 import { useSignIn } from "@/lib/hooks/useAuth";
+import { openInAppBrowser } from "@/lib/utils/browser";
 import { getAuthErrorMessage } from "@/lib/utils/errorHandling";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Image } from "expo-image";
@@ -75,6 +80,23 @@ const Login = () => {
             </Text>
             <Link href="/signup">Sign up</Link>
           </HStack>
+          <Text className="text-center text-xs text-gray-500">
+            By logging in, you agree to our{" "}
+            <Text
+              className="text-brand-600 text-xs"
+              onPress={() => openInAppBrowser(TERMS_OF_SERVICE_URL)}
+            >
+              Terms of Service
+            </Text>{" "}
+            and{" "}
+            <Text
+              className="text-brand-600 text-xs"
+              onPress={() => openInAppBrowser(PRIVACY_POLICY_URL)}
+            >
+              Privacy Policy
+            </Text>
+            .
+          </Text>
         </VStack>
       }
     >

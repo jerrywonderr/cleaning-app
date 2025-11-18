@@ -7,12 +7,7 @@ import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import { useBankAccount } from "@/lib/hooks/useBankAccount";
 import { useRouter } from "expo-router";
-import {
-  Banknote,
-  CheckCircle,
-  ChevronRight,
-  Wallet,
-} from "lucide-react-native";
+import { Banknote, CheckCircle, ChevronRight } from "lucide-react-native";
 
 type BankAccountRoute = "provision-account" | "transaction-pin";
 
@@ -93,22 +88,22 @@ export default function BankAccountScreen() {
       <Box className="flex-1">
         <VStack className="gap-6">
           <Box className="items-center gap-4">
-            <Box className="w-20 h-20 bg-green-100 rounded-full items-center justify-center">
+            {/* <Box className="w-20 h-20 bg-green-100 rounded-full items-center justify-center">
               <Icon as={Wallet} size="xl" className="text-green-600" />
             </Box>
             <Text className="text-xl font-inter-bold text-black text-center">
               Bank Account Management
-            </Text>
-            <Text className="text-sm text-gray-600 text-center leading-5">
+            </Text> */}
+            <Text className="text-sm text-gray-600 leading-5">
               Manage your internal account, payout accounts, and transaction
               security.
             </Text>
           </Box>
 
           <VStack className="gap-4">
-            <Text className="text-lg font-inter-semibold text-black">
+            {/* <Text className="text-lg font-inter-semibold text-black">
               Account Status
-            </Text>
+            </Text> */}
 
             {/* Stripe Connect Account */}
             <Pressable

@@ -4,16 +4,22 @@ import { Avatar, AvatarImage } from "@/lib/components/ui/avatar";
 import { Box } from "@/lib/components/ui/box";
 import { Button, ButtonIcon } from "@/lib/components/ui/button";
 import { HStack } from "@/lib/components/ui/hstack";
+import { useLoader } from "@/lib/components/ui/loader";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
+import {
+  PRIVACY_POLICY_URL,
+  TERMS_OF_SERVICE_URL,
+} from "@/lib/constants/legal";
 import { SettingsItem } from "@/lib/features/account/settings-item";
 import {
   EmailSupportCTA,
   PhoneSupportCTA,
   WhatsappSupportCTA,
 } from "@/lib/features/account/support-cta";
-import { useSignOut } from "@/lib/hooks/useAuth";
+import { useDeleteAccount, useSignOut } from "@/lib/hooks/useAuth";
 import { useUserStore } from "@/lib/store/useUserStore";
+import { openInAppBrowser } from "@/lib/utils/browser";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { router, useNavigation } from "expo-router";
 import {
@@ -35,6 +41,8 @@ export default function AccountScreen() {
   const lastName = useUserStore((state) => state.profile?.lastName);
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const signOutMutation = useSignOut();
+  const deleteAccountMutation = useDeleteAccount();
+  const { showLoader, hideLoader } = useLoader();
 
   const confirmLogout = useCallback(() => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
@@ -76,7 +84,25 @@ export default function AccountScreen() {
     });
   }, [navigation, confirmLogout]);
 
+  const handleDeleteAccount = async () => {
+    try {
+      showLoader("Deleting account...");
+      await deleteAccountMutation.mutateAsync();
+      router.replace("/login");
+    } catch (error: any) {
+      Alert.alert(
+        "Delete Account Failed",
+        error?.message || "Please try again later."
+      );
+    } finally {
+      hideLoader();
+    }
+  };
+
   const confirmDeleteAccount = () => {
+    if (deleteAccountMutation.isPending) {
+      return;
+    }
     Alert.alert(
       "Delete Account",
       "Are you sure you want to delete your account? This action cannot be undone.",
@@ -85,10 +111,7 @@ export default function AccountScreen() {
         {
           text: "Delete",
           style: "destructive",
-          onPress: () => {
-            // TODO: Trigger delete logic
-            console.log("Account deleted");
-          },
+          onPress: handleDeleteAccount,
         },
       ]
     );
@@ -168,16 +191,12 @@ export default function AccountScreen() {
           <SettingsItem
             label="Privacy Policy"
             icon={Shield}
-            onPress={() =>
-              router.push("/service-provider/account/privacy-policy")
-            }
+            onPress={() => openInAppBrowser(PRIVACY_POLICY_URL)}
           />
           <SettingsItem
             label="Terms of Service"
             icon={FileText}
-            onPress={() =>
-              router.push("/service-provider/account/terms-of-service")
-            }
+            onPress={() => openInAppBrowser(TERMS_OF_SERVICE_URL)}
           />
           <SettingsItem
             label="Delete Account"

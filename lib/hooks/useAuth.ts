@@ -5,6 +5,7 @@ import {
   CreateUserProfileData,
   FirebaseFirestoreService,
 } from "../firebase/firestore";
+import { deleteUserAccount as deleteUserAccountFn } from "../services/cloudFunctionsService";
 import { useUserStore } from "../store/useUserStore";
 
 /**
@@ -152,6 +153,29 @@ export function useSignOut() {
     },
     onError: (error: any) => {
       console.error("Sign out error:", error);
+    },
+  });
+}
+
+export function useDeleteAccount() {
+  const queryClient = useQueryClient();
+  const { clearProfile } = useUserStore();
+
+  return useMutation({
+    mutationFn: async () => {
+      const currentUser = FirebaseAuthService.getCurrentUser();
+      if (!currentUser) {
+        throw new Error("You must be signed in to delete your account.");
+      }
+      await deleteUserAccountFn();
+    },
+    onSuccess: () => {
+      clearProfile();
+      queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: USER_PROFILE_QUERY_KEY });
+    },
+    onError: (error: any) => {
+      console.error("Delete account error:", error);
     },
   });
 }

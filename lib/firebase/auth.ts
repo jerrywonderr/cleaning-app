@@ -1,5 +1,6 @@
 import {
   createUserWithEmailAndPassword,
+  deleteUser,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signOut,
@@ -82,6 +83,14 @@ export class FirebaseAuthService {
   // Sign out
   static async signOut(): Promise<void> {
     await signOut(auth);
+  }
+
+  static async deleteAccount(): Promise<void> {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      throw new Error("No authenticated user.");
+    }
+    await deleteUser(currentUser);
   }
 
   // Send password reset email

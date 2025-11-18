@@ -1,3 +1,4 @@
+import { PrimaryButton } from "@/lib/components/custom-buttons";
 import FixedScreen from "@/lib/components/screens/FixedScreen";
 import { Box } from "@/lib/components/ui/box";
 import { HStack } from "@/lib/components/ui/hstack";
@@ -7,6 +8,7 @@ import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import AppointmentItem from "@/lib/features/appointments/AppointmentItem";
 import { useUserType } from "@/lib/hooks/useAuth";
+import { useBankAccount } from "@/lib/hooks/useBankAccount";
 import { useProviderServiceRequests } from "@/lib/hooks/useServiceRequests";
 import { formatCurrency } from "@/lib/utils/formatNaira";
 import { LinearGradient } from "expo-linear-gradient";
@@ -17,6 +19,7 @@ import { ScrollView } from "react-native";
 
 export default function ServiceProviderHome() {
   const { profile } = useUserType();
+  const { stripeConnectAccount, isLoadingStripeAccount } = useBankAccount();
   const router = useRouter();
 
   const hasNotification = true;
@@ -33,6 +36,11 @@ export default function ServiceProviderHome() {
   const ongoingAppointments = serviceRequests.filter(
     (request) => request.serviceRequest.status === "in-progress"
   );
+  const needsStripeSetup =
+    !isLoadingStripeAccount &&
+    (!stripeConnectAccount ||
+      (stripeConnectAccount.stripeAccountStatus !== "active" &&
+        stripeConnectAccount.stripeAccountStatus !== "completed"));
 
   // Calculate monthly earnings from paid jobs in the last month
   const getMonthlyEarnings = (): number => {
@@ -79,7 +87,6 @@ export default function ServiceProviderHome() {
   return (
     <FixedScreen addTopInset={true} addBottomInset={false}>
       <Box className="flex-1">
-        {/* Header */}
         <HStack className="flex-row justify-between items-center mb-4 pt-4 mt-8">
           <Text className="text-xl font-inter-bold">
             Hello, {profile.firstName || "Service Provider"}!
@@ -112,7 +119,6 @@ export default function ServiceProviderHome() {
           </HStack>
         </HStack>
 
-        {/* Quick Stats Dashboard */}
         <LinearGradient
           colors={["#3B82F6", "#454EB0"]}
           start={{ x: 0, y: 0 }}
@@ -122,6 +128,7 @@ export default function ServiceProviderHome() {
             borderRadius: 16,
             paddingHorizontal: 24,
             paddingVertical: 20,
+            marginBottom: 16,
           }}
         >
           <HStack className="justify-between items-center mb-4">
@@ -161,6 +168,30 @@ export default function ServiceProviderHome() {
             </VStack>
           </HStack>
         </LinearGradient>
+
+        {needsStripeSetup && (
+          <Box className="bg-brand-50 border border-brand-100 rounded-xl p-4 mb-4">
+            <VStack className="gap-3">
+              <Text className="text-base font-inter-semibold text-brand-700">
+                Finish Stripe setup to get paid
+              </Text>
+              <Text className="text-sm text-gray-600">
+                Complete onboarding to enable payouts and deposits to your bank
+                account.
+              </Text>
+              <PrimaryButton
+                size="sm"
+                onPress={() =>
+                  router.push(
+                    "/service-provider/account/bank-account/provision-account"
+                  )
+                }
+              >
+                Continue setup
+              </PrimaryButton>
+            </VStack>
+          </Box>
+        )}
 
         {/* Appointments Section */}
         <HStack className="flex-row justify-between items-center mb-4">

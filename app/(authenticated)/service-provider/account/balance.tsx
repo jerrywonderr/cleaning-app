@@ -8,12 +8,7 @@ import { useBankAccount } from "@/lib/hooks/useBankAccount";
 import { useUserStore } from "@/lib/store/useUserStore";
 import { FlashList } from "@shopify/flash-list";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  DollarSign,
-  TrendingDown,
-  TrendingUp,
-  Wallet,
-} from "lucide-react-native";
+import { DollarSign, TrendingDown, TrendingUp } from "lucide-react-native";
 import { useState } from "react";
 import { RefreshControl } from "react-native";
 
@@ -302,12 +297,12 @@ export default function BalanceScreen() {
       <Box className="flex-1 mt-8">
         <VStack className="gap-6">
           <Box className="items-center gap-4">
-            <Box className="w-20 h-20 bg-blue-100 rounded-full items-center justify-center">
+            {/* <Box className="w-20 h-20 bg-blue-100 rounded-full items-center justify-center">
               <Icon as={Wallet} size="xl" className="text-blue-600" />
             </Box>
             <Text className="text-xl font-inter-bold text-black text-center">
               Account Balance
-            </Text>
+            </Text> */}
             <Text className="text-sm text-gray-600 text-center leading-5">
               View your available balance and transaction history.
             </Text>

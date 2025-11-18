@@ -21,7 +21,7 @@ export default function BankAccountLayout() {
       <Stack.Screen
         name="provision-account"
         options={{
-          title: "",
+          title: "Provision Account",
         }}
       />
       <Stack.Screen

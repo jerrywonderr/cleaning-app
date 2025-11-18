@@ -71,22 +71,22 @@ export default function WorkingPreferencesScreen() {
       <Box className="flex-1">
         <VStack className="gap-6">
           <Box className="items-center gap-4">
-            <Box className="w-20 h-20 bg-blue-100 rounded-full items-center justify-center">
+            {/* <Box className="w-20 h-20 bg-blue-100 rounded-full items-center justify-center">
               <Icon as={Clock} size="xl" className="text-blue-600" />
             </Box>
             <Text className="text-xl font-inter-bold text-black text-center">
               Working Preferences
-            </Text>
-            <Text className="text-sm text-gray-600 text-center leading-5">
+            </Text> */}
+            <Text className="text-sm text-gray-600 leading-5">
               Manage your working schedule and service area to help customers
               find you.
             </Text>
           </Box>
 
           <VStack className="gap-4">
-            <Text className="text-lg font-inter-semibold text-black">
+            {/* <Text className="text-lg font-inter-semibold text-black">
               Your Settings
-            </Text>
+            </Text> */}
 
             <Pressable onPress={() => handleNavigate("working-hours")}>
               <HStack className="bg-white rounded-lg border border-gray-200 p-4 justify-between items-center">

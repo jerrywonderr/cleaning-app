@@ -133,18 +133,18 @@ export default function ServicesSettingsScreen() {
   return (
     <ScrollableScreen addTopInset={false}>
       <Box className="flex-1">
-        <VStack className="gap-6">
-          <VStack className="gap-3">
+        <VStack className="gap-6 my-4">
+          {/* <VStack className="gap-3">
             <Text className="text-xl font-inter-bold text-black">
               Manage Your Services
             </Text>
-          </VStack>
+          </VStack> */}
 
           <Box className="bg-brand-50 rounded-lg p-4 border border-brand-200">
             <VStack className="gap-2">
-              <Text className="text-sm font-inter-medium text-brand-800">
+              {/* <Text className="text-sm font-inter-medium text-brand-800">
                 Service Summary
-              </Text>
+              </Text> */}
               <HStack className="justify-between">
                 <Text className="text-sm text-brand-700">
                   Active Services: {getEnabledServicesCount()}/

@@ -1,14 +1,17 @@
-import { PrimaryButton } from "@/lib/components/custom-buttons";
+import {
+  PrimaryButton,
+  PrimaryOutlineButton,
+} from "@/lib/components/custom-buttons";
 import ScrollableScreen from "@/lib/components/screens/ScrollableScreen";
 import { Box } from "@/lib/components/ui/box";
-import { Icon } from "@/lib/components/ui/icon";
+import { useLoader } from "@/lib/components/ui/loader";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import { useBankAccount } from "@/lib/hooks/useBankAccount";
 import { useUserStore } from "@/lib/store/useUserStore";
 import { StripeAccountSetupData } from "@/lib/types/bank-account";
 import { useRouter } from "expo-router";
-import { Banknote, ExternalLink, Wallet } from "lucide-react-native";
+import { Banknote, ExternalLink } from "lucide-react-native";
 import { useState } from "react";
 import { Alert, Linking } from "react-native";
 
@@ -24,6 +27,7 @@ export default function ProvisionAccountScreen() {
     checkStripeAccountStatus,
     isCheckingStatus,
   } = useBankAccount();
+  const { showLoader, hideLoader } = useLoader();
   const [onboardingUrl, setOnboardingUrl] = useState<string | null>(null);
   const [accountStatus, setAccountStatus] = useState<string | null>(null);
 
@@ -37,6 +41,7 @@ export default function ProvisionAccountScreen() {
     if (!profile) return;
 
     try {
+      showLoader("Setting up Stripe account...");
       // Prepare account setup data
       // const accountData: StripeAccountSetupData = {
       //   firstName: profile.firstName,
@@ -92,11 +97,14 @@ export default function ProvisionAccountScreen() {
         "Setup Failed",
         error.message || "Failed to set up Stripe Connect account"
       );
+    } finally {
+      hideLoader();
     }
   };
 
   const handleGetOnboardingUrl = async () => {
     try {
+      showLoader("Fetching onboarding link...");
       const result = await getOnboardingUrl();
 
       if (result.success && result.onboardingUrl) {
@@ -133,11 +141,14 @@ export default function ProvisionAccountScreen() {
       }
     } catch (error: any) {
       Alert.alert("Error", error.message || "Failed to get onboarding URL");
+    } finally {
+      hideLoader();
     }
   };
 
   const handleCheckStatus = async () => {
     try {
+      showLoader("Refreshing Stripe status...");
       const result = await checkStripeAccountStatus();
       setAccountStatus(result.status);
 
@@ -167,6 +178,8 @@ export default function ProvisionAccountScreen() {
       }
     } catch (error: any) {
       Alert.alert("Error", error.message || "Failed to check account status");
+    } finally {
+      hideLoader();
     }
   };
 
@@ -179,15 +192,15 @@ export default function ProvisionAccountScreen() {
   return (
     <ScrollableScreen addTopInset={false}>
       <Box className="flex-1">
-        <VStack className="gap-6">
+        <VStack className="gap-6 my-4">
           <Box className="items-center gap-4">
-            <Box className="w-20 h-20 bg-brand-100 rounded-full items-center justify-center">
+            {/* <Box className="w-20 h-20 bg-brand-100 rounded-full items-center justify-center">
               <Icon as={Wallet} size="xl" className="text-brand-600" />
-            </Box>
-            <Text className="text-xl font-inter-bold text-black text-center">
+            </Box> */}
+            {/* <Text className="text-xl font-inter-bold text-black text-center">
               Set Up Stripe Connect Account
-            </Text>
-            <Text className="text-sm text-gray-600 text-center leading-5">
+            </Text> */}
+            <Text className="text-sm text-gray-600 leading-5">
               Set up your Stripe Connect account to receive payments from
               customers directly to your bank account.
             </Text>
@@ -227,36 +240,33 @@ export default function ProvisionAccountScreen() {
             )}
 
             {!isAccountFullySetup && (
-              <PrimaryButton
+              <PrimaryOutlineButton
                 onPress={handleGetOnboardingUrl}
                 disabled={isLoadingOnboardingUrl}
                 icon={ExternalLink}
-                variant="outline"
               >
                 {isLoadingOnboardingUrl
                   ? "Getting onboarding URL..."
                   : "Get Onboarding URL"}
-              </PrimaryButton>
+              </PrimaryOutlineButton>
             )}
 
-            <PrimaryButton
+            <PrimaryOutlineButton
               onPress={handleCheckStatus}
               disabled={isCheckingStatus}
-              variant="outline"
             >
               {isCheckingStatus
                 ? "Reloading status..."
                 : "Reload Account Status"}
-            </PrimaryButton>
+            </PrimaryOutlineButton>
 
             {onboardingUrl && (
-              <PrimaryButton
+              <PrimaryOutlineButton
                 onPress={handleCompleteOnboarding}
                 icon={ExternalLink}
-                variant="outline"
               >
                 Complete Onboarding
-              </PrimaryButton>
+              </PrimaryOutlineButton>
             )}
 
             {accountStatus && (
