@@ -124,7 +124,7 @@ export interface UserData {
   firstName: string;
   lastName: string;
   phone: string;
-  dob: string;
+  // dob: string;
   isServiceProvider: boolean;
   createdAt: Date;
   updatedAt: Date;

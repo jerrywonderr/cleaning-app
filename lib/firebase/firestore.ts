@@ -35,7 +35,7 @@ export interface UserProfile {
   firstName: string;
   lastName: string;
   phone: string;
-  dob: string;
+  // dob: string;
   isServiceProvider: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -47,7 +47,7 @@ export interface CreateUserProfileData {
   firstName: string;
   lastName: string;
   phone: string;
-  dob: string;
+  // dob: string;
   isServiceProvider: boolean;
 }
 
@@ -55,7 +55,7 @@ export interface UpdateUserProfileData {
   firstName?: string;
   lastName?: string;
   phone?: string;
-  dob?: string;
+  // dob?: string;
   isServiceProvider?: boolean;
   profileImage?: string;
 }
@@ -100,7 +100,7 @@ export class FirebaseFirestoreService {
         const data = userSnap.data();
         return {
           ...data,
-          dob: "2025-09-08T13:48:16.000Z", // Fix this later, we have to change the way dob is saved on the db
+          // dob: "2025-09-08T13:48:16.000Z", // Fix this later, we have to change the way dob is saved on the db
           createdAt: data.createdAt?.toDate() || new Date(),
           updatedAt: data.updatedAt?.toDate() || new Date(),
         } as UserProfile;

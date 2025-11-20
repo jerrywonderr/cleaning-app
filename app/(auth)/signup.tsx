@@ -29,7 +29,7 @@ const schema = yup.object().shape({
   firstName: yup.string().trim().required("First name is required"),
   lastName: yup.string().trim().required("Last name is required"),
   phone: yup.string().trim().required("Phone is required"),
-  dob: yup.string().trim().required("DOB is required"),
+  // dob: yup.string().trim().required("DOB is required"),
   password: yup
     .string()
     .min(6, "Password must be longer than 6 characters")
@@ -77,7 +77,7 @@ const Signup = () => {
         firstName: payload.firstName,
         lastName: payload.lastName,
         phone: payload.phone,
-        dob: payload.dob,
+        // dob: payload.dob,
         isServiceProvider: payload.isServiceProvider,
       });
     } catch (err: any) {

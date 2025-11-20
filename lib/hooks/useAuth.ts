@@ -57,7 +57,7 @@ export function useSignUp() {
         firstName: data.firstName,
         lastName: data.lastName,
         phone: data.phone,
-        dob: data.dob,
+        // dob: data.dob,
         isServiceProvider: data.isServiceProvider,
       };
 

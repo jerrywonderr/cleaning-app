@@ -15,7 +15,7 @@ export interface AuthUser {
   firstName: string;
   lastName: string;
   phone: string;
-  dob: string;
+  // dob: string;
   isServiceProvider: boolean;
 }
 
@@ -25,7 +25,7 @@ export interface SignUpData {
   firstName: string;
   lastName: string;
   phone: string;
-  dob: string;
+  // dob: string;
   isServiceProvider: boolean;
 }
 
@@ -50,7 +50,7 @@ export class FirebaseAuthService {
       firstName: data.firstName,
       lastName: data.lastName,
       phone: data.phone,
-      dob: data.dob,
+      // dob: data.dob,
       isServiceProvider: data.isServiceProvider,
     };
 
@@ -73,7 +73,7 @@ export class FirebaseAuthService {
       firstName: "", // You'd fetch this from Firestore
       lastName: "", // You'd fetch this from Firestore
       phone: "", // You'd fetch this from Firestore
-      dob: "", // You'd fetch this from Firestore
+      // dob: "", // You'd fetch this from Firestore
       isServiceProvider: false, // You'd fetch this from Firestore
     };
 
