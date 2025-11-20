@@ -1,5 +1,5 @@
 import { PrimaryButton } from "@/lib/components/custom-buttons";
-import { DateField, PasswordField, TextField } from "@/lib/components/form";
+import { PasswordField, TextField } from "@/lib/components/form";
 import { PhoneField } from "@/lib/components/form/PhoneField";
 import { SwitchField } from "@/lib/components/form/SwitchField";
 import Link from "@/lib/components/Link";
@@ -192,13 +192,13 @@ const Signup = () => {
                 textContentType="telephoneNumber"
               />
 
-              <DateField
+              {/* <DateField
                 name="dob"
                 label="Date of Birth"
                 placeholder="Select your date of birth"
                 // methods={methods}
                 // maximumDate={new Date()}
-              />
+              /> */}
 
               <TextField
                 name="email"
