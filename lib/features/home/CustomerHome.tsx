@@ -37,7 +37,7 @@ export default function CustomerHome() {
         {/* Header */}
         <HStack className="flex-row justify-between items-center">
           <VStack>
-            <Text className="text-2xl font-inter-bold mt-8 mb-6 text-left">
+            <Text className="text-2xl font-inter-bold pt-4 mb-6 text-left">
               Hello, {profile?.firstName || "Customer"}!
             </Text>
           </VStack>

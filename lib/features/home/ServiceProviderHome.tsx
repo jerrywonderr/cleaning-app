@@ -87,7 +87,7 @@ export default function ServiceProviderHome() {
   return (
     <FixedScreen addTopInset={true} addBottomInset={false}>
       <Box className="flex-1">
-        <HStack className="flex-row justify-between items-center mb-4 pt-4 mt-8">
+        <HStack className="flex-row justify-between items-center mb-4 pt-4">
           <Text className="text-xl font-inter-bold">
             Hello, {profile.firstName || "Service Provider"}!
           </Text>
