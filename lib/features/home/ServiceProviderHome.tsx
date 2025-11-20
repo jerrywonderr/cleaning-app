@@ -13,7 +13,7 @@ import { useProviderServiceRequests } from "@/lib/hooks/useServiceRequests";
 import { formatCurrency } from "@/lib/utils/formatNaira";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { Bell, Calendar, ChevronRight } from "lucide-react-native";
+import { Calendar, ChevronRight } from "lucide-react-native";
 import React from "react";
 import { ScrollView } from "react-native";
 
@@ -92,7 +92,7 @@ export default function ServiceProviderHome() {
             Hello, {profile.firstName || "Service Provider"}!
           </Text>
           <HStack className="flex-row gap-3">
-            <Pressable>
+            {/* <Pressable>
               <Box className="relative">
                 <Box className="bg-brand-500 p-3 rounded-2xl">
                   <Icon as={Bell} size="xl" className="text-white" />
@@ -109,11 +109,6 @@ export default function ServiceProviderHome() {
                     }}
                   />
                 )}
-              </Box>
-            </Pressable>
-            {/* <Pressable>
-              <Box className="bg-[#e3e5f4] p-2.5 rounded-xl">
-                <Icon as={Info} />
               </Box>
             </Pressable> */}
           </HStack>
