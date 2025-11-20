@@ -24,12 +24,12 @@ export default function AccountLayout() {
           title: "Edit Profile",
         }}
       />
-      <Stack.Screen
+      {/* <Stack.Screen
         name="support"
         options={{
           title: "Support",
         }}
-      />
+      /> */}
       <Stack.Screen
         name="payment-history"
         options={{
