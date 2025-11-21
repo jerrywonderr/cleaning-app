@@ -5,12 +5,12 @@ import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import AppointmentItem from "@/lib/features/appointments/AppointmentItem";
 import { useUserType } from "@/lib/hooks/useAuth";
-import { useProviderServiceRequests } from "@/lib/hooks/useServiceRequests";
+import { useProviderAppointmentsByStatus } from "@/lib/hooks/useServiceRequestsPaginated";
 import { FlashList } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
 import { Calendar } from "lucide-react-native";
-import { useState } from "react";
-import { RefreshControl } from "react-native";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, RefreshControl } from "react-native";
 
 export default function AppointmentsScreen() {
   const [activeTab, setActiveTab] = useState<
@@ -19,32 +19,46 @@ export default function AppointmentsScreen() {
   const router = useRouter();
   const { profile } = useUserType();
 
-  // Fetch service requests (confirmed appointments) for this provider
-  const {
-    data: serviceRequests = [],
-    refetch,
-    isRefetching,
-  } = useProviderServiceRequests(profile?.id || "");
-
-  console.log(serviceRequests.map((request) => request.serviceRequest.status));
-
-  // Filter service requests based on tab
-  const filteredAppointments = serviceRequests.filter((request) => {
-    const status = request.serviceRequest.status;
-    if (activeTab === "scheduled") {
-      return status === "confirmed";
-    } else if (activeTab === "active") {
-      return status === "in-progress";
-    } else if (activeTab === "completed") {
-      return status === "completed";
-    } else if (activeTab === "cancelled") {
-      return status === "cancelled" || status === "no-show";
+  const getStatusForTab = (tab: typeof activeTab) => {
+    switch (tab) {
+      case "scheduled":
+        return "confirmed";
+      case "active":
+        return "in-progress";
+      case "completed":
+        return "completed";
+      case "cancelled":
+        return ["cancelled", "no-show"] as ["cancelled", "no-show"];
     }
-    return false;
-  });
+  };
+
+  const {
+    requests: serviceRequests,
+    isLoading,
+    isLoadingMore,
+    hasMore,
+    loadMore,
+    refresh,
+    loadInitial,
+  } = useProviderAppointmentsByStatus(
+    profile?.id || "",
+    getStatusForTab(activeTab)
+  );
+
+  useEffect(() => {
+    if (profile?.id) {
+      loadInitial();
+    }
+  }, [profile?.id, activeTab]);
 
   const handleRefresh = () => {
-    refetch();
+    refresh();
+  };
+
+  const handleLoadMore = () => {
+    if (hasMore && !isLoadingMore && !isLoading) {
+      loadMore();
+    }
   };
 
   const getTabTitle = (tab: string) => {
@@ -126,16 +140,20 @@ export default function AppointmentsScreen() {
 
       {/* Appointments List */}
       <Box className="flex-1 pt-6">
-        {filteredAppointments.length > 0 && (
+        {!isLoading && serviceRequests.length > 0 && (
           <Text className="text-sm text-gray-500 mb-4 font-medium px-6">
-            {filteredAppointments.length} {getTabTitle(activeTab).toLowerCase()}{" "}
-            appointment{filteredAppointments.length !== 1 ? "s" : ""}
+            {serviceRequests.length}+ {getTabTitle(activeTab).toLowerCase()}{" "}
+            appointment{serviceRequests.length !== 1 ? "s" : ""}
           </Text>
         )}
 
-        {filteredAppointments.length > 0 ? (
+        {isLoading && serviceRequests.length === 0 ? (
+          <Box className="flex-1 items-center justify-center py-12">
+            <ActivityIndicator size="large" color="#6366f1" />
+          </Box>
+        ) : serviceRequests.length > 0 ? (
           <FlashList
-            data={filteredAppointments}
+            data={serviceRequests}
             keyExtractor={(item) => item.serviceRequest.id}
             estimatedItemSize={100}
             renderItem={({ item: { serviceRequest, customer } }) => {
@@ -170,9 +188,18 @@ export default function AppointmentsScreen() {
             }}
             showsVerticalScrollIndicator={false}
             ItemSeparatorComponent={() => <Box className="h-4" />}
+            onEndReached={handleLoadMore}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={
+              isLoadingMore ? (
+                <Box className="p-4 items-center">
+                  <ActivityIndicator color="#6366f1" />
+                </Box>
+              ) : null
+            }
             refreshControl={
               <RefreshControl
-                refreshing={isRefetching}
+                refreshing={false}
                 onRefresh={handleRefresh}
                 tintColor="#6366f1"
               />

@@ -5,37 +5,42 @@ import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import ProposalCard from "@/lib/features/proposals/ProposalCard";
 import { useUserType } from "@/lib/hooks/useAuth";
-import { useCustomerServiceRequests } from "@/lib/hooks/useServiceRequests";
+import { useCustomerProposalsByStatus } from "@/lib/hooks/useServiceRequestsPaginated";
 import { FlashList } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
 import { FileText } from "lucide-react-native";
-import { useState } from "react";
-import { RefreshControl } from "react-native";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, RefreshControl } from "react-native";
 
 export default function ProposalsScreen() {
   const [activeTab, setActiveTab] = useState<"pending" | "accepted">("pending");
   const { profile } = useUserType();
   const router = useRouter();
 
-  // Fetch service requests based on active tab
   const {
-    data: serviceRequests = [],
-    refetch,
-    isRefetching,
-  } = useCustomerServiceRequests(profile?.id || "");
+    requests: serviceRequests,
+    isLoading,
+    isLoadingMore,
+    hasMore,
+    loadMore,
+    refresh,
+    loadInitial,
+  } = useCustomerProposalsByStatus(profile?.id || "", activeTab);
 
-  // Filter service requests based on tab
-  const filteredRequests = serviceRequests.filter((request) => {
-    if (activeTab === "pending") {
-      return request.serviceRequest.status === "pending";
-    } else if (activeTab === "accepted") {
-      return request.serviceRequest.status === "accepted";
+  useEffect(() => {
+    if (profile?.id) {
+      loadInitial();
     }
-    return false;
-  });
+  }, [profile?.id, activeTab]);
 
   const handleRefresh = () => {
-    refetch();
+    refresh();
+  };
+
+  const handleLoadMore = () => {
+    if (hasMore && !isLoadingMore && !isLoading) {
+      loadMore();
+    }
   };
 
   const getTabTitle = (tab: string) => {
@@ -96,17 +101,21 @@ export default function ProposalsScreen() {
 
       {/* Service Requests List */}
       <Box className="flex-1 pt-6">
-        {filteredRequests.length > 0 && (
+        {!isLoading && serviceRequests.length > 0 && (
           <Text className="text-sm text-gray-500 mb-4 font-medium px-6">
-            {filteredRequests.length} {getTabTitle(activeTab).toLowerCase()}{" "}
+            {serviceRequests.length}+ {getTabTitle(activeTab).toLowerCase()}{" "}
             service request
-            {filteredRequests.length !== 1 ? "s" : ""}
+            {serviceRequests.length !== 1 ? "s" : ""}
           </Text>
         )}
 
-        {filteredRequests.length > 0 ? (
+        {isLoading && serviceRequests.length === 0 ? (
+          <Box className="flex-1 items-center justify-center py-12">
+            <ActivityIndicator size="large" color="#6366f1" />
+          </Box>
+        ) : serviceRequests.length > 0 ? (
           <FlashList
-            data={filteredRequests}
+            data={serviceRequests}
             keyExtractor={(item) => item.serviceRequest.id}
             estimatedItemSize={120}
             renderItem={({ item }) => {
@@ -137,9 +146,18 @@ export default function ProposalsScreen() {
             showsVerticalScrollIndicator={false}
             contentContainerClassName="gap-3 my-4"
             ItemSeparatorComponent={() => <Box className="h-[0.5] my-2" />}
+            onEndReached={handleLoadMore}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={
+              isLoadingMore ? (
+                <Box className="p-4 items-center">
+                  <ActivityIndicator color="#6366f1" />
+                </Box>
+              ) : null
+            }
             refreshControl={
               <RefreshControl
-                refreshing={isRefetching}
+                refreshing={false}
                 onRefresh={handleRefresh}
                 tintColor="#6366f1"
               />
