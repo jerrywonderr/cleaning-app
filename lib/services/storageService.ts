@@ -13,14 +13,11 @@ import { storage } from "../firebase/config";
  * providing utilities for handling images and other media files across the app.
  *
  * @example
- * // Upload a service offer image
- * const imageUrl = await StorageService.uploadOfferImage(uri, offerId, undefined, "main");
- *
  * // Upload a user profile image
  * const profileUrl = await StorageService.uploadProfileImage(uri, userId);
  *
- * // Upload an appointment image
- * const appointmentUrl = await StorageService.uploadAppointmentImage(uri, appointmentId, undefined, "before");
+ * // Upload a service request image
+ * const imageUrl = await StorageService.uploadServiceRequestImage(uri, serviceRequestId, undefined, "before");
  *
  * // Upload a review image
  * const reviewUrl = await StorageService.uploadReviewImage(uri, reviewId);
@@ -32,8 +29,7 @@ export class StorageService {
   // Define storage paths for different content types
   private static readonly STORAGE_PATHS = {
     USERS: "users",
-    OFFERS: "offers",
-    APPOINTMENTS: "appointments",
+    SERVICE_REQUESTS: "service-requests",
     REVIEWS: "reviews",
     TEMP: "temp",
   } as const;
@@ -50,7 +46,7 @@ export class StorageService {
    */
   static async uploadImage(
     uri: string,
-    folder: keyof typeof StorageService.STORAGE_PATHS = "OFFERS",
+    folder: keyof typeof StorageService.STORAGE_PATHS = "SERVICE_REQUESTS",
     fileName?: string,
     fileType?: string,
     metadata?: Record<string, string>
@@ -149,34 +145,34 @@ export class StorageService {
   }
 
   /**
-   * Upload an appointment-related image
+   * Upload a service request image (for both proposals and appointments)
    *
    * @param uri - Local file URI
-   * @param appointmentId - Appointment ID for organization
+   * @param serviceRequestId - Service Request ID for organization
    * @param fileName - Optional custom filename
    * @param category - Image category (e.g., 'before', 'after', 'receipt')
    * @returns Promise that resolves to the public download URL
    */
-  static async uploadAppointmentImage(
+  static async uploadServiceRequestImage(
     uri: string,
-    appointmentId: string,
+    serviceRequestId: string,
     fileName?: string,
     category: string = "photos"
   ): Promise<string> {
     const finalFileName = fileName || `${Date.now()}.jpg`;
     const metadata = {
-      appointmentId: appointmentId,
+      serviceRequestId: serviceRequestId,
       category: category,
-      fileType: "appointment",
+      fileType: "service-request",
       uploadedAt: new Date().toISOString(),
     };
-    // Create the full path for appointment images
-    const fullPath = `${appointmentId}/${category}/${finalFileName}`;
+    // Create the full path for service request images
+    const fullPath = `${serviceRequestId}/${category}/${finalFileName}`;
     return this.uploadImage(
       uri,
-      "APPOINTMENTS",
+      "SERVICE_REQUESTS",
       fullPath,
-      "appointment",
+      "service-request",
       metadata
     );
   }
@@ -233,49 +229,24 @@ export class StorageService {
   }
 
   /**
-   * Upload an offer image
+   * Delete all files for a specific service request
    *
-   * @param uri - Local file URI
-   * @param offerId - Offer ID for organization
-   * @param fileName - Optional custom filename
-   * @param category - Image category (e.g., 'main', 'gallery', 'attachment')
-   * @returns Promise that resolves to the public download URL
-   */
-  static async uploadOfferImage(
-    uri: string,
-    offerId: string,
-    fileName?: string,
-    category: string = "main",
-    creatorId?: string
-  ): Promise<string> {
-    const finalFileName = fileName || `${Date.now()}.jpg`;
-    const metadata = {
-      offerId: offerId,
-      creatorId: creatorId || "unknown",
-      category: category,
-      fileType: "offer",
-      uploadedAt: new Date().toISOString(),
-    };
-    // Create the full path for offer images
-    const fullPath = `${offerId}/${category}/${finalFileName}`;
-    return this.uploadImage(uri, "OFFERS", fullPath, "offer", metadata);
-  }
-
-  /**
-   * Delete all files for a specific offer
-   *
-   * @param offerId - Offer ID
+   * @param serviceRequestId - Service Request ID
    * @returns Promise that resolves when all files are deleted
    */
-  static async deleteOfferFiles(offerId: string): Promise<void> {
+  static async deleteServiceRequestFiles(
+    serviceRequestId: string
+  ): Promise<void> {
     try {
       // Note: This is a simplified approach. In production, you might want to
-      // list all files in the offer folder and delete them individually
+      // list all files in the service request folder and delete them individually
       // For now, we'll rely on the caller to provide specific file URLs
-      console.log(`Offer ${offerId} files marked for deletion`);
+      console.log(
+        `Service request ${serviceRequestId} files marked for deletion`
+      );
     } catch (error) {
-      console.error("Error deleting offer files:", error);
-      throw new Error("Failed to delete offer files.");
+      console.error("Error deleting service request files:", error);
+      throw new Error("Failed to delete service request files.");
     }
   }
 

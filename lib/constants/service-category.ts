@@ -1,4 +1,4 @@
-import { OfferCategory } from "../types/offer";
+import { OfferCategory } from "../types/service-config";
 
 /**
  * Service Category Options

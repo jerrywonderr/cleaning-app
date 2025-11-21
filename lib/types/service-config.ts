@@ -141,25 +141,6 @@ export interface LocationSearchRequest {
   limit?: number;
 }
 
-export interface LocationAutocompleteResult {
-  id: string;
-  displayName: string;
-  type: string;
-  score: number;
-  address: {
-    street: string;
-    city: string;
-    state: string;
-    country: string;
-    postalCode: string;
-    fullAddress: string;
-  };
-  coordinates: {
-    latitude: number;
-    longitude: number;
-  };
-}
-
 // Azure Maps API types
 export interface AzureMapsResponse {
   results: {
