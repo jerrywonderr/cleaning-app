@@ -21,23 +21,31 @@ export default function VerifyEmailScreen() {
 
   // Auto-check verification status every 3 seconds
   useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    let isRedirecting = false;
+
     const checkVerificationStatus = async () => {
+      if (isRedirecting) return;
+
       try {
         await FirebaseAuthService.reloadUser();
         if (FirebaseAuthService.isEmailVerified()) {
+          isRedirecting = true;
+          clearInterval(interval);
+
           const redirectPath = isServiceProvider
             ? "/service-provider"
             : "/customer";
+
           Alert.alert(
             "Email Verified!",
-            "Your email has been verified. Redirecting...",
-            [
-              {
-                text: "OK",
-                onPress: () => router.replace(redirectPath),
-              },
-            ]
+            "Your email has been verified. Redirecting..."
           );
+
+          // Auto-redirect after 1.5 seconds
+          setTimeout(() => {
+            router.replace(redirectPath);
+          }, 1500);
         }
       } catch (error) {
         console.error("Error checking verification:", error);
@@ -48,9 +56,12 @@ export default function VerifyEmailScreen() {
     checkVerificationStatus();
 
     // Then check every 3 seconds
-    const interval = setInterval(checkVerificationStatus, 3000);
+    interval = setInterval(checkVerificationStatus, 3000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      isRedirecting = false;
+    };
   }, [router, isServiceProvider]);
 
   useEffect(() => {
