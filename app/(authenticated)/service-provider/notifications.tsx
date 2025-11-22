@@ -20,9 +20,10 @@ export default function NotificationsScreen() {
     loadMore,
     hasMore,
     isLoadingMore,
+    isRefreshing,
+    refresh,
   } = useNotifications();
   const { showLoader, hideLoader } = useLoader();
-  const [refreshing, setRefreshing] = React.useState(false);
   const hasLoadedRef = React.useRef(false);
 
   React.useEffect(() => {
@@ -42,11 +43,6 @@ export default function NotificationsScreen() {
     }
   };
 
-  const onRefresh = React.useCallback(() => {
-    setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 1000);
-  }, []);
-
   const handleNotificationPress = (notification: Notification) => {
     if (!notification.read) {
       markAsRead(notification.id);
@@ -57,33 +53,48 @@ export default function NotificationsScreen() {
     return Bell;
   };
 
+  const capitalizeText = (text: string) => {
+    return text
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
   const renderNotification = ({ item }: { item: Notification }) => (
     <TouchableOpacity onPress={() => handleNotificationPress(item)}>
       <Box
-        className={`p-4 border-b border-gray-200 ${
-          !item.read ? "bg-blue-50" : "bg-white"
+        className={`px-4 py-5 border-b border-gray-200 ${
+          !item.read ? "bg-brand-50" : "bg-white"
         }`}
       >
-        <HStack className="items-start space-x-3">
+        <HStack className="items-start gap-4">
           <Box
-            className={`mt-1 rounded-full p-2 ${
-              !item.read ? "bg-primary-500" : "bg-gray-300"
+            className={`rounded-full p-3 ${
+              !item.read ? "bg-brand-500" : "bg-gray-300"
             }`}
           >
             <Icon
               as={getNotificationIcon(item.type)}
-              size="sm"
+              size="xl"
               className="text-white"
             />
           </Box>
-          <VStack className="flex-1">
-            <Text className={`text-base ${!item.read ? "font-semibold" : ""}`}>
-              {item.pushNotification?.title || item.type.replace(/_/g, " ")}
+          <VStack className="flex-1 gap-1">
+            <Text
+              className={`text-base leading-5 ${
+                !item.read
+                  ? "font-inter-semibold text-brand-700"
+                  : "font-inter-medium text-gray-900"
+              }`}
+            >
+              {capitalizeText(
+                item.pushNotification?.title || item.type.replace(/_/g, " ")
+              )}
             </Text>
-            <Text className="text-gray-600 mt-1">
+            <Text className="text-gray-600 text-sm leading-5 mt-0.5">
               {item.pushNotification?.body || item.message}
             </Text>
-            <Text className="text-xs text-gray-400 mt-2">
+            <Text className="text-xs text-gray-400 mt-1.5">
               {item.timestamp?.toDate
                 ? formatDistanceToNow(item.timestamp.toDate(), {
                     addSuffix: true,
@@ -92,7 +103,7 @@ export default function NotificationsScreen() {
             </Text>
           </VStack>
           {!item.read && (
-            <Box className="mt-1 w-2 h-2 rounded-full bg-primary-500" />
+            <Box className="mt-1 w-2.5 h-2.5 rounded-full bg-brand-500" />
           )}
         </HStack>
       </Box>
@@ -103,10 +114,10 @@ export default function NotificationsScreen() {
     <Box className="flex-1 bg-white">
       {unreadCount > 0 && (
         <TouchableOpacity onPress={markAllAsRead}>
-          <Box className="p-3 bg-gray-50 border-b border-gray-200">
-            <HStack className="items-center justify-center space-x-2">
-              <Icon as={Check} size="sm" className="text-primary-500" />
-              <Text className="text-primary-500 font-medium">
+          <Box className="py-4 px-4 bg-brand-50 border-b border-brand-100">
+            <HStack className="items-center justify-center gap-2">
+              <Icon as={Check} size="md" className="text-brand-600" />
+              <Text className="text-brand-600 font-inter-semibold">
                 Mark all as read ({unreadCount})
               </Text>
             </HStack>
@@ -119,7 +130,11 @@ export default function NotificationsScreen() {
         renderItem={renderNotification}
         keyExtractor={(item) => item.id}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={refresh}
+            tintColor="#6366f1"
+          />
         }
         onEndReached={handleLoadMore}
         onEndReachedThreshold={0.5}

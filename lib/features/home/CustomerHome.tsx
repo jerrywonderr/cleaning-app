@@ -7,16 +7,17 @@ import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import AppointmentItem from "@/lib/features/appointments/AppointmentItem";
 import { useUserType } from "@/lib/hooks/useAuth";
+import { useNotifications } from "@/lib/hooks/useNotifications";
 import { useCustomerServiceRequests } from "@/lib/hooks/useServiceRequests";
 import { useRouter } from "expo-router";
-import { Calendar, ChevronRight } from "lucide-react-native";
+import { Bell, Calendar, ChevronRight } from "lucide-react-native";
 import React from "react";
 import { Image as RNImage, RefreshControl, ScrollView } from "react-native";
 
 export default function CustomerHome() {
   const { profile } = useUserType();
   const router = useRouter();
-  const hasNotification = true;
+  const { unreadCount } = useNotifications();
 
   // Fetch service requests for this customer
   const {
@@ -44,25 +45,41 @@ export default function CustomerHome() {
             </Text>
           </VStack>
           <HStack className="flex-row gap-3">
-            {/* <Pressable>
+            <Pressable
+              onPress={() =>
+                router.push("/(authenticated)/customer/notifications")
+              }
+            >
               <Box className="relative">
-                <Box className="bg-brand-500 p-3 rounded-2xl">
-                  <Icon as={Bell} size="xl" className="text-white" />
-                </Box>
-                {hasNotification && (
+                <Icon
+                  as={Bell}
+                  className="text-gray-700"
+                  style={{ width: 28, height: 28 }}
+                />
+                {unreadCount > 0 && (
                   <Box
-                    className="bg-white rounded-full"
+                    className="bg-brand-500 rounded-full"
                     style={{
                       position: "absolute",
-                      top: 8,
-                      right: 14,
-                      width: 8,
-                      height: 8,
+                      top: -4,
+                      right: 0,
+                      minWidth: 16,
+                      height: 16,
+                      paddingHorizontal: 4,
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
-                  />
+                  >
+                    <Text
+                      className="text-white font-inter-bold"
+                      style={{ fontSize: 10, lineHeight: 12 }}
+                    >
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </Text>
+                  </Box>
                 )}
               </Box>
-            </Pressable> */}
+            </Pressable>
           </HStack>
         </HStack>
 

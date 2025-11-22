@@ -28,6 +28,7 @@ export const useNotifications = () => {
   const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -141,6 +142,47 @@ export const useNotifications = () => {
     }
   };
 
+  const refresh = useCallback(async () => {
+    if (!user) return;
+
+    setIsRefreshing(true);
+    try {
+      // Reset pagination and fetch first page
+      const notificationsRef = collection(db, "notifications");
+      const q = query(
+        notificationsRef,
+        where("customerId", "==", user.uid),
+        orderBy("timestamp", "desc"),
+        limit(NOTIFICATIONS_PER_PAGE)
+      );
+
+      const snapshot = await getDocs(q);
+      const notifs: Notification[] = [];
+      let unread = 0;
+
+      snapshot.forEach((doc) => {
+        const data = doc.data() as Omit<Notification, "id">;
+        notifs.push({ id: doc.id, ...data });
+        if (!data.read) unread++;
+      });
+
+      setNotifications(notifs);
+      setUnreadCount(unread);
+
+      if (snapshot.docs.length > 0) {
+        setLastDoc(snapshot.docs[snapshot.docs.length - 1]);
+        setHasMore(snapshot.docs.length === NOTIFICATIONS_PER_PAGE);
+      } else {
+        setLastDoc(null);
+        setHasMore(false);
+      }
+    } catch (error) {
+      console.error("Error refreshing notifications:", error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [user]);
+
   return {
     notifications,
     unreadCount,
@@ -149,5 +191,7 @@ export const useNotifications = () => {
     loadMore,
     hasMore,
     isLoadingMore,
+    isRefreshing,
+    refresh,
   };
 };
