@@ -154,7 +154,7 @@ export default function AccountScreen() {
             label="Bank Account"
             icon={Wallet}
             onPress={() =>
-              router.push("/service-provider/account/bank-account")
+              router.push("/service-provider/account/provision-account")
             }
           />
           <SettingsItem
