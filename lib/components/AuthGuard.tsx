@@ -44,9 +44,10 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         // Redirect to login page
         router.replace("/login");
       } else if (isAuthenticated) {
-        // Check email verification status
+        // TEMPORARILY DISABLED: Email verification check
         await FirebaseAuthService.reloadUser();
         const isEmailVerified = FirebaseAuthService.isEmailVerified();
+        // const isEmailVerified = true; // TEMP: Skip verification check
 
         if (!isEmailVerified && !onVerifyEmailPage) {
           // User is authenticated but email not verified
