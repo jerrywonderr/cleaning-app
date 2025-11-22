@@ -1,18 +1,19 @@
 import { useController, useFormContext } from "react-hook-form";
 import { Text, TextInput, TextInputProps, View, ViewStyle } from "react-native";
 import {
-    FormControl,
-    FormControlError,
-    FormControlErrorIcon,
-    FormControlErrorText,
-    FormControlHelper,
-    FormControlHelperText,
-    FormControlLabel,
-    FormControlLabelText,
+  FormControl,
+  FormControlError,
+  FormControlErrorIcon,
+  FormControlErrorText,
+  FormControlHelper,
+  FormControlHelperText,
+  FormControlLabel,
+  FormControlLabelText,
 } from "../ui/form-control";
 import { AlertCircleIcon } from "../ui/icon";
 
-interface PhoneFieldProps extends Omit<TextInputProps, "value" | "onChangeText"> {
+interface PhoneFieldProps
+  extends Omit<TextInputProps, "value" | "onChangeText"> {
   name: string;
   label?: string;
   helperText?: string;
@@ -66,7 +67,7 @@ export function PhoneField({
           containerStyle,
         ]}
       >
-        <Text className="text-base font-inter-medium text-gray-500">+234</Text>
+        <Text className="text-base font-inter-medium text-gray-500">+44</Text>
         <TextInput
           value={field.value}
           onChangeText={handleChange}

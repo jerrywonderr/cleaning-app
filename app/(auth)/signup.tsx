@@ -152,13 +152,13 @@ const Signup = () => {
               <TextField
                 name="firstName"
                 label="First name"
-                placeholder="Kay"
+                placeholder="John"
                 textContentType="givenName"
               />
               <TextField
                 name="lastName"
                 label="Last name"
-                placeholder="Adegboyega"
+                placeholder="Doe"
                 textContentType="familyName"
               />
 
@@ -187,7 +187,7 @@ const Signup = () => {
               <PhoneField
                 name="phone"
                 label="Phone"
-                placeholder="874875048"
+                placeholder="XXXX XXXXXX"
                 keyboardType="phone-pad"
                 textContentType="telephoneNumber"
               />
@@ -203,7 +203,7 @@ const Signup = () => {
               <TextField
                 name="email"
                 label="Email"
-                placeholder="email@domain.com"
+                placeholder="john.doe@example.com"
                 autoCapitalize="none"
                 autoCorrect={false}
                 keyboardType="email-address"
