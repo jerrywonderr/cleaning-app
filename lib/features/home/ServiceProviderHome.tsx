@@ -1,4 +1,3 @@
-import { PrimaryButton } from "@/lib/components/custom-buttons";
 import FixedScreen from "@/lib/components/screens/FixedScreen";
 import { Box } from "@/lib/components/ui/box";
 import { HStack } from "@/lib/components/ui/hstack";
@@ -7,8 +6,9 @@ import { Pressable } from "@/lib/components/ui/pressable";
 import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import AppointmentItem from "@/lib/features/appointments/AppointmentItem";
+import AccountSetupReminder from "@/lib/features/home/AccountSetupReminder";
+import { useAccountSetupStatus } from "@/lib/hooks/useAccountSetupStatus";
 import { useUserType } from "@/lib/hooks/useAuth";
-import { useBankAccount } from "@/lib/hooks/useBankAccount";
 import { useNotifications } from "@/lib/hooks/useNotifications";
 import { useProviderServiceRequests } from "@/lib/hooks/useServiceRequests";
 import { formatCurrency } from "@/lib/utils/formatNaira";
@@ -20,9 +20,9 @@ import { RefreshControl, ScrollView } from "react-native";
 
 export default function ServiceProviderHome() {
   const { profile } = useUserType();
-  const { stripeConnectAccount, isLoadingStripeAccount } = useBankAccount();
   const router = useRouter();
   const { unreadCount } = useNotifications();
+  const { needsSetup } = useAccountSetupStatus();
 
   // Fetch service requests for this provider
   const {
@@ -38,11 +38,6 @@ export default function ServiceProviderHome() {
   const ongoingAppointments = serviceRequests.filter(
     (request) => request.serviceRequest.status === "in-progress"
   );
-  const needsStripeSetup =
-    !isLoadingStripeAccount &&
-    (!stripeConnectAccount ||
-      (stripeConnectAccount.stripeAccountStatus !== "active" &&
-        stripeConnectAccount.stripeAccountStatus !== "completed"));
 
   // Calculate monthly earnings from paid jobs in the last month
   const getMonthlyEarnings = (): number => {
@@ -182,140 +177,126 @@ export default function ServiceProviderHome() {
           </HStack>
         </LinearGradient>
 
-        {needsStripeSetup && (
-          <Box className="bg-brand-50 border border-brand-100 rounded-xl p-4 mb-4">
-            <VStack className="gap-3">
-              <Text className="text-base font-inter-semibold text-brand-700">
-                Finish Stripe setup to get paid
-              </Text>
-              <Text className="text-sm text-gray-600">
-                Complete onboarding to enable payouts and deposits to your bank
-                account.
-              </Text>
-              <PrimaryButton
-                size="sm"
+        <AccountSetupReminder />
+
+        {!needsSetup && (
+          <>
+            {/* Appointments Section */}
+            <HStack className="flex-row justify-between items-center mb-4">
+              <HStack className="flex-row items-center gap-2">
+                <Icon as={Calendar} size="lg" className="text-brand-500" />
+                <Text className="text-lg font-semibold text-gray-900">
+                  Appointments
+                </Text>
+              </HStack>
+              <Pressable
                 onPress={() =>
                   router.push(
-                    "/service-provider/account/bank-account/provision-account"
+                    "/(authenticated)/service-provider/(tabs)/appointments"
                   )
                 }
+                className="flex-row items-center gap-1"
               >
-                Continue setup
-              </PrimaryButton>
-            </VStack>
-          </Box>
+                <Text className="text-brand-500 font-inter-medium text-sm">
+                  View All
+                </Text>
+                <Icon as={ChevronRight} size="sm" className="text-brand-500" />
+              </Pressable>
+            </HStack>
+
+            {/* Appointments List */}
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              refreshControl={
+                <RefreshControl
+                  refreshing={isRefetching}
+                  onRefresh={() => refetch()}
+                  tintColor="#6366f1"
+                />
+              }
+            >
+              <VStack className="gap-4">
+                {/* Ongoing Appointments */}
+                <Box className="mb-4">
+                  <Box className="bg-white py-2 mb-2">
+                    <Text className="font-inter-medium text-base text-gray-700">
+                      Ongoing ({ongoingAppointments.length})
+                    </Text>
+                  </Box>
+                  {ongoingAppointments.length > 0 ? (
+                    <VStack className="gap-3">
+                      {ongoingAppointments.slice(0, 5).map((request) => {
+                        return (
+                          <AppointmentItem
+                            key={request.serviceRequest.id}
+                            id={request.serviceRequest.id}
+                            date={request.serviceRequest.scheduledDate}
+                            time={
+                              request.serviceRequest.timeRange.split("-")[0]
+                            }
+                            client={`${request.customer.firstName} ${request.customer.lastName}`}
+                            service={request.serviceRequest.serviceName}
+                            status={request.serviceRequest.status}
+                            onPress={() =>
+                              router.push(
+                                `/service-provider/appointments/${request.serviceRequest.id}`
+                              )
+                            }
+                          />
+                        );
+                      })}
+                    </VStack>
+                  ) : (
+                    <Box className="bg-gray-50 p-4 rounded-xl items-center">
+                      <Text className="text-gray-500 text-center text-sm">
+                        No ongoing appointments
+                      </Text>
+                    </Box>
+                  )}
+                </Box>
+
+                {/* Upcoming Appointments */}
+                <Box className="mb-4">
+                  <Box className="bg-white py-2 mb-2">
+                    <Text className="font-inter-medium text-base text-gray-700">
+                      Upcoming ({upcomingAppointments.length})
+                    </Text>
+                  </Box>
+                  {upcomingAppointments.length > 0 ? (
+                    <VStack className="gap-3">
+                      {upcomingAppointments.slice(0, 5).map((request) => {
+                        return (
+                          <AppointmentItem
+                            key={request.serviceRequest.id}
+                            id={request.serviceRequest.id}
+                            date={request.serviceRequest.scheduledDate}
+                            time={
+                              request.serviceRequest.timeRange.split("-")[0]
+                            }
+                            client={`${request.customer.firstName} ${request.customer.lastName}`}
+                            service={request.serviceRequest.serviceName}
+                            status={request.serviceRequest.status}
+                            onPress={() =>
+                              router.push(
+                                `/service-provider/appointments/${request.serviceRequest.id}`
+                              )
+                            }
+                          />
+                        );
+                      })}
+                    </VStack>
+                  ) : (
+                    <Box className="bg-gray-50 p-4 rounded-xl items-center">
+                      <Text className="text-gray-500 text-center text-sm">
+                        No upcoming appointments
+                      </Text>
+                    </Box>
+                  )}
+                </Box>
+              </VStack>
+            </ScrollView>
+          </>
         )}
-
-        {/* Appointments Section */}
-        <HStack className="flex-row justify-between items-center mb-4">
-          <HStack className="flex-row items-center gap-2">
-            <Icon as={Calendar} size="lg" className="text-brand-500" />
-            <Text className="text-lg font-semibold text-gray-900">
-              Appointments
-            </Text>
-          </HStack>
-          <Pressable
-            onPress={() =>
-              router.push(
-                "/(authenticated)/service-provider/(tabs)/appointments"
-              )
-            }
-            className="flex-row items-center gap-1"
-          >
-            <Text className="text-brand-500 font-inter-medium text-sm">
-              View All
-            </Text>
-            <Icon as={ChevronRight} size="sm" className="text-brand-500" />
-          </Pressable>
-        </HStack>
-
-        {/* Appointments List */}
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={isRefetching}
-              onRefresh={() => refetch()}
-              tintColor="#6366f1"
-            />
-          }
-        >
-          <VStack className="gap-4">
-            {/* Ongoing Appointments */}
-            <Box className="mb-4">
-              <Box className="bg-white py-2 mb-2">
-                <Text className="font-inter-medium text-base text-gray-700">
-                  Ongoing ({ongoingAppointments.length})
-                </Text>
-              </Box>
-              {ongoingAppointments.length > 0 ? (
-                <VStack className="gap-3">
-                  {ongoingAppointments.slice(0, 5).map((request) => {
-                    return (
-                      <AppointmentItem
-                        key={request.serviceRequest.id}
-                        id={request.serviceRequest.id}
-                        date={request.serviceRequest.scheduledDate}
-                        time={request.serviceRequest.timeRange.split("-")[0]}
-                        client={`${request.customer.firstName} ${request.customer.lastName}`}
-                        service={request.serviceRequest.serviceName}
-                        status={request.serviceRequest.status}
-                        onPress={() =>
-                          router.push(
-                            `/service-provider/appointments/${request.serviceRequest.id}`
-                          )
-                        }
-                      />
-                    );
-                  })}
-                </VStack>
-              ) : (
-                <Box className="bg-gray-50 p-4 rounded-xl items-center">
-                  <Text className="text-gray-500 text-center text-sm">
-                    No ongoing appointments
-                  </Text>
-                </Box>
-              )}
-            </Box>
-
-            {/* Upcoming Appointments */}
-            <Box className="mb-4">
-              <Box className="bg-white py-2 mb-2">
-                <Text className="font-inter-medium text-base text-gray-700">
-                  Upcoming ({upcomingAppointments.length})
-                </Text>
-              </Box>
-              {upcomingAppointments.length > 0 ? (
-                <VStack className="gap-3">
-                  {upcomingAppointments.slice(0, 5).map((request) => {
-                    return (
-                      <AppointmentItem
-                        key={request.serviceRequest.id}
-                        id={request.serviceRequest.id}
-                        date={request.serviceRequest.scheduledDate}
-                        time={request.serviceRequest.timeRange.split("-")[0]}
-                        client={`${request.customer.firstName} ${request.customer.lastName}`}
-                        service={request.serviceRequest.serviceName}
-                        status={request.serviceRequest.status}
-                        onPress={() =>
-                          router.push(
-                            `/service-provider/appointments/${request.serviceRequest.id}`
-                          )
-                        }
-                      />
-                    );
-                  })}
-                </VStack>
-              ) : (
-                <Box className="bg-gray-50 p-4 rounded-xl items-center">
-                  <Text className="text-gray-500 text-center text-sm">
-                    No upcoming appointments
-                  </Text>
-                </Box>
-              )}
-            </Box>
-          </VStack>
-        </ScrollView>
       </Box>
     </FixedScreen>
   );
