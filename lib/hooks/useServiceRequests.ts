@@ -9,7 +9,6 @@ import { ServiceRequestService } from "@/lib/services/serviceRequestService";
 import {
   CreateRatingData,
   CreateServiceRequestData,
-  ServiceRequestFilters,
   UpdateServiceRequestData,
 } from "@/lib/types/service-request";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -21,45 +20,6 @@ const PROVIDER_RATINGS_QUERY_KEY = (providerId: string) => [
   "providerRatings",
   providerId,
 ];
-
-/**
- * Hook to get service requests with filters
- */
-export function useServiceRequests(filters: ServiceRequestFilters = {}) {
-  return useQuery({
-    queryKey: [...SERVICE_REQUESTS_QUERY_KEY, filters],
-    queryFn: () => ServiceRequestService.getServiceRequests(filters),
-    staleTime: 2 * 60 * 1000, // 2 minutes
-  });
-}
-
-/**
- * Hook to get service requests with provider information
- */
-export function useServiceRequestsWithProvider(
-  filters: ServiceRequestFilters = {}
-) {
-  return useQuery({
-    queryKey: [...SERVICE_REQUESTS_QUERY_KEY, "withProvider", filters],
-    queryFn: () =>
-      ServiceRequestService.getServiceRequestsWithProvider(filters),
-    staleTime: 2 * 60 * 1000, // 2 minutes
-  });
-}
-
-/**
- * Hook to get service requests with customer information
- */
-export function useServiceRequestsWithCustomer(
-  filters: ServiceRequestFilters = {}
-) {
-  return useQuery({
-    queryKey: [...SERVICE_REQUESTS_QUERY_KEY, "withCustomer", filters],
-    queryFn: () =>
-      ServiceRequestService.getServiceRequestsWithCustomer(filters),
-    staleTime: 2 * 60 * 1000, // 2 minutes
-  });
-}
 
 /**
  * Hook to get a single service request by ID
@@ -183,45 +143,55 @@ export function useCreateRating() {
 }
 
 /**
- * Hook to get customer's service requests
+ * Hook to get customer's recent service requests for home page
+ * Fetches confirmed and in-progress appointments (limited to 10 each)
  */
 export function useCustomerServiceRequests(customerId: string) {
-  return useServiceRequestsWithProvider({ customerId });
+  return useQuery({
+    queryKey: [...SERVICE_REQUESTS_QUERY_KEY, "customer-home", customerId],
+    queryFn: async () => {
+      // Fetch confirmed and in-progress in parallel
+      const [confirmedResult, inProgressResult] = await Promise.all([
+        ServiceRequestService.getServiceRequestsWithProviderPaginated(
+          { customerId, status: "confirmed" },
+          10
+        ),
+        ServiceRequestService.getServiceRequestsWithProviderPaginated(
+          { customerId, status: "in-progress" },
+          10
+        ),
+      ]);
+
+      return [...confirmedResult.data, ...inProgressResult.data];
+    },
+    enabled: !!customerId,
+    staleTime: 1 * 60 * 1000, // 1 minute
+  });
 }
 
 /**
- * Hook to get provider's service requests
+ * Hook to get provider's recent service requests for home page
+ * Fetches confirmed and in-progress appointments (limited to 10 each)
  */
 export function useProviderServiceRequests(providerId: string) {
-  return useServiceRequestsWithCustomer({ providerId });
-}
+  return useQuery({
+    queryKey: [...SERVICE_REQUESTS_QUERY_KEY, "provider-home", providerId],
+    queryFn: async () => {
+      // Fetch confirmed and in-progress in parallel
+      const [confirmedResult, inProgressResult] = await Promise.all([
+        ServiceRequestService.getServiceRequestsWithCustomerPaginated(
+          { providerId, status: "confirmed" },
+          10
+        ),
+        ServiceRequestService.getServiceRequestsWithCustomerPaginated(
+          { providerId, status: "in-progress" },
+          10
+        ),
+      ]);
 
-/**
- * Hook to get pending service requests for a provider
- */
-export function usePendingServiceRequests(providerId: string) {
-  return useServiceRequestsWithCustomer({
-    providerId,
-    status: "pending",
-  });
-}
-
-/**
- * Hook to get accepted service requests for a provider
- */
-export function useAcceptedServiceRequests(providerId: string) {
-  return useServiceRequestsWithCustomer({
-    providerId,
-    status: "accepted",
-  });
-}
-
-/**
- * Hook to get confirmed service requests for a provider
- */
-export function useConfirmedServiceRequests(providerId: string) {
-  return useServiceRequestsWithCustomer({
-    providerId,
-    status: "confirmed",
+      return [...confirmedResult.data, ...inProgressResult.data];
+    },
+    enabled: !!providerId,
+    staleTime: 1 * 60 * 1000, // 1 minute
   });
 }

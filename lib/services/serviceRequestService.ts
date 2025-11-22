@@ -21,10 +21,14 @@ import {
   collection,
   deleteDoc,
   doc,
+  DocumentData,
   getDoc,
   getDocs,
+  limit,
   orderBy,
   query,
+  QueryDocumentSnapshot,
+  startAfter,
   updateDoc,
   where,
 } from "firebase/firestore";
@@ -213,159 +217,6 @@ export class ServiceRequestService {
   }
 
   /**
-   * Get service requests with filters
-   */
-  static async getServiceRequests(
-    filters: ServiceRequestFilters = {}
-  ): Promise<ServiceRequest[]> {
-    try {
-      let q = query(collection(db, SERVICE_REQUESTS_COLLECTION));
-
-      // Apply filters
-      if (filters.customerId) {
-        q = query(q, where("customerId", "==", filters.customerId));
-      }
-      if (filters.providerId) {
-        q = query(q, where("providerId", "==", filters.providerId));
-      }
-      if (filters.status) {
-        q = query(q, where("status", "==", filters.status));
-      }
-      if (filters.serviceType) {
-        q = query(q, where("serviceType", "==", filters.serviceType));
-      }
-
-      // Order by creation date (newest first)
-      q = query(q, orderBy("createdAt", "desc"));
-
-      const querySnapshot = await getDocs(q);
-      const serviceRequests: ServiceRequest[] = [];
-
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        serviceRequests.push({
-          id: doc.id,
-          ...data,
-          createdAt: data.createdAt?.toDate() || new Date(),
-          acceptedAt: data.acceptedAt?.toDate(),
-          rejectedAt: data.rejectedAt?.toDate(),
-          confirmedAt: data.confirmedAt?.toDate(),
-          startedAt: data.startedAt?.toDate(),
-          completedAt: data.completedAt?.toDate(),
-          cancelledAt: data.cancelledAt?.toDate(),
-          expiredAt: data.expiredAt?.toDate(),
-          noShowAt: data.noShowAt?.toDate(),
-          noShowReason: data.noShowReason,
-        } as ServiceRequest);
-      });
-
-      return serviceRequests;
-    } catch (error) {
-      console.error("Error getting service requests:", error);
-      throw new Error("Failed to get service requests");
-    }
-  }
-
-  /**
-   * Get service requests with provider information
-   */
-  static async getServiceRequestsWithProvider(
-    filters: ServiceRequestFilters = {}
-  ): Promise<ServiceRequestWithProvider[]> {
-    try {
-      const serviceRequests = await this.getServiceRequests(filters);
-      const serviceRequestsWithProvider: ServiceRequestWithProvider[] = [];
-
-      for (const serviceRequest of serviceRequests) {
-        try {
-          // Get provider profile data from users collection
-          const providerUserDoc = await getDoc(
-            doc(db, USERS_COLLECTION, serviceRequest.providerId)
-          );
-
-          // Get provider business data from serviceProviders collection
-          const providerBusinessDoc = await getDoc(
-            doc(db, SERVICE_PROVIDERS_COLLECTION, serviceRequest.providerId)
-          );
-
-          if (providerUserDoc.exists()) {
-            const providerUserData = providerUserDoc.data();
-            const providerBusinessData = providerBusinessDoc.exists()
-              ? providerBusinessDoc.data()
-              : {};
-
-            serviceRequestsWithProvider.push({
-              serviceRequest,
-              provider: {
-                id: serviceRequest.providerId,
-                firstName: providerUserData.firstName,
-                lastName: providerUserData.lastName,
-                profileImage: providerUserData.profileImage,
-                phone: providerUserData.phone,
-                rating: providerBusinessData.rating || 0,
-                totalJobs: providerBusinessData.totalJobs || 0,
-              },
-            });
-          }
-        } catch (error) {
-          console.error(
-            `Error fetching provider for service request ${serviceRequest.id}:`,
-            error
-          );
-        }
-      }
-
-      return serviceRequestsWithProvider;
-    } catch (error) {
-      console.error("Error getting service requests with provider:", error);
-      throw new Error("Failed to get service requests with provider");
-    }
-  }
-
-  /**
-   * Get service requests with customer information
-   */
-  static async getServiceRequestsWithCustomer(
-    filters: ServiceRequestFilters = {}
-  ): Promise<ServiceRequestWithCustomer[]> {
-    try {
-      const serviceRequests = await this.getServiceRequests(filters);
-      const serviceRequestsWithCustomer: ServiceRequestWithCustomer[] = [];
-
-      for (const serviceRequest of serviceRequests) {
-        try {
-          const customerDoc = await getDoc(
-            doc(db, USERS_COLLECTION, serviceRequest.customerId)
-          );
-          if (customerDoc.exists()) {
-            const customerData = customerDoc.data();
-            serviceRequestsWithCustomer.push({
-              serviceRequest,
-              customer: {
-                id: serviceRequest.customerId,
-                firstName: customerData.firstName,
-                lastName: customerData.lastName,
-                profileImage: customerData.profileImage,
-                phone: customerData.phone,
-              },
-            });
-          }
-        } catch (error) {
-          console.error(
-            `Error fetching customer for service request ${serviceRequest.id}:`,
-            error
-          );
-        }
-      }
-
-      return serviceRequestsWithCustomer;
-    } catch (error) {
-      console.error("Error getting service requests with customer:", error);
-      throw new Error("Failed to get service requests with customer");
-    }
-  }
-
-  /**
    * Delete a service request (for cancellations)
    */
   static async deleteServiceRequest(id: string): Promise<void> {
@@ -471,6 +322,205 @@ export class ServiceRequestService {
     } catch (error) {
       console.error("Error getting provider ratings:", error);
       throw new Error("Failed to get provider ratings");
+    }
+  }
+
+  /**
+   * Get service requests with provider information (paginated)
+   */
+  static async getServiceRequestsWithProviderPaginated(
+    filters: ServiceRequestFilters = {},
+    pageSize: number = 15,
+    lastDoc?: QueryDocumentSnapshot<DocumentData>
+  ): Promise<{
+    data: ServiceRequestWithProvider[];
+    lastDoc: QueryDocumentSnapshot<DocumentData> | null;
+    hasMore: boolean;
+  }> {
+    try {
+      let q = query(collection(db, SERVICE_REQUESTS_COLLECTION));
+
+      // Apply filters
+      if (filters.customerId) {
+        q = query(q, where("customerId", "==", filters.customerId));
+      }
+      if (filters.status) {
+        if (Array.isArray(filters.status)) {
+          q = query(q, where("status", "in", filters.status));
+        } else {
+          q = query(q, where("status", "==", filters.status));
+        }
+      }
+
+      // Order and pagination
+      q = query(q, orderBy("createdAt", "desc"), limit(pageSize));
+
+      if (lastDoc) {
+        q = query(q, startAfter(lastDoc));
+      }
+
+      const querySnapshot = await getDocs(q);
+      const serviceRequestsWithProvider: ServiceRequestWithProvider[] = [];
+
+      for (const docSnap of querySnapshot.docs) {
+        try {
+          const data = docSnap.data();
+          const serviceRequest: ServiceRequest = {
+            id: docSnap.id,
+            ...data,
+            createdAt: data.createdAt?.toDate() || new Date(),
+            acceptedAt: data.acceptedAt?.toDate(),
+            rejectedAt: data.rejectedAt?.toDate(),
+            confirmedAt: data.confirmedAt?.toDate(),
+            startedAt: data.startedAt?.toDate(),
+            completedAt: data.completedAt?.toDate(),
+            cancelledAt: data.cancelledAt?.toDate(),
+            expiredAt: data.expiredAt?.toDate(),
+            noShowAt: data.noShowAt?.toDate(),
+            noShowReason: data.noShowReason,
+          } as ServiceRequest;
+
+          // Get provider profile data from users collection
+          const providerUserDoc = await getDoc(
+            doc(db, USERS_COLLECTION, serviceRequest.providerId)
+          );
+
+          // Get provider business data from serviceProviders collection
+          const providerBusinessDoc = await getDoc(
+            doc(db, SERVICE_PROVIDERS_COLLECTION, serviceRequest.providerId)
+          );
+
+          if (providerUserDoc.exists()) {
+            const providerUserData = providerUserDoc.data();
+            const providerBusinessData = providerBusinessDoc.exists()
+              ? providerBusinessDoc.data()
+              : {};
+
+            serviceRequestsWithProvider.push({
+              serviceRequest,
+              provider: {
+                id: serviceRequest.providerId,
+                firstName: providerUserData.firstName || "",
+                lastName: providerUserData.lastName || "",
+                profileImage: providerUserData.profileImage,
+                phone: providerUserData.phone || "",
+                rating: providerBusinessData.rating || 0,
+                totalJobs: providerBusinessData.totalJobs || 0,
+              },
+            });
+          }
+        } catch (error) {
+          console.error(
+            `Error fetching provider for service request ${docSnap.id}:`,
+            error
+          );
+        }
+      }
+
+      return {
+        data: serviceRequestsWithProvider,
+        lastDoc: querySnapshot.docs[querySnapshot.docs.length - 1] || null,
+        hasMore: querySnapshot.docs.length === pageSize,
+      };
+    } catch (error) {
+      console.error(
+        "Error getting paginated service requests with provider:",
+        error
+      );
+      throw new Error("Failed to get paginated service requests with provider");
+    }
+  }
+
+  /**
+   * Get service requests with customer information (paginated)
+   */
+  static async getServiceRequestsWithCustomerPaginated(
+    filters: ServiceRequestFilters = {},
+    pageSize: number = 15,
+    lastDoc?: QueryDocumentSnapshot<DocumentData>
+  ): Promise<{
+    data: ServiceRequestWithCustomer[];
+    lastDoc: QueryDocumentSnapshot<DocumentData> | null;
+    hasMore: boolean;
+  }> {
+    try {
+      let q = query(collection(db, SERVICE_REQUESTS_COLLECTION));
+
+      // Apply filters
+      if (filters.providerId) {
+        q = query(q, where("providerId", "==", filters.providerId));
+      }
+      if (filters.status) {
+        if (Array.isArray(filters.status)) {
+          q = query(q, where("status", "in", filters.status));
+        } else {
+          q = query(q, where("status", "==", filters.status));
+        }
+      }
+
+      // Order and pagination
+      q = query(q, orderBy("createdAt", "desc"), limit(pageSize));
+
+      if (lastDoc) {
+        q = query(q, startAfter(lastDoc));
+      }
+
+      const querySnapshot = await getDocs(q);
+      const serviceRequestsWithCustomer: ServiceRequestWithCustomer[] = [];
+
+      for (const docSnap of querySnapshot.docs) {
+        try {
+          const data = docSnap.data();
+          const serviceRequest: ServiceRequest = {
+            id: docSnap.id,
+            ...data,
+            createdAt: data.createdAt?.toDate() || new Date(),
+            acceptedAt: data.acceptedAt?.toDate(),
+            rejectedAt: data.rejectedAt?.toDate(),
+            confirmedAt: data.confirmedAt?.toDate(),
+            startedAt: data.startedAt?.toDate(),
+            completedAt: data.completedAt?.toDate(),
+            cancelledAt: data.cancelledAt?.toDate(),
+            expiredAt: data.expiredAt?.toDate(),
+            noShowAt: data.noShowAt?.toDate(),
+            noShowReason: data.noShowReason,
+          } as ServiceRequest;
+
+          const customerDoc = await getDoc(
+            doc(db, USERS_COLLECTION, serviceRequest.customerId)
+          );
+          if (customerDoc.exists()) {
+            const customerData = customerDoc.data();
+            serviceRequestsWithCustomer.push({
+              serviceRequest,
+              customer: {
+                id: serviceRequest.customerId,
+                firstName: customerData.firstName || "",
+                lastName: customerData.lastName || "",
+                profileImage: customerData.profileImage,
+                phone: customerData.phone || "",
+              },
+            });
+          }
+        } catch (error) {
+          console.error(
+            `Error fetching customer for service request ${docSnap.id}:`,
+            error
+          );
+        }
+      }
+
+      return {
+        data: serviceRequestsWithCustomer,
+        lastDoc: querySnapshot.docs[querySnapshot.docs.length - 1] || null,
+        hasMore: querySnapshot.docs.length === pageSize,
+      };
+    } catch (error) {
+      console.error(
+        "Error getting paginated service requests with customer:",
+        error
+      );
+      throw new Error("Failed to get paginated service requests with customer");
     }
   }
 }

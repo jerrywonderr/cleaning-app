@@ -1,30 +1,22 @@
-import {
-  collection,
-  DocumentData,
-  getDocs,
-  limit,
-  orderBy,
-  query,
-  QueryDocumentSnapshot,
-  startAfter,
-  where,
-} from "firebase/firestore";
+import { DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
 import { useCallback, useState } from "react";
-import { db } from "../firebase/config";
-import { ServiceRequest } from "../types/service-request";
+import { ServiceRequestService } from "../services/serviceRequestService";
+import {
+  ServiceRequestStatus,
+  ServiceRequestWithCustomer,
+  ServiceRequestWithProvider,
+} from "../types/service-request";
 
 const REQUESTS_PER_PAGE = 15;
 
-interface ServiceRequestWithDetails {
-  serviceRequest: ServiceRequest;
-  provider?: any;
-  customer?: any;
-}
+type ServiceRequestWithDetails =
+  | ServiceRequestWithProvider
+  | ServiceRequestWithCustomer;
 
 export function useServiceRequestsPaginated(
   userId: string,
   userType: "customer" | "provider",
-  status: string | string[]
+  status: ServiceRequestStatus | ServiceRequestStatus[]
 ) {
   const [requests, setRequests] = useState<ServiceRequestWithDetails[]>([]);
   const [lastDoc, setLastDoc] =
@@ -47,98 +39,32 @@ export function useServiceRequestsPaginated(
       }
 
       try {
-        const requestsRef = collection(db, "serviceRequests");
-        const userField = userType === "customer" ? "customerId" : "providerId";
+        const filters =
+          userType === "customer"
+            ? { customerId: userId, status }
+            : { providerId: userId, status };
 
-        let q = query(
-          requestsRef,
-          where(userField, "==", userId),
-          orderBy("createdAt", "desc"),
-          limit(REQUESTS_PER_PAGE)
-        );
-
-        if (Array.isArray(status)) {
-          q = query(
-            requestsRef,
-            where(userField, "==", userId),
-            where("status", "in", status),
-            orderBy("createdAt", "desc"),
-            limit(REQUESTS_PER_PAGE)
-          );
-        } else {
-          q = query(
-            requestsRef,
-            where(userField, "==", userId),
-            where("status", "==", status),
-            orderBy("createdAt", "desc"),
-            limit(REQUESTS_PER_PAGE)
-          );
-        }
-
-        if (!reset && lastDoc) {
-          q = query(
-            requestsRef,
-            where(userField, "==", userId),
-            Array.isArray(status)
-              ? where("status", "in", status)
-              : where("status", "==", status),
-            orderBy("createdAt", "desc"),
-            startAfter(lastDoc),
-            limit(REQUESTS_PER_PAGE)
-          );
-        }
-
-        const snapshot = await getDocs(q);
-
-        if (snapshot.empty) {
-          setHasMore(false);
-          setIsLoading(false);
-          setIsLoadingMore(false);
-          if (reset) setRequests([]);
-          return;
-        }
-
-        const newRequests: ServiceRequestWithDetails[] = [];
-
-        for (const doc of snapshot.docs) {
-          const requestData = { id: doc.id, ...doc.data() } as ServiceRequest;
-
-          let detailsData: any = null;
-          const detailsField =
-            userType === "customer"
-              ? requestData.providerId
-              : requestData.customerId;
-
-          if (detailsField) {
-            const usersRef = collection(db, "users");
-            const userQuery = query(
-              usersRef,
-              where("__name__", "==", detailsField)
-            );
-            const userSnapshot = await getDocs(userQuery);
-
-            if (!userSnapshot.empty) {
-              detailsData = {
-                id: userSnapshot.docs[0].id,
-                ...userSnapshot.docs[0].data(),
-              };
-            }
-          }
-
-          newRequests.push({
-            serviceRequest: requestData,
-            [userType === "customer" ? "provider" : "customer"]: detailsData,
-          });
-        }
+        const result =
+          userType === "customer"
+            ? await ServiceRequestService.getServiceRequestsWithProviderPaginated(
+                filters,
+                REQUESTS_PER_PAGE,
+                !reset && lastDoc ? lastDoc : undefined
+              )
+            : await ServiceRequestService.getServiceRequestsWithCustomerPaginated(
+                filters,
+                REQUESTS_PER_PAGE,
+                !reset && lastDoc ? lastDoc : undefined
+              );
 
         if (reset) {
-          setRequests(newRequests);
+          setRequests(result.data);
         } else {
-          setRequests((prev) => [...prev, ...newRequests]);
+          setRequests((prev) => [...prev, ...result.data]);
         }
 
-        setLastDoc(snapshot.docs[snapshot.docs.length - 1]);
-        setHasMore(snapshot.docs.length === REQUESTS_PER_PAGE);
+        setLastDoc(result.lastDoc);
+        setHasMore(result.hasMore);
         setError(null);
       } catch (err) {
         console.error("Error loading service requests:", err);
@@ -175,28 +101,28 @@ export function useServiceRequestsPaginated(
 
 export function useCustomerProposalsByStatus(
   customerId: string,
-  status: "pending" | "accepted"
+  status: ServiceRequestStatus
 ) {
   return useServiceRequestsPaginated(customerId, "customer", status);
 }
 
 export function useCustomerAppointmentsByStatus(
   customerId: string,
-  status: "confirmed" | "in-progress" | "completed" | ["cancelled", "no-show"]
+  status: ServiceRequestStatus | ServiceRequestStatus[]
 ) {
   return useServiceRequestsPaginated(customerId, "customer", status);
 }
 
 export function useProviderProposalsByStatus(
   providerId: string,
-  status: "pending" | "accepted"
+  status: ServiceRequestStatus
 ) {
   return useServiceRequestsPaginated(providerId, "provider", status);
 }
 
 export function useProviderAppointmentsByStatus(
   providerId: string,
-  status: "confirmed" | "in-progress" | "completed" | ["cancelled", "no-show"]
+  status: ServiceRequestStatus | ServiceRequestStatus[]
 ) {
   return useServiceRequestsPaginated(providerId, "provider", status);
 }

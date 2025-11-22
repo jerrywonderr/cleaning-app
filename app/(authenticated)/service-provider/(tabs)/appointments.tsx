@@ -6,6 +6,7 @@ import { Text } from "@/lib/components/ui/text";
 import AppointmentItem from "@/lib/features/appointments/AppointmentItem";
 import { useUserType } from "@/lib/hooks/useAuth";
 import { useProviderAppointmentsByStatus } from "@/lib/hooks/useServiceRequestsPaginated";
+import { ServiceRequestWithCustomer } from "@/lib/types/service-request";
 import { FlashList } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
 import { Calendar } from "lucide-react-native";
@@ -49,6 +50,7 @@ export default function AppointmentsScreen() {
     if (profile?.id) {
       loadInitial();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.id, activeTab]);
 
   const handleRefresh = () => {
@@ -153,7 +155,7 @@ export default function AppointmentsScreen() {
           </Box>
         ) : serviceRequests.length > 0 ? (
           <FlashList
-            data={serviceRequests}
+            data={serviceRequests as ServiceRequestWithCustomer[]}
             keyExtractor={(item) => item.serviceRequest.id}
             estimatedItemSize={100}
             renderItem={({ item: { serviceRequest, customer } }) => {

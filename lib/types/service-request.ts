@@ -135,7 +135,7 @@ export interface CreateRatingData {
 export interface ServiceRequestFilters {
   customerId?: string;
   providerId?: string;
-  status?: ServiceRequestStatus;
+  status?: ServiceRequestStatus | ServiceRequestStatus[];
   serviceType?: string;
   dateFrom?: Date;
   dateTo?: Date;
