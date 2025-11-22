@@ -193,92 +193,142 @@ export default function ProvisionAccountScreen() {
     <ScrollableScreen addTopInset={false}>
       <Box className="flex-1">
         <VStack className="gap-6 my-4">
-          <Box className="items-center gap-4">
-            {/* <Box className="w-20 h-20 bg-brand-100 rounded-full items-center justify-center">
-              <Icon as={Wallet} size="xl" className="text-brand-600" />
-            </Box> */}
-            {/* <Text className="text-xl font-inter-bold text-black text-center">
-              Set Up Stripe Connect Account
-            </Text> */}
-            <Text className="text-sm text-gray-600 leading-5">
-              Set up your Stripe Connect account to receive payments from
-              customers directly to your bank account.
-            </Text>
-          </Box>
+          {isAccountFullySetup ? (
+            // Account is fully set up - Show success state
+            <>
+              <Box className="items-center gap-4">
+                <Box className="w-20 h-20 bg-green-100 rounded-full items-center justify-center">
+                  <Text className="text-4xl">✓</Text>
+                </Box>
+                <Text className="text-xl font-inter-bold text-black text-center">
+                  Account Ready
+                </Text>
+                <Text className="text-sm text-gray-600 text-center leading-5">
+                  Your Stripe Connect account is fully set up and ready to
+                  receive payments!
+                </Text>
+              </Box>
 
-          <Box className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-            <VStack className="gap-2">
-              <Text className="text-sm font-inter-medium text-blue-800">
-                What happens next?
-              </Text>
-              <Text className="text-xs text-blue-700 leading-4">
-                • We&apos;ll create your Stripe Connect account
-              </Text>
-              <Text className="text-xs text-blue-700 leading-4">
-                • You&apos;ll complete onboarding with Stripe
-              </Text>
-              <Text className="text-xs text-blue-700 leading-4">
-                • You&apos;ll receive payments directly to your bank account
-              </Text>
-              <Text className="text-xs text-blue-700 leading-4">
-                • Daily payouts for better cash flow
-              </Text>
-            </VStack>
-          </Box>
+              <Box className="bg-green-50 rounded-lg p-4 border border-green-200">
+                <VStack className="gap-2">
+                  <Text className="text-sm font-inter-medium text-green-800">
+                    You&apos;re all set! 🎉
+                  </Text>
+                  <Text className="text-xs text-green-700 leading-4">
+                    ✓ Receive payments directly to your bank account
+                  </Text>
+                  <Text className="text-xs text-green-700 leading-4">
+                    ✓ Daily payouts for better cash flow
+                  </Text>
+                  <Text className="text-xs text-green-700 leading-4">
+                    ✓ Track your earnings and transactions
+                  </Text>
+                </VStack>
+              </Box>
 
-          <VStack className="gap-3">
-            {!isAccountFullySetup && (
-              <PrimaryButton
-                onPress={handleSetupStripeConnect}
-                disabled={isSettingUpStripeAccount}
-                icon={Banknote}
-              >
-                {isSettingUpStripeAccount
-                  ? "Setting up account..."
-                  : "Set Up Stripe Connect"}
-              </PrimaryButton>
-            )}
+              <VStack className="gap-3">
+                <PrimaryButton
+                  onPress={() =>
+                    router.push("/service-provider/account/balance")
+                  }
+                  icon={Banknote}
+                >
+                  View Balance & Transactions
+                </PrimaryButton>
 
-            {!isAccountFullySetup && (
-              <PrimaryOutlineButton
-                onPress={handleGetOnboardingUrl}
-                disabled={isLoadingOnboardingUrl}
-                icon={ExternalLink}
-              >
-                {isLoadingOnboardingUrl
-                  ? "Getting onboarding URL..."
-                  : "Get Onboarding URL"}
-              </PrimaryOutlineButton>
-            )}
+                <PrimaryOutlineButton
+                  onPress={handleCheckStatus}
+                  disabled={isCheckingStatus}
+                >
+                  {isCheckingStatus ? "Checking..." : "Check Account Status"}
+                </PrimaryOutlineButton>
 
-            <PrimaryOutlineButton
-              onPress={handleCheckStatus}
-              disabled={isCheckingStatus}
-            >
-              {isCheckingStatus
-                ? "Reloading status..."
-                : "Reload Account Status"}
-            </PrimaryOutlineButton>
+                <Text className="text-xs text-gray-500 text-center mt-2">
+                  Powered by Stripe for secure payment processing
+                </Text>
+              </VStack>
+            </>
+          ) : (
+            // Account not set up yet - Show setup state
+            <>
+              <Box className="items-center gap-4">
+                <Text className="text-sm text-gray-600 leading-5">
+                  Set up your Stripe Connect account to receive payments from
+                  customers directly to your bank account.
+                </Text>
+              </Box>
 
-            {onboardingUrl && (
-              <PrimaryOutlineButton
-                onPress={handleCompleteOnboarding}
-                icon={ExternalLink}
-              >
-                Complete Onboarding
-              </PrimaryOutlineButton>
-            )}
+              <Box className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                <VStack className="gap-2">
+                  <Text className="text-sm font-inter-medium text-blue-800">
+                    What happens next?
+                  </Text>
+                  <Text className="text-xs text-blue-700 leading-4">
+                    • We&apos;ll create your Stripe Connect account
+                  </Text>
+                  <Text className="text-xs text-blue-700 leading-4">
+                    • You&apos;ll complete onboarding with Stripe
+                  </Text>
+                  <Text className="text-xs text-blue-700 leading-4">
+                    • You&apos;ll receive payments directly to your bank account
+                  </Text>
+                  <Text className="text-xs text-blue-700 leading-4">
+                    • Daily payouts for better cash flow
+                  </Text>
+                </VStack>
+              </Box>
 
-            {accountStatus && (
-              <Text className="text-sm text-gray-600 text-center">
-                Current Status: {accountStatus}
-              </Text>
-            )}
+              <VStack className="gap-3">
+                <PrimaryButton
+                  onPress={handleSetupStripeConnect}
+                  disabled={isSettingUpStripeAccount}
+                  icon={Banknote}
+                >
+                  {isSettingUpStripeAccount
+                    ? "Setting up account..."
+                    : "Set Up Stripe Connect"}
+                </PrimaryButton>
 
-            <Text className="text-xs text-gray-500 text-center">
-              Powered by Stripe for secure payment processing
-            </Text>
-          </VStack>
+                <PrimaryOutlineButton
+                  onPress={handleGetOnboardingUrl}
+                  disabled={isLoadingOnboardingUrl}
+                  icon={ExternalLink}
+                >
+                  {isLoadingOnboardingUrl
+                    ? "Getting onboarding URL..."
+                    : "Get Onboarding URL"}
+                </PrimaryOutlineButton>
+
+                <PrimaryOutlineButton
+                  onPress={handleCheckStatus}
+                  disabled={isCheckingStatus}
+                >
+                  {isCheckingStatus
+                    ? "Reloading status..."
+                    : "Reload Account Status"}
+                </PrimaryOutlineButton>
+
+                {onboardingUrl && (
+                  <PrimaryOutlineButton
+                    onPress={handleCompleteOnboarding}
+                    icon={ExternalLink}
+                  >
+                    Complete Onboarding
+                  </PrimaryOutlineButton>
+                )}
+
+                {accountStatus && (
+                  <Text className="text-sm text-gray-600 text-center">
+                    Current Status: {accountStatus}
+                  </Text>
+                )}
+
+                <Text className="text-xs text-gray-500 text-center">
+                  Powered by Stripe for secure payment processing
+                </Text>
+              </VStack>
+            </>
+          )}
         </VStack>
       </Box>
     </ScrollableScreen>
