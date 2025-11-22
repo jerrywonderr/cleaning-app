@@ -27,8 +27,10 @@ export const ProviderItem = ({
     <Pressable onPress={onSelect}>
       <VStack
         className={cn(
-          "gap-5 p-4 bg-white",
-          isSelected && "border border-brand-50 rounded-2xl"
+          "gap-5 p-4 bg-white border-2",
+          isSelected
+            ? "border-brand-500 bg-brand-50 rounded-2xl"
+            : "border-transparent"
         )}
       >
         <HStack className="gap-4">
@@ -105,10 +107,13 @@ export const ProviderItem = ({
         </HStack>
 
         <Pressable
-          onPress={onViewProfile}
-          className="items-center justify-center pt-2"
+          onPress={(e) => {
+            e.stopPropagation();
+            onViewProfile();
+          }}
+          className="items-center justify-center py-2 px-4 bg-brand-100 rounded-lg"
         >
-          <Text className="text-brand-600 text-sm font-inter-medium">
+          <Text className="text-brand-600 text-sm font-inter-semibold">
             View Profile
           </Text>
         </Pressable>

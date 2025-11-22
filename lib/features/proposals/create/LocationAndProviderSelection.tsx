@@ -29,42 +29,87 @@ export const LocationAndProviderSelection = ({
   const [providers, setProviders] = useState<ServiceProviderResult[]>([]);
   const [selectedProviderForProfile, setSelectedProviderForProfile] =
     useState<ServiceProviderResult | null>(null);
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [totalProviders, setTotalProviders] = useState(0);
 
   const addressRef = useRef<AddressFieldRef>(null);
   const profileSheetRef = useRef<any>(null);
 
-  useEffect(() => {
-    const fetchProviders = async () => {
-      if (!serviceId || !selectedLocation) return;
-      try {
-        clearErrors("providerId");
+  const fetchProviders = async (isRefresh = false) => {
+    if (!serviceId || !selectedLocation) return;
+
+    const currentOffset = isRefresh ? 0 : offset;
+
+    try {
+      clearErrors("providerId");
+      if (isRefresh) {
         showLoader("Finding service providers...");
-        const results = await searchServiceProviders(serviceId, {
-          latitude: selectedLocation.latitude,
-          longitude: selectedLocation.longitude,
-        });
-        setProviders(results as ServiceProviderResult[]);
-        // Auto-clear previous selection if no longer in list
-        if (
-          selectedProvider &&
-          !(results as ServiceProviderResult[]).some(
-            (p) => p.id === selectedProvider
-          )
-        ) {
-          setValue("providerId", "");
-        }
-      } catch (err) {
-        console.error("Error fetching providers:", err);
-        setError("providerId", {
-          type: "manual",
-          message: "Failed to load service providers. Please try again.",
-        });
-      } finally {
-        hideLoader();
+      } else if (!isRefresh && currentOffset === 0) {
+        showLoader("Finding service providers...");
+      } else {
+        setIsLoadingMore(true);
       }
-    };
-    fetchProviders();
+
+      const response = await searchServiceProviders(serviceId, {
+        latitude: selectedLocation.latitude,
+        longitude: selectedLocation.longitude,
+        limit: 20,
+        offset: currentOffset,
+      });
+
+      const results = (response as any).providers || [];
+      const total = (response as any).total || 0;
+
+      if (isRefresh) {
+        setProviders(results);
+        setOffset(20);
+      } else {
+        setProviders((prev) =>
+          currentOffset === 0 ? results : [...prev, ...results]
+        );
+        setOffset(currentOffset + results.length);
+      }
+
+      setTotalProviders(total);
+      setHasMore(currentOffset + results.length < total);
+
+      // Auto-clear previous selection if no longer in list
+      if (
+        selectedProvider &&
+        !results.some((p: ServiceProviderResult) => p.id === selectedProvider)
+      ) {
+        setValue("providerId", "");
+      }
+    } catch (err) {
+      console.error("Error fetching providers:", err);
+      setError("providerId", {
+        type: "manual",
+        message: "Failed to load service providers. Please try again.",
+      });
+    } finally {
+      hideLoader();
+      setIsLoadingMore(false);
+    }
+  };
+
+  useEffect(() => {
+    setProviders([]);
+    setOffset(0);
+    setHasMore(true);
+    fetchProviders(false);
   }, [serviceId, selectedLocation?.latitude, selectedLocation?.longitude]);
+
+  const handleLoadMore = () => {
+    if (hasMore && !isLoadingMore) {
+      fetchProviders(false);
+    }
+  };
+
+  const handleRefresh = () => {
+    fetchProviders(true);
+  };
 
   const handleProviderSelect = (providerId: string) => {
     setValue("providerId", providerId);
@@ -113,6 +158,11 @@ export const LocationAndProviderSelection = ({
             onViewProfile={handleViewProfile}
             serviceId={serviceId}
             error={formState.errors.providerId?.message}
+            onLoadMore={handleLoadMore}
+            onRefresh={handleRefresh}
+            hasMore={hasMore}
+            isLoadingMore={isLoadingMore}
+            isRefreshing={false}
           />
         </VStack>
       )}

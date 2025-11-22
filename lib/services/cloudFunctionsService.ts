@@ -48,7 +48,12 @@ export class CloudFunctionsService {
   // Search for service providers
   static async searchServiceProviders(
     serviceType: string,
-    location: { latitude: number; longitude: number }
+    location: {
+      latitude: number;
+      longitude: number;
+      limit?: number;
+      offset?: number;
+    }
   ) {
     try {
       const searchProvidersFunction = httpsCallable(
@@ -57,7 +62,12 @@ export class CloudFunctionsService {
       );
       const result = await searchProvidersFunction({
         serviceType,
-        location,
+        location: {
+          latitude: location.latitude,
+          longitude: location.longitude,
+        },
+        limit: location.limit,
+        offset: location.offset,
       });
       return result.data;
     } catch (error) {
