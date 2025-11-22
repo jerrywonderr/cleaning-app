@@ -1,11 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { doc, serverTimestamp, updateDoc } from "firebase/firestore";
+import geohash from "ngeohash";
+import { db } from "../firebase/config";
 import { FirebaseFirestoreService } from "../firebase/firestore";
-import { updateServiceProviderSettings } from "../services/cloudFunctionsService";
 import { useUserStore } from "../store/useUserStore";
 import {
   ServiceAreaData,
   UpdateServiceProviderProfileData,
-  UpdateServiceProviderRequest,
   WorkingSchedule,
 } from "../types/service-config";
 
@@ -25,19 +26,39 @@ export const useServiceProvider = () => {
   });
 
   const updateProfileMutation = useMutation({
-    mutationFn: (data: UpdateServiceProviderProfileData) => {
-      const request: UpdateServiceProviderRequest = {
-        userId: profile?.id!,
-        providerData: {
-          services: data.services || serviceProviderProfile?.services!,
-          extraOptions:
-            data.extraOptions || serviceProviderProfile?.extraOptions!,
-          workingPreferences:
-            data.workingPreferences ||
-            serviceProviderProfile?.workingPreferences,
-        },
-      };
-      return updateServiceProviderSettings(request);
+    mutationFn: async (data: UpdateServiceProviderProfileData) => {
+      if (!profile?.id) throw new Error("User ID required");
+
+      let workingPreferences =
+        data.workingPreferences || serviceProviderProfile?.workingPreferences;
+
+      // Generate geohash if service area is provided
+      if (workingPreferences?.serviceArea) {
+        const { latitude, longitude } =
+          workingPreferences.serviceArea.coordinates;
+        const hash = geohash.encode(latitude, longitude, 7);
+
+        workingPreferences = {
+          ...workingPreferences,
+          serviceArea: {
+            ...workingPreferences.serviceArea,
+            geohash: hash,
+          },
+        };
+      }
+
+      const providerRef = doc(db, "serviceProviders", profile.id);
+      const services = data.services || serviceProviderProfile?.services!;
+      const extraOptions =
+        data.extraOptions || serviceProviderProfile?.extraOptions!;
+
+      await updateDoc(providerRef, {
+        services,
+        extraOptions,
+        workingPreferences,
+        isActive: Object.values(services).some((service) => service),
+        updatedAt: serverTimestamp(),
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -47,19 +68,21 @@ export const useServiceProvider = () => {
   });
 
   const updateServiceAreaMutation = useMutation({
-    mutationFn: (serviceArea: ServiceAreaData) => {
-      const request: UpdateServiceProviderRequest = {
-        userId: profile?.id!,
-        providerData: {
-          services: serviceProviderProfile?.services!,
-          extraOptions: serviceProviderProfile?.extraOptions!,
-          workingPreferences: {
-            ...serviceProviderProfile?.workingPreferences,
-            serviceArea,
-          },
+    mutationFn: async (serviceArea: ServiceAreaData) => {
+      if (!profile?.id) throw new Error("User ID required");
+
+      // Generate geohash for the service area
+      const { latitude, longitude } = serviceArea.coordinates;
+      const hash = geohash.encode(latitude, longitude, 7);
+
+      const providerRef = doc(db, "serviceProviders", profile.id);
+      await updateDoc(providerRef, {
+        "workingPreferences.serviceArea": {
+          ...serviceArea,
+          geohash: hash,
         },
-      };
-      return updateServiceProviderSettings(request);
+        updatedAt: serverTimestamp(),
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -69,19 +92,14 @@ export const useServiceProvider = () => {
   });
 
   const updateWorkingScheduleMutation = useMutation({
-    mutationFn: (workingSchedule: WorkingSchedule) => {
-      const request: UpdateServiceProviderRequest = {
-        userId: profile?.id!,
-        providerData: {
-          services: serviceProviderProfile?.services!,
-          extraOptions: serviceProviderProfile?.extraOptions!,
-          workingPreferences: {
-            ...serviceProviderProfile?.workingPreferences,
-            workingSchedule,
-          },
-        },
-      };
-      return updateServiceProviderSettings(request);
+    mutationFn: async (workingSchedule: WorkingSchedule) => {
+      if (!profile?.id) throw new Error("User ID required");
+
+      const providerRef = doc(db, "serviceProviders", profile.id);
+      await updateDoc(providerRef, {
+        "workingPreferences.workingSchedule": workingSchedule,
+        updatedAt: serverTimestamp(),
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({

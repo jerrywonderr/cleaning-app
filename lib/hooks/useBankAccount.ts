@@ -1,17 +1,27 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import {
+  collection,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  QueryDocumentSnapshot,
+  startAfter,
+  where,
+} from "firebase/firestore";
 import { getFunctions, httpsCallable } from "firebase/functions";
+import { db } from "../firebase/config";
 import { FirebaseFirestoreService } from "../firebase/firestore";
 import { useUserStore } from "../store/useUserStore";
 import {
-  CreateBankAccountData,
-  CreatePayoutAccountData,
-  CreateTransactionPinData,
-  DeletePayoutAccountData,
-  SetDefaultPayoutAccountData,
   StripeAccountSetupData,
   StripeAccountSetupResponse,
   StripeAccountStatusResponse,
-  UpdateTransactionPinData,
 } from "../types/bank-account";
 
 export const useBankAccount = () => {
@@ -28,39 +38,6 @@ export const useBankAccount = () => {
     queryKey: ["stripeConnectAccount", profile?.id],
     queryFn: () =>
       FirebaseFirestoreService.getStripeConnectAccount(profile?.id!),
-    enabled: !!profile?.id,
-  });
-
-  // Bank Account queries (legacy - keeping for backward compatibility)
-  const {
-    data: bankAccount,
-    isLoading: isLoadingBankAccount,
-    error: bankAccountError,
-  } = useQuery({
-    queryKey: ["bankAccount", profile?.id],
-    queryFn: () => FirebaseFirestoreService.getBankAccount(profile?.id!),
-    enabled: !!profile?.id,
-  });
-
-  // Payout Accounts queries - now supports multiple accounts
-  const {
-    data: payoutAccounts,
-    isLoading: isLoadingPayoutAccounts,
-    error: payoutAccountsError,
-  } = useQuery({
-    queryKey: ["payoutAccounts", profile?.id],
-    queryFn: () => FirebaseFirestoreService.getPayoutAccounts(profile?.id!),
-    enabled: !!profile?.id,
-  });
-
-  // Transaction Pin queries
-  const {
-    data: transactionPin,
-    isLoading: isLoadingTransactionPin,
-    error: transactionPinError,
-  } = useQuery({
-    queryKey: ["transactionPin", profile?.id],
-    queryFn: () => FirebaseFirestoreService.getTransactionPin(profile?.id!),
     enabled: !!profile?.id,
   });
 
@@ -117,16 +94,40 @@ export const useBankAccount = () => {
       },
     });
 
-  // Customer Payment History
-  const {
-    mutateAsync: getCustomerPaymentHistory,
-    isPending: isLoadingPaymentHistory,
-  } = useMutation({
-    mutationFn: async (params?: { limit?: number; startAfterId?: string }) => {
-      const getHistory = httpsCallable(functions, "getCustomerPaymentHistory");
-      const result = await getHistory(params || {});
-      return result.data;
+  // Customer Payment History - Direct Firestore Query
+  const paymentHistoryQuery = useInfiniteQuery({
+    queryKey: ["paymentHistory", profile?.id],
+    queryFn: async ({ pageParam }) => {
+      if (!profile?.id) throw new Error("User ID required");
+
+      const paymentsRef = collection(db, "paymentHistory");
+      let q = query(
+        paymentsRef,
+        where("customerId", "==", profile.id),
+        orderBy("createdAt", "desc"),
+        limit(25)
+      );
+
+      if (pageParam) {
+        q = query(q, startAfter(pageParam));
+      }
+
+      const snap = await getDocs(q);
+      const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      const lastDoc = snap.docs[snap.docs.length - 1] || null;
+      const hasMore = snap.docs.length === 25;
+
+      return { items, lastDoc, hasMore };
     },
+    initialPageParam: null as QueryDocumentSnapshot | null,
+    getNextPageParam: (lastPage: {
+      items: any[];
+      lastDoc: QueryDocumentSnapshot | null;
+      hasMore: boolean;
+    }) => (lastPage.hasMore && lastPage.lastDoc ? lastPage.lastDoc : null),
+    enabled: !!profile?.id,
+    staleTime: 1000 * 60 * 3, // 3 minutes
+    gcTime: 1000 * 60 * 10, // 10 minutes
   });
 
   // Provider Stripe Balance
@@ -164,85 +165,6 @@ export const useBankAccount = () => {
     },
   });
 
-  // Bank Account mutations (legacy)
-  const { mutateAsync: createBankAccount, isPending: isCreatingBankAccount } =
-    useMutation({
-      mutationFn: (data: CreateBankAccountData) =>
-        FirebaseFirestoreService.createBankAccount(data.userId, data),
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: ["bankAccount", profile?.id],
-        });
-      },
-    });
-
-  // Payout Account mutations
-  const {
-    mutateAsync: createPayoutAccount,
-    isPending: isCreatingPayoutAccount,
-  } = useMutation({
-    mutationFn: (data: CreatePayoutAccountData) =>
-      FirebaseFirestoreService.createPayoutAccount(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["payoutAccounts", profile?.id],
-      });
-    },
-  });
-
-  const {
-    mutateAsync: deletePayoutAccount,
-    isPending: isDeletingPayoutAccount,
-  } = useMutation({
-    mutationFn: (data: DeletePayoutAccountData) =>
-      FirebaseFirestoreService.deletePayoutAccount(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["payoutAccounts", profile?.id],
-      });
-    },
-  });
-
-  const {
-    mutateAsync: setDefaultPayoutAccount,
-    isPending: isSettingDefaultPayoutAccount,
-  } = useMutation({
-    mutationFn: (data: SetDefaultPayoutAccountData) =>
-      FirebaseFirestoreService.setDefaultPayoutAccount(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["payoutAccounts", profile?.id],
-      });
-    },
-  });
-
-  // Transaction Pin mutations
-  const {
-    mutateAsync: createTransactionPin,
-    isPending: isCreatingTransactionPin,
-  } = useMutation({
-    mutationFn: (data: CreateTransactionPinData) =>
-      FirebaseFirestoreService.createTransactionPin(profile?.id!, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["transactionPin", profile?.id],
-      });
-    },
-  });
-
-  const {
-    mutateAsync: updateTransactionPin,
-    isPending: isUpdatingTransactionPin,
-  } = useMutation({
-    mutationFn: (data: UpdateTransactionPinData) =>
-      FirebaseFirestoreService.updateTransactionPin(profile?.id!, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["transactionPin", profile?.id],
-      });
-    },
-  });
-
   return {
     // Stripe Connect Account
     stripeConnectAccount,
@@ -254,38 +176,19 @@ export const useBankAccount = () => {
     isLoadingOnboardingUrl,
     checkStripeAccountStatus,
     isCheckingStatus,
-    getCustomerPaymentHistory,
-    isLoadingPaymentHistory,
+    paymentHistory:
+      paymentHistoryQuery.data?.pages.flatMap((page: any) => page.items) || [],
+    isLoadingPaymentHistory: paymentHistoryQuery.isLoading,
+    hasMorePaymentHistory: paymentHistoryQuery.hasNextPage,
+    loadMorePaymentHistory: paymentHistoryQuery.fetchNextPage,
+    isLoadingMorePaymentHistory: paymentHistoryQuery.isFetchingNextPage,
+    refreshPaymentHistory: paymentHistoryQuery.refetch,
+    isRefreshingPaymentHistory:
+      paymentHistoryQuery.isRefetching &&
+      !paymentHistoryQuery.isFetchingNextPage,
     getProviderStripeBalance,
     isLoadingProviderBalance,
     getProviderBalanceTransactions,
     isLoadingBalanceTransactions,
-
-    // Bank Account (legacy)
-    bankAccount,
-    isLoadingBankAccount,
-    bankAccountError,
-    createBankAccount,
-    isCreatingBankAccount,
-
-    // Payout Accounts (multiple)
-    payoutAccounts,
-    isLoadingPayoutAccounts,
-    payoutAccountsError,
-    createPayoutAccount,
-    isCreatingPayoutAccount,
-    deletePayoutAccount,
-    isDeletingPayoutAccount,
-    setDefaultPayoutAccount,
-    isSettingDefaultPayoutAccount,
-
-    // Transaction Pin
-    transactionPin,
-    isLoadingTransactionPin,
-    transactionPinError,
-    createTransactionPin,
-    isCreatingTransactionPin,
-    updateTransactionPin,
-    isUpdatingTransactionPin,
   };
 };

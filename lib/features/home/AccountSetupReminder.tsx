@@ -131,9 +131,7 @@ export default function AccountSetupReminder() {
           <Pressable
             onPress={() =>
               !hasStripeSetup &&
-              router.push(
-                "/service-provider/account/bank-account/provision-account"
-              )
+              router.push("/service-provider/account/provision-account")
             }
             disabled={hasStripeSetup}
           >

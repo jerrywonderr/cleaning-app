@@ -37,9 +37,9 @@ export default function AccountLayout() {
         }}
       />
       <Stack.Screen
-        name="bank-account"
+        name="provision-account"
         options={{
-          headerShown: false,
+          title: "Connect Bank Account",
         }}
       />
       <Stack.Screen

@@ -2,8 +2,16 @@
 import Constants from "expo-constants";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
-import { getFunctions, httpsCallable } from "firebase/functions";
+import {
+  arrayRemove,
+  arrayUnion,
+  doc,
+  serverTimestamp,
+  updateDoc,
+} from "firebase/firestore";
 import { Platform } from "react-native";
+import { auth } from "../firebase/auth";
+import { db } from "../firebase/config";
 
 // Configure notification behavior
 Notifications.setNotificationHandler({
@@ -16,8 +24,6 @@ Notifications.setNotificationHandler({
 });
 
 export class NotificationService {
-  private functions = getFunctions();
-
   async initialize(): Promise<void> {
     try {
       // Request permissions
@@ -104,11 +110,20 @@ export class NotificationService {
 
   private async saveTokenToBackend(token: string): Promise<void> {
     try {
-      const saveToken = httpsCallable(this.functions, "saveFCMToken");
-      await saveToken({ token });
-      console.log("Token saved to backend successfully");
+      const userId = auth.currentUser?.uid;
+      if (!userId) {
+        console.warn("No user logged in, cannot save token");
+        return;
+      }
+
+      const userRef = doc(db, "users", userId);
+      await updateDoc(userRef, {
+        fcmTokens: arrayUnion(token),
+        updatedAt: serverTimestamp(),
+      });
+      console.log("Token saved to Firestore successfully");
     } catch (error) {
-      console.error("Failed to save token to backend:", error);
+      console.error("Failed to save token to Firestore:", error);
     }
   }
 
@@ -156,11 +171,20 @@ export class NotificationService {
 
   async removeToken(): Promise<void> {
     try {
+      const userId = auth.currentUser?.uid;
+      if (!userId) {
+        console.warn("No user logged in, cannot remove token");
+        return;
+      }
+
       const token = await this.getPushToken();
       if (token) {
-        const removeToken = httpsCallable(this.functions, "removeFCMToken");
-        await removeToken({ token });
-        console.log("Token removed from backend");
+        const userRef = doc(db, "users", userId);
+        await updateDoc(userRef, {
+          fcmTokens: arrayRemove(token),
+          updatedAt: serverTimestamp(),
+        });
+        console.log("Token removed from Firestore");
       }
     } catch (error) {
       console.error("Failed to remove token:", error);
