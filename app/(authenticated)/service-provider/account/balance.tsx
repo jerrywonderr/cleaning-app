@@ -169,7 +169,7 @@ export default function BalanceScreen() {
             )}`}
           >
             {item.type === "charge" ? "+" : "-"}
-            {formatAmount(Math.abs(item.amount), item.currency)}
+            {formatAmount(Math.abs(item.net), item.currency)}
           </Text>
         </HStack>
 
@@ -196,32 +196,16 @@ export default function BalanceScreen() {
             </Text>
           </HStack>
 
-          {/* Financial breakdown */}
-          <Box className="bg-gray-50 rounded p-2 mt-1">
-            <VStack className="gap-1">
-              <HStack className="justify-between">
-                <Text className="text-xs text-gray-600">Gross Amount:</Text>
-                <Text className="text-xs text-gray-800">
-                  {formatAmount(item.amount, item.currency)}
-                </Text>
-              </HStack>
-
-              {item.fee > 0 && (
-                <HStack className="justify-between">
-                  <Text className="text-xs text-gray-600">Fee:</Text>
-                  <Text className="text-xs text-red-600">
-                    -{formatAmount(item.fee, item.currency)}
-                  </Text>
-                </HStack>
-              )}
-
-              <HStack className="justify-between border-t border-gray-200 pt-1">
-                <Text className="text-xs font-medium text-gray-700">Net:</Text>
-                <Text className="text-xs font-medium text-green-600">
-                  {formatAmount(item.net, item.currency)}
-                </Text>
-              </HStack>
-            </VStack>
+          {/* Amount received */}
+          <Box className="bg-green-50 rounded p-2 mt-1">
+            <HStack className="justify-between">
+              <Text className="text-xs font-medium text-gray-700">
+                Amount Received:
+              </Text>
+              <Text className="text-xs font-medium text-green-600">
+                {formatAmount(item.net, item.currency)}
+              </Text>
+            </HStack>
           </Box>
         </VStack>
       </VStack>

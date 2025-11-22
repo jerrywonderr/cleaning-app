@@ -12,7 +12,6 @@ import {
 } from "@/lib/constants/service-config";
 import { useServiceProvider } from "@/lib/hooks/useServiceProvider";
 import { useUserStore } from "@/lib/store/useUserStore";
-import { formatCurrency } from "@/lib/utils/formatNaira";
 import { useEffect, useState } from "react";
 import { Alert } from "react-native";
 
@@ -118,18 +117,6 @@ export default function ServicesSettingsScreen() {
     return localExtraOptions.filter((option) => option.isEnabled).length;
   };
 
-  const getTotalPotentialEarnings = () => {
-    const baseEarnings = localServiceConfigs
-      .filter((service) => service.isEnabled)
-      .reduce((total, service) => total + service.perHourPrice, 0);
-
-    const extraEarnings = localExtraOptions
-      .filter((option) => option.isEnabled)
-      .reduce((total, option) => total + option.additionalPrice, 0);
-
-    return baseEarnings + extraEarnings;
-  };
-
   return (
     <ScrollableScreen addTopInset={false}>
       <Box className="flex-1">
@@ -142,16 +129,10 @@ export default function ServicesSettingsScreen() {
 
           <Box className="bg-brand-50 rounded-lg p-4 border border-brand-200">
             <VStack className="gap-2">
-              {/* <Text className="text-sm font-inter-medium text-brand-800">
-                Service Summary
-              </Text> */}
               <HStack className="justify-between">
                 <Text className="text-sm text-brand-700">
                   Active Services: {getEnabledServicesCount()}/
                   {localServiceConfigs.length}
-                </Text>
-                <Text className="text-sm font-inter-medium text-brand-800">
-                  {formatCurrency(getTotalPotentialEarnings())}/hr potential
                 </Text>
               </HStack>
               <HStack className="justify-between">
@@ -173,6 +154,7 @@ export default function ServicesSettingsScreen() {
                 service={service}
                 onToggle={handleServiceToggle}
                 showToggle={true}
+                showPrice={false}
               />
             ))}
           </VStack>
@@ -191,6 +173,7 @@ export default function ServicesSettingsScreen() {
                 option={option}
                 onToggle={handleExtraOptionToggle}
                 showToggle={true}
+                showPrice={false}
               />
             ))}
           </VStack>
