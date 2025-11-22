@@ -11,7 +11,7 @@ import { useCustomerServiceRequests } from "@/lib/hooks/useServiceRequests";
 import { useRouter } from "expo-router";
 import { Calendar, ChevronRight } from "lucide-react-native";
 import React from "react";
-import { Image as RNImage, ScrollView } from "react-native";
+import { Image as RNImage, RefreshControl, ScrollView } from "react-native";
 
 export default function CustomerHome() {
   const { profile } = useUserType();
@@ -19,9 +19,11 @@ export default function CustomerHome() {
   const hasNotification = true;
 
   // Fetch service requests for this customer
-  const { data: serviceRequests = [] } = useCustomerServiceRequests(
-    profile?.id || ""
-  );
+  const {
+    data: serviceRequests = [],
+    refetch,
+    isRefetching,
+  } = useCustomerServiceRequests(profile?.id || "");
 
   // Filter appointments based on status
   const upcomingAppointments = serviceRequests.filter(
@@ -216,7 +218,16 @@ export default function CustomerHome() {
         </HStack> */}
 
         {/* Appointments List */}
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefetching}
+              onRefresh={() => refetch()}
+              tintColor="#6366f1"
+            />
+          }
+        >
           <VStack className="gap-4">
             {/* Ongoing Appointments */}
             <Box className="mb-4">

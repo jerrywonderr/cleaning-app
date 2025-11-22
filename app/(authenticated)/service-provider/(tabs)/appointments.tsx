@@ -10,7 +10,7 @@ import { ServiceRequestWithCustomer } from "@/lib/types/service-request";
 import { FlashList } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
 import { Calendar } from "lucide-react-native";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ActivityIndicator, RefreshControl } from "react-native";
 
 export default function AppointmentsScreen() {
@@ -37,25 +37,14 @@ export default function AppointmentsScreen() {
     requests: serviceRequests,
     isLoading,
     isLoadingMore,
+    isRefreshing,
     hasMore,
     loadMore,
     refresh,
-    loadInitial,
   } = useProviderAppointmentsByStatus(
     profile?.id || "",
     getStatusForTab(activeTab)
   );
-
-  useEffect(() => {
-    if (profile?.id) {
-      loadInitial();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile?.id, activeTab]);
-
-  const handleRefresh = () => {
-    refresh();
-  };
 
   const handleLoadMore = () => {
     if (hasMore && !isLoadingMore && !isLoading) {
@@ -201,8 +190,8 @@ export default function AppointmentsScreen() {
             }
             refreshControl={
               <RefreshControl
-                refreshing={false}
-                onRefresh={handleRefresh}
+                refreshing={isRefreshing}
+                onRefresh={refresh}
                 tintColor="#6366f1"
               />
             }

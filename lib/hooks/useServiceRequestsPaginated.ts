@@ -1,5 +1,6 @@
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { ServiceRequestService } from "../services/serviceRequestService";
 import {
   ServiceRequestStatus,
@@ -13,89 +14,87 @@ type ServiceRequestWithDetails =
   | ServiceRequestWithProvider
   | ServiceRequestWithCustomer;
 
+type PaginatedResult = {
+  data: ServiceRequestWithDetails[];
+  lastDoc: QueryDocumentSnapshot<DocumentData> | null;
+  hasMore: boolean;
+};
+
+// Query key factory for better cache management
+const getQueryKey = (
+  userType: "customer" | "provider",
+  userId: string,
+  status: ServiceRequestStatus | ServiceRequestStatus[]
+) => {
+  const statusKey = Array.isArray(status) ? status.join("-") : status;
+  return ["serviceRequests", userType, userId, statusKey] as const;
+};
+
 export function useServiceRequestsPaginated(
   userId: string,
   userType: "customer" | "provider",
   status: ServiceRequestStatus | ServiceRequestStatus[]
 ) {
-  const [requests, setRequests] = useState<ServiceRequestWithDetails[]>([]);
-  const [lastDoc, setLastDoc] =
-    useState<QueryDocumentSnapshot<DocumentData> | null>(null);
-  const [hasMore, setHasMore] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const query = useInfiniteQuery({
+    queryKey: getQueryKey(userType, userId, status),
+    queryFn: async ({
+      pageParam,
+    }: {
+      pageParam: QueryDocumentSnapshot<DocumentData> | null;
+    }) => {
+      const filters =
+        userType === "customer"
+          ? { customerId: userId, status }
+          : { providerId: userId, status };
 
-  const loadRequests = useCallback(
-    async (reset = false) => {
-      if (!userId) return;
-      if (!reset && (!hasMore || isLoadingMore)) return;
+      const result =
+        userType === "customer"
+          ? await ServiceRequestService.getServiceRequestsWithProviderPaginated(
+              filters,
+              REQUESTS_PER_PAGE,
+              pageParam ?? undefined
+            )
+          : await ServiceRequestService.getServiceRequestsWithCustomerPaginated(
+              filters,
+              REQUESTS_PER_PAGE,
+              pageParam ?? undefined
+            );
 
-      const isFirstLoad = reset || requests.length === 0;
-      if (isFirstLoad) {
-        setIsLoading(true);
-      } else {
-        setIsLoadingMore(true);
-      }
-
-      try {
-        const filters =
-          userType === "customer"
-            ? { customerId: userId, status }
-            : { providerId: userId, status };
-
-        const result =
-          userType === "customer"
-            ? await ServiceRequestService.getServiceRequestsWithProviderPaginated(
-                filters,
-                REQUESTS_PER_PAGE,
-                !reset && lastDoc ? lastDoc : undefined
-              )
-            : await ServiceRequestService.getServiceRequestsWithCustomerPaginated(
-                filters,
-                REQUESTS_PER_PAGE,
-                !reset && lastDoc ? lastDoc : undefined
-              );
-
-        if (reset) {
-          setRequests(result.data);
-        } else {
-          setRequests((prev) => [...prev, ...result.data]);
-        }
-
-        setLastDoc(result.lastDoc);
-        setHasMore(result.hasMore);
-        setError(null);
-      } catch (err) {
-        console.error("Error loading service requests:", err);
-        setError(err as Error);
-      } finally {
-        setIsLoading(false);
-        setIsLoadingMore(false);
-      }
+      return result as PaginatedResult;
     },
-    [userId, userType, status, lastDoc, hasMore, isLoadingMore, requests.length]
-  );
+    getNextPageParam: (lastPage: PaginatedResult) => {
+      return lastPage.hasMore ? lastPage.lastDoc : null;
+    },
+    initialPageParam: null as QueryDocumentSnapshot<DocumentData> | null,
+    enabled: !!userId,
+    staleTime: 3 * 60 * 1000, // 3 minutes - data is considered fresh for 3 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes - keep unused data in cache for 10 minutes
+  });
+
+  // Flatten all pages into a single array
+  const requests =
+    query.data?.pages.flatMap((page: PaginatedResult) => page.data) ?? [];
 
   const loadMore = useCallback(() => {
-    loadRequests(false);
-  }, [loadRequests]);
+    if (query.hasNextPage && !query.isFetchingNextPage) {
+      query.fetchNextPage();
+    }
+  }, [query]);
 
   const refresh = useCallback(() => {
-    setLastDoc(null);
-    setHasMore(true);
-    loadRequests(true);
-  }, [loadRequests]);
+    query.refetch();
+  }, [query]);
 
   return {
     requests,
-    isLoading,
-    isLoadingMore,
-    hasMore,
-    error,
+    isLoading: query.isLoading,
+    isLoadingMore: query.isFetchingNextPage,
+    isRefreshing: query.isRefetching && !query.isFetchingNextPage,
+    hasMore: query.hasNextPage ?? false,
+    error: query.error,
     loadMore,
     refresh,
-    loadInitial: () => loadRequests(true),
+    loadInitial: refresh, // For compatibility with existing usage
   };
 }
 

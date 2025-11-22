@@ -15,7 +15,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { Calendar, ChevronRight } from "lucide-react-native";
 import React from "react";
-import { ScrollView } from "react-native";
+import { RefreshControl, ScrollView } from "react-native";
 
 export default function ServiceProviderHome() {
   const { profile } = useUserType();
@@ -25,9 +25,11 @@ export default function ServiceProviderHome() {
   const hasNotification = true;
 
   // Fetch service requests for this provider
-  const { data: serviceRequests = [] } = useProviderServiceRequests(
-    profile?.id || ""
-  );
+  const {
+    data: serviceRequests = [],
+    refetch,
+    isRefetching,
+  } = useProviderServiceRequests(profile?.id || "");
 
   // Filter appointments based on status
   const upcomingAppointments = serviceRequests.filter(
@@ -212,7 +214,16 @@ export default function ServiceProviderHome() {
         </HStack>
 
         {/* Appointments List */}
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefetching}
+              onRefresh={() => refetch()}
+              tintColor="#6366f1"
+            />
+          }
+        >
           <VStack className="gap-4">
             {/* Ongoing Appointments */}
             <Box className="mb-4">
