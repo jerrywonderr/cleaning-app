@@ -1,6 +1,7 @@
 import {
   createUserWithEmailAndPassword,
   deleteUser,
+  sendEmailVerification,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signOut,
@@ -96,6 +97,28 @@ export class FirebaseAuthService {
   // Send password reset email
   static async sendPasswordReset(email: string): Promise<void> {
     await sendPasswordResetEmail(auth, email);
+  }
+
+  // Send email verification
+  static async sendEmailVerification(): Promise<void> {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      throw new Error("No authenticated user.");
+    }
+    await sendEmailVerification(currentUser);
+  }
+
+  // Check if email is verified
+  static isEmailVerified(): boolean {
+    return auth.currentUser?.emailVerified || false;
+  }
+
+  // Reload user to get updated email verification status
+  static async reloadUser(): Promise<void> {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      await currentUser.reload();
+    }
   }
 
   // Get current user

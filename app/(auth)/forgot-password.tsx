@@ -107,7 +107,7 @@ const ForgotPassword = () => {
               <TextField
                 name="email"
                 label="Email"
-                placeholder="email@domain.com"
+                placeholder="john.doe@example.com"
                 autoCapitalize="none"
                 autoCorrect={false}
                 keyboardType="email-address"

@@ -51,7 +51,10 @@ export function useSignUp() {
       // Step 1: Create Firebase Auth user
       const authUser = await FirebaseAuthService.signUp(data);
 
-      // Step 2: Create user profile in Firestore
+      // Step 2: Send email verification
+      await FirebaseAuthService.sendEmailVerification();
+
+      // Step 3: Create user profile in Firestore
       const profileData: CreateUserProfileData = {
         email: data.email,
         firstName: data.firstName,
@@ -66,13 +69,13 @@ export function useSignUp() {
         profileData
       );
 
-      // Step 3: Store profile in Zustand for instant access
+      // Step 4: Store profile in Zustand for instant access
       setProfile(userProfile);
 
       return authUser;
     },
     onSuccess: () => {
-      // Step 4: Invalidate and refetch related data
+      // Step 5: Invalidate and refetch related data
       queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: USER_PROFILE_QUERY_KEY });
     },
@@ -191,6 +194,15 @@ export function usePasswordReset() {
     mutationFn: (email: string) => FirebaseAuthService.sendPasswordReset(email),
     onError: (error: any) => {
       console.error("Password reset error:", error);
+    },
+  });
+}
+
+export function useSendEmailVerification() {
+  return useMutation({
+    mutationFn: () => FirebaseAuthService.sendEmailVerification(),
+    onError: (error: any) => {
+      console.error("Email verification error:", error);
     },
   });
 }

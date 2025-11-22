@@ -123,7 +123,7 @@ const Login = () => {
               <TextField
                 name="email"
                 label="Email"
-                placeholder="email@domain.com"
+                placeholder="john.doe@example.com"
                 autoCapitalize="none"
                 keyboardType="email-address"
                 textContentType="emailAddress"
