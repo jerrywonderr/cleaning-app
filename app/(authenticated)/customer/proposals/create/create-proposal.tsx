@@ -8,7 +8,6 @@ import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import { serviceConfigs } from "@/lib/constants/service-config";
 import { CreateProposalFormData } from "@/lib/schemas/create-proposal";
-import { searchServiceProviders } from "@/lib/services/cloudFunctionsService";
 import { ServiceProviderResult } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils/formatNaira";
 import { format } from "date-fns";
@@ -80,40 +79,11 @@ export default function CreateProposalPage() {
   const serviceId = watch("serviceId");
   const providerId = watch("providerId");
   const location = watch("location");
+  const selectedProvider = watch("selectedProvider") as
+    | ServiceProviderResult
+    | undefined;
 
   const selectedService = serviceConfigs.find((s) => s.id === serviceId);
-
-  // Fetch provider data based on providerId from form
-  const [selectedProvider, setSelectedProvider] =
-    useState<ServiceProviderResult | null>(null);
-
-  // Fetch provider data when providerId or location changes
-  useEffect(() => {
-    const fetchProviderData = async () => {
-      if (!providerId || !location || !serviceId) {
-        setSelectedProvider(null);
-        return;
-      }
-
-      try {
-        const results = await searchServiceProviders(serviceId, {
-          latitude: location.latitude,
-          longitude: location.longitude,
-        });
-
-        const provider = (results as ServiceProviderResult[]).find(
-          (p) => p.id === providerId
-        );
-
-        setSelectedProvider(provider || null);
-      } catch (error) {
-        console.error("Error fetching provider data:", error);
-        setSelectedProvider(null);
-      }
-    };
-
-    fetchProviderData();
-  }, [providerId, location, serviceId]);
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [duration, setDuration] = useState(0);
@@ -168,12 +138,31 @@ export default function CreateProposalPage() {
       ? getAvailableRanges(serviceId, formattedDate, duration, workingHours)
       : [];
 
+  // Reset duration and time range when date changes
   useEffect(() => {
-    if (selectedDate)
+    setDuration(0);
+    setSelectedRange(null);
+  }, [selectedDate]);
+
+  // Reset time range when duration changes or available ranges change
+  useEffect(() => {
+    if (selectedRange && !availableRanges.includes(selectedRange)) {
+      setSelectedRange(null);
+    }
+  }, [duration, availableRanges, selectedRange]);
+
+  // Sync local state to form values
+  useEffect(() => {
+    if (selectedDate) {
       setValue("proposalDetails.date", selectedDate.toISOString());
-    setValue("proposalDetails.duration", duration);
-    setValue("proposalDetails.timeRange", selectedRange);
-  }, [selectedDate, duration, selectedRange]);
+    }
+    if (duration > 0) {
+      setValue("proposalDetails.duration", duration);
+    }
+    if (selectedRange) {
+      setValue("proposalDetails.timeRange", selectedRange);
+    }
+  }, [selectedDate, duration, selectedRange, setValue]);
 
   const handleSubmit = () => {
     if (
@@ -278,12 +267,16 @@ export default function CreateProposalPage() {
               {[1, 2, 3, 4].map((h) => (
                 <Pressable
                   key={h}
-                  onPress={() => selectedDate && setDuration(h)}
-                  disabled={!selectedDate}
+                  onPress={() => {
+                    if (selectedDate && isWorkingDay) {
+                      setDuration(h);
+                    }
+                  }}
+                  disabled={!selectedDate || !isWorkingDay}
                   className={`px-4 py-2 rounded-lg border ${
                     duration === h
                       ? "bg-brand-500 border-brand-500"
-                      : !selectedDate
+                      : !selectedDate || !isWorkingDay
                       ? "border-gray-200 bg-gray-100"
                       : "border-gray-300 bg-white"
                   }`}
@@ -292,7 +285,7 @@ export default function CreateProposalPage() {
                     className={`${
                       duration === h
                         ? "text-white"
-                        : !selectedDate
+                        : !selectedDate || !isWorkingDay
                         ? "text-gray-400"
                         : "text-black"
                     }`}

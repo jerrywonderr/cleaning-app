@@ -12,11 +12,9 @@ import {
 import { useUserType } from "@/lib/hooks/useAuth";
 import { useCreateServiceRequest } from "@/lib/hooks/useServiceRequests";
 import { CreateProposalFormData } from "@/lib/schemas/create-proposal";
-import { searchServiceProviders } from "@/lib/services/cloudFunctionsService";
 import { ServiceProviderResult } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils/formatNaira";
 import { router } from "expo-router";
-import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Alert } from "react-native";
 
@@ -32,39 +30,11 @@ export default function FinalProposalPage() {
   const duration = watch("proposalDetails.duration");
   const selectedTimeRange = watch("proposalDetails.timeRange");
   const selectedExtras = watch("extraOptions") || [];
+  const selectedProvider = watch("selectedProvider") as
+    | ServiceProviderResult
+    | undefined;
 
   const selectedService = serviceConfigs.find((s) => s.id === serviceId);
-
-  // Fetch provider data
-  const [selectedProvider, setSelectedProvider] =
-    useState<ServiceProviderResult | null>(null);
-
-  useEffect(() => {
-    const fetchProviderData = async () => {
-      if (!providerId || !location || !serviceId) {
-        setSelectedProvider(null);
-        return;
-      }
-
-      try {
-        const results = await searchServiceProviders(serviceId, {
-          latitude: location.latitude,
-          longitude: location.longitude,
-        });
-
-        const provider = (results as ServiceProviderResult[]).find(
-          (p) => p.id === providerId
-        );
-
-        setSelectedProvider(provider || null);
-      } catch (error) {
-        console.error("Error fetching provider data:", error);
-        setSelectedProvider(null);
-      }
-    };
-
-    fetchProviderData();
-  }, [providerId, location, serviceId]);
 
   const formatLocation = (loc: any) => {
     if (!loc) return "No address selected";

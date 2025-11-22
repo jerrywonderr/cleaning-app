@@ -112,7 +112,11 @@ export const LocationAndProviderSelection = ({
   };
 
   const handleProviderSelect = (providerId: string) => {
+    const provider = providers.find((p) => p.id === providerId);
     setValue("providerId", providerId);
+    if (provider) {
+      setValue("selectedProvider", provider as any);
+    }
     onProviderChange?.(providerId);
   };
 

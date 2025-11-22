@@ -12,6 +12,7 @@ export const createProposalSchema = yup.object({
     })
     .required("Location is required"),
   providerId: yup.string().required("Provider selection is required"),
+  selectedProvider: yup.object().optional(),
   proposalDetails: yup.object({
     date: yup.string().required("Date is required"),
     duration: yup

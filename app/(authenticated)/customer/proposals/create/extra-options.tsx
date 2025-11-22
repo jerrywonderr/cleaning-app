@@ -7,50 +7,16 @@ import { Text } from "@/lib/components/ui/text";
 import { VStack } from "@/lib/components/ui/vstack";
 import { extraServiceOptions } from "@/lib/constants/service-config";
 import { CreateProposalFormData } from "@/lib/schemas/create-proposal";
-import { searchServiceProviders } from "@/lib/services/cloudFunctionsService";
 import { ServiceProviderResult } from "@/lib/types";
 import { router } from "expo-router";
-import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 export default function SelectExtraOptions() {
   const { watch, setValue } = useFormContext<CreateProposalFormData>();
   const selectedExtras = watch("extraOptions") || [];
-  const providerId = watch("providerId");
-  const location = watch("location");
-  const serviceId = watch("serviceId");
-
-  // Fetch provider data to get available extra options
-  const [selectedProvider, setSelectedProvider] =
-    useState<ServiceProviderResult | null>(null);
-
-  // Fetch provider data when providerId or location changes
-  useEffect(() => {
-    const fetchProviderData = async () => {
-      if (!providerId || !location || !serviceId) {
-        setSelectedProvider(null);
-        return;
-      }
-
-      try {
-        const results = await searchServiceProviders(serviceId, {
-          latitude: location.latitude,
-          longitude: location.longitude,
-        });
-
-        const provider = (results as ServiceProviderResult[]).find(
-          (p) => p.id === providerId
-        );
-
-        setSelectedProvider(provider || null);
-      } catch (error) {
-        console.error("Error fetching provider data:", error);
-        setSelectedProvider(null);
-      }
-    };
-
-    fetchProviderData();
-  }, [providerId, location, serviceId]);
+  const selectedProvider = watch("selectedProvider") as
+    | ServiceProviderResult
+    | undefined;
 
   const toggleOption = (optionId: string) => {
     if (!Array.isArray(selectedExtras)) {
